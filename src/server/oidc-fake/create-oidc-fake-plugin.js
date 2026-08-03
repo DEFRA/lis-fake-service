@@ -82,6 +82,7 @@ export function createOidcFakePlugin({
         authorization_endpoint: `${ext}/authorize`,
         token_endpoint: `${int}/token`,
         jwks_uri: `${int}/jwks`,
+        end_session_endpoint: `${ext}/logout`,
         response_types_supported: ['code'],
         subject_types_supported: ['public'],
         id_token_signing_alg_values_supported: ['RS256'],
@@ -94,6 +95,16 @@ export function createOidcFakePlugin({
         claims_supported: ['sub', 'iss', 'aud', 'exp', 'iat', 'nonce', 'email']
       })
       .type('application/json')
+  }
+
+  function logoutHandler(request, h) {
+    const { post_logout_redirect_uri: postLogoutRedirectUri } = request.query
+
+    if (postLogoutRedirectUri) {
+      return h.redirect(postLogoutRedirectUri)
+    }
+
+    return h.response().code(204)
   }
 
   function jwksHandler(_request, h) {
@@ -269,6 +280,12 @@ export function createOidcFakePlugin({
             path: `${mountPath}/jwks`,
             options: { auth: false },
             handler: jwksHandler
+          },
+          {
+            method: 'GET',
+            path: `${mountPath}/logout`,
+            options: { auth: false },
+            handler: logoutHandler
           },
           {
             method: 'GET',
