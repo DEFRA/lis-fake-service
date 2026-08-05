@@ -1,0 +1,113 @@
+{
+  "00000000-0000-0000-0000-000000000002": {
+    "userDetails": {
+      "id": "00000000-0000-0000-0000-000000000002",
+      "email": "farmer@example.com",
+      "firstName": "Test",
+      "lastName": "Farmer",
+      "displayName": "Test Farmer",
+      "active": true
+    },
+    "directAssignments": [],
+    "inboundDelegations": [],
+    "outboundDelegations": []
+  },
+  "cd91b1e0-bae4-4cee-becf-3529cc557311": {
+    "userDetails": {
+      "id": "cd91b1e0-bae4-4cee-becf-3529cc557311",
+      "email": "oakfield.farmer@oakhill-farms.co.uk",
+      "firstName": "Oakfield",
+      "lastName": "Farmer",
+      "displayName": "Oakfield Farmer",
+      "active": true
+    },
+    "directAssignments": [
+      {
+        "id": "9f507a97-4e6a-4a1b-8b8f-000000000001",
+        "countyParishHoldingId": "b1946ac9-2ba6-4b52-9c0e-000000000001",
+        "countyParishHoldingNumber": "22/001/0001",
+        "userId": "cd91b1e0-bae4-4cee-becf-3529cc557311",
+        "roleId": "3c59dc04-8de6-4e3e-9c1e-000000000001",
+        "roleName": "Keeper",
+        "email": "oakfield.farmer@oakhill-farms.co.uk",
+        "displayName": "Oakfield Farmer"
+      }
+    ],
+    "inboundDelegations": [],
+    "outboundDelegations": []
+  },
+  "52b36302-6b7c-48e7-a386-b7bf81bd8911": {
+    "userDetails": {
+      "id": "52b36302-6b7c-48e7-a386-b7bf81bd8911",
+      "email": "fairfield.farmer@fairfield-farms.co.uk",
+      "firstName": "Fairfield",
+      "lastName": "Farmer",
+      "displayName": "Fairfield Farmer",
+      "active": true
+    },
+    "directAssignments": [
+      {
+        "id": "9f507a97-4e6a-4a1b-8b8f-000000000002",
+        "countyParishHoldingId": "b1946ac9-2ba6-4b52-9c0e-000000000002",
+        "countyParishHoldingNumber": "22/002/0002",
+        "userId": "52b36302-6b7c-48e7-a386-b7bf81bd8911",
+        "roleId": "3c59dc04-8de6-4e3e-9c1e-000000000001",
+        "roleName": "Keeper",
+        "email": "fairfield.farmer@fairfield-farms.co.uk",
+        "displayName": "Fairfield Farmer"
+      },
+      {
+        "id": "9f507a97-4e6a-4a1b-8b8f-000000000003",
+        "countyParishHoldingId": "b1946ac9-2ba6-4b52-9c0e-000000000003",
+        "countyParishHoldingNumber": "22/003/0003",
+        "userId": "52b36302-6b7c-48e7-a386-b7bf81bd8911",
+        "roleId": "3c59dc04-8de6-4e3e-9c1e-000000000001",
+        "roleName": "Keeper",
+        "email": "fairfield.farmer@fairfield-farms.co.uk",
+        "displayName": "Fairfield Farmer"
+      },
+      {
+        "id": "9f507a97-4e6a-4a1b-8b8f-000000000004",
+        "countyParishHoldingId": "b1946ac9-2ba6-4b52-9c0e-000000000004",
+        "countyParishHoldingNumber": "22/004/0004",
+        "userId": "52b36302-6b7c-48e7-a386-b7bf81bd8911",
+        "roleId": "3c59dc04-8de6-4e3e-9c1e-000000000001",
+        "roleName": "Keeper",
+        "email": "fairfield.farmer@fairfield-farms.co.uk",
+        "displayName": "Fairfield Farmer"
+      },
+      {
+        "id": "9f507a97-4e6a-4a1b-8b8f-000000000005",
+        "countyParishHoldingId": "b1946ac9-2ba6-4b52-9c0e-000000000005",
+        "countyParishHoldingNumber": "22/005/0005",
+        "userId": "52b36302-6b7c-48e7-a386-b7bf81bd8911",
+        "roleId": "3c59dc04-8de6-4e3e-9c1e-000000000001",
+        "roleName": "Keeper",
+        "email": "fairfield.farmer@fairfield-farms.co.uk",
+        "displayName": "Fairfield Farmer"
+      },
+      {
+        "id": "9f507a97-4e6a-4a1b-8b8f-000000000006",
+        "countyParishHoldingId": "b1946ac9-2ba6-4b52-9c0e-000000000006",
+        "countyParishHoldingNumber": "22/006/0006",
+        "userId": "52b36302-6b7c-48e7-a386-b7bf81bd8911",
+        "roleId": "3c59dc04-8de6-4e3e-9c1e-000000000001",
+        "roleName": "Keeper",
+        "email": "fairfield.farmer@fairfield-farms.co.uk",
+        "displayName": "Fairfield Farmer"
+      },
+      {
+        "id": "9f507a97-4e6a-4a1b-8b8f-000000000007",
+        "countyParishHoldingId": "b1946ac9-2ba6-4b52-9c0e-000000000007",
+        "countyParishHoldingNumber": "22/007/0007",
+        "userId": "52b36302-6b7c-48e7-a386-b7bf81bd8911",
+        "roleId": "3c59dc04-8de6-4e3e-9c1e-000000000001",
+        "roleName": "Keeper",
+        "email": "fairfield.farmer@fairfield-farms.co.uk",
+        "displayName": "Fairfield Farmer"
+      }
+    ],
+    "inboundDelegations": [],
+    "outboundDelegations": []
+  }
+}

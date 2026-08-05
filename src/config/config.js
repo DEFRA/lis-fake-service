@@ -133,6 +133,14 @@ export const config = convict({
         env: 'DEFRA_CI_INTERNAL_BASE'
       }
     }
+  },
+  identityServiceHelper: {
+    apiKey: {
+      doc: 'x-api-key value the fake identity-service-helper endpoints require, matching its real ApiKeyValidationMiddleware',
+      format: String,
+      default: 'local-dev-identity-service-helper-key',
+      env: 'IDENTITY_SERVICE_HELPER_API_KEY'
+    }
   }
 })
 
