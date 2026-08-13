@@ -9,10 +9,7 @@ export const defraCi = createOidcFakePlugin({
   name: 'defra-ci',
   label: 'DEFRA CI',
   mountPath: '/defra-ci',
-  fixturePath: path.resolve(
-    dirname,
-    '../../../data/fixtures/defra-ci.json'
-  ),
+  fixturePath: path.resolve(dirname, '../../../data/fixtures/defra-ci.json'),
   getExternalBase: () =>
     config.get('oidcFakes.defraCi.externalBase') ??
     config.get('oidcFakes.defraCi.internalBase'),

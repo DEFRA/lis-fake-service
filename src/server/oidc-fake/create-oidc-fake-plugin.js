@@ -1,9 +1,17 @@
 import crypto from 'node:crypto'
 import { readFileSync } from 'node:fs'
+import { statusCodes } from '../common/constants/status-codes.js'
 
+const MS_PER_SECOND = 1000
+const SECONDS_PER_MINUTE = 60
 // In-memory authorization code store, 10-minute TTL — codes are single-use and
 // short-lived by design, no persistence needed across restarts.
-const CODE_TTL_MS = 10 * 60 * 1000
+const CODE_TTL_MINUTES = 10
+const CODE_TTL_MS = CODE_TTL_MINUTES * SECONDS_PER_MINUTE * MS_PER_SECOND
+const TOKEN_TTL_SECONDS = 3600
+const AUTH_CODE_BYTE_LENGTH = 32
+const BASIC_AUTH_PREFIX = 'Basic '
+const RSA_MODULUS_LENGTH = 2048
 
 function signJwt(payload, { privateKey, keyId }) {
   const header = Buffer.from(
@@ -25,55 +33,48 @@ function verifyPkceS256(verifier, challenge) {
 
 function getClientId(request) {
   const auth = request.headers.authorization
-  if (auth?.startsWith('Basic ')) {
-    const decoded = Buffer.from(auth.slice(6), 'base64').toString()
+  if (auth?.startsWith(BASIC_AUTH_PREFIX)) {
+    const decoded = Buffer.from(
+      auth.slice(BASIC_AUTH_PREFIX.length),
+      'base64'
+    ).toString()
     return decoded.split(':')[0]
   }
   return request.payload?.client_id ?? 'fake-client'
 }
 
-/**
- * Builds a fixture-backed, self-contained OIDC provider fake: discovery
- * document, JWKS, authorization-code + PKCE flow, RS256-signed tokens.
- *
- * @param {{
- *   name: string,
- *   mountPath: string,
- *   fixturePath: string,
- *   getExternalBase: () => string,
- *   getInternalBase: () => string
- * }} options
- */
-export function createOidcFakePlugin({
-  name,
-  label,
-  mountPath,
-  fixturePath,
-  getExternalBase,
-  getInternalBase
-}) {
-  const keyId = crypto.randomUUID()
-  const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-    modulusLength: 2048
-  })
+// Encapsulates the pending authorization-code map and its TTL/single-use semantics.
+function createCodeStore() {
   const pendingCodes = new Map()
-  const users = JSON.parse(readFileSync(fixturePath, 'utf-8'))
 
-  function storeCode(code, data) {
-    pendingCodes.set(code, { ...data, expiresAt: Date.now() + CODE_TTL_MS })
-  }
-
-  function redeemCode(code) {
-    const entry = pendingCodes.get(code)
-    if (!entry || Date.now() > entry.expiresAt) {
+  return {
+    storeCode(code, data) {
+      pendingCodes.set(code, { ...data, expiresAt: Date.now() + CODE_TTL_MS })
+    },
+    redeemCode(code) {
+      const entry = pendingCodes.get(code)
       pendingCodes.delete(code)
-      return null
+      if (!entry || Date.now() > entry.expiresAt) {
+        return null
+      }
+      return entry
     }
-    pendingCodes.delete(code)
-    return entry
   }
+}
 
-  function discoveryHandler(_request, h) {
+function buildUserItems(users, selectedEmail) {
+  return Object.keys(users).map((email, index) => ({
+    value: email,
+    text: `${users[email].name} (${email})`,
+    hint: users[email].description
+      ? { text: users[email].description }
+      : undefined,
+    checked: selectedEmail ? email === selectedEmail : index === 0
+  }))
+}
+
+function createDiscoveryHandler({ getExternalBase, getInternalBase }) {
+  return function discoveryHandler(_request, h) {
     const ext = getExternalBase()
     const int = getInternalBase()
     return h
@@ -96,36 +97,29 @@ export function createOidcFakePlugin({
       })
       .type('application/json')
   }
+}
 
-  function logoutHandler(request, h) {
-    const { post_logout_redirect_uri: postLogoutRedirectUri } = request.query
+function logoutHandler(request, h) {
+  const { post_logout_redirect_uri: postLogoutRedirectUri } = request.query
 
-    if (postLogoutRedirectUri) {
-      return h.redirect(postLogoutRedirectUri)
-    }
-
-    return h.response().code(204)
+  if (postLogoutRedirectUri) {
+    return h.redirect(postLogoutRedirectUri)
   }
 
-  function jwksHandler(_request, h) {
+  return h.response().code(statusCodes.noContent)
+}
+
+function createJwksHandler({ publicKey, keyId }) {
+  return function jwksHandler(_request, h) {
     const jwk = publicKey.export({ format: 'jwk' })
     return h
       .response({ keys: [{ ...jwk, use: 'sig', alg: 'RS256', kid: keyId }] })
       .type('application/json')
   }
+}
 
-  function buildUserItems(selectedEmail) {
-    return Object.keys(users).map((email, index) => ({
-      value: email,
-      text: `${users[email].name} (${email})`,
-      hint: users[email].description
-        ? { text: users[email].description }
-        : undefined,
-      checked: selectedEmail ? email === selectedEmail : index === 0
-    }))
-  }
-
-  function authorizeGetHandler(request, h) {
+function createAuthorizeGetHandler({ label, users }) {
+  return function authorizeGetHandler(request, h) {
     const {
       state,
       nonce,
@@ -136,7 +130,7 @@ export function createOidcFakePlugin({
     return h.view('oidc-fake/login', {
       pageTitle: `Sign in — ${label}`,
       label,
-      userItems: buildUserItems(),
+      userItems: buildUserItems(users),
       state,
       nonce,
       redirect_uri: redirectUri,
@@ -144,8 +138,10 @@ export function createOidcFakePlugin({
       code_challenge_method: codeChallengeMethod
     })
   }
+}
 
-  function authorizePostHandler(request, h) {
+function createAuthorizePostHandler({ label, users, codeStore }) {
+  return function authorizePostHandler(request, h) {
     const {
       email,
       state,
@@ -161,7 +157,7 @@ export function createOidcFakePlugin({
       return h.view('oidc-fake/login', {
         pageTitle: `Sign in — ${label}`,
         label,
-        userItems: buildUserItems(email),
+        userItems: buildUserItems(users, email),
         state,
         nonce,
         redirect_uri: redirectUri,
@@ -171,8 +167,8 @@ export function createOidcFakePlugin({
       })
     }
 
-    const code = crypto.randomBytes(32).toString('hex')
-    storeCode(code, {
+    const code = crypto.randomBytes(AUTH_CODE_BYTE_LENGTH).toString('hex')
+    codeStore.storeCode(code, {
       sub: user.sub,
       email,
       name: user.name,
@@ -187,8 +183,10 @@ export function createOidcFakePlugin({
     redirectUrl.searchParams.set('state', state)
     return h.redirect(redirectUrl.href)
   }
+}
 
-  function tokenHandler(request, h) {
+function createTokenHandler({ getInternalBase, signingKey, codeStore }) {
+  return function tokenHandler(request, h) {
     const {
       code,
       code_verifier: codeVerifier,
@@ -199,10 +197,10 @@ export function createOidcFakePlugin({
       return h
         .response({ error: 'unsupported_grant_type' })
         .type('application/json')
-        .code(400)
+        .code(statusCodes.badRequest)
     }
 
-    const entry = redeemCode(code)
+    const entry = codeStore.redeemCode(code)
     if (!entry) {
       return h
         .response({
@@ -210,7 +208,7 @@ export function createOidcFakePlugin({
           error_description: 'Unknown or expired code'
         })
         .type('application/json')
-        .code(400)
+        .code(statusCodes.badRequest)
     }
 
     if (!verifyPkceS256(codeVerifier, entry.codeChallenge)) {
@@ -220,13 +218,12 @@ export function createOidcFakePlugin({
           error_description: 'PKCE verification failed'
         })
         .type('application/json')
-        .code(400)
+        .code(statusCodes.badRequest)
     }
 
-    const now = Math.floor(Date.now() / 1000)
+    const now = Math.floor(Date.now() / MS_PER_SECOND)
     const issuer = getInternalBase()
     const clientId = getClientId(request)
-    const signingKey = { privateKey, keyId }
 
     const idToken = signJwt(
       {
@@ -234,7 +231,7 @@ export function createOidcFakePlugin({
         sub: entry.sub,
         aud: clientId,
         iat: now,
-        exp: now + 3600,
+        exp: now + TOKEN_TTL_SECONDS,
         nonce: entry.nonce,
         name: entry.name,
         email: entry.email,
@@ -249,7 +246,7 @@ export function createOidcFakePlugin({
         sub: entry.sub,
         aud: clientId,
         iat: now,
-        exp: now + 3600
+        exp: now + TOKEN_TTL_SECONDS
       },
       signingKey
     )
@@ -259,53 +256,124 @@ export function createOidcFakePlugin({
         access_token: accessToken,
         token_type: 'Bearer',
         id_token: idToken,
-        expires_in: 3600
+        expires_in: TOKEN_TTL_SECONDS
       })
       .type('application/json')
   }
+}
+
+function buildRoutes({ mountPath, handlers }) {
+  const {
+    discoveryHandler,
+    jwksHandler,
+    authorizeGetHandler,
+    authorizePostHandler,
+    tokenHandler
+  } = handlers
+
+  return [
+    {
+      method: 'GET',
+      path: `${mountPath}/.well-known/openid-configuration`,
+      options: { auth: false },
+      handler: discoveryHandler
+    },
+    {
+      method: 'GET',
+      path: `${mountPath}/jwks`,
+      options: { auth: false },
+      handler: jwksHandler
+    },
+    {
+      method: 'GET',
+      path: `${mountPath}/logout`,
+      options: { auth: false },
+      handler: logoutHandler
+    },
+    {
+      method: 'GET',
+      path: `${mountPath}/authorize`,
+      options: { auth: false },
+      handler: authorizeGetHandler
+    },
+    {
+      method: 'POST',
+      path: `${mountPath}/authorize`,
+      options: { auth: false },
+      handler: authorizePostHandler
+    },
+    {
+      method: 'POST',
+      path: `${mountPath}/token`,
+      options: { auth: false },
+      handler: tokenHandler
+    }
+  ]
+}
+
+/**
+ * Builds a fixture-backed, self-contained OIDC provider fake: discovery
+ * document, JWKS, authorization-code + PKCE flow, RS256-signed tokens.
+ *
+ * @param {{
+ *   name: string,
+ *   label: string,
+ *   mountPath: string,
+ *   fixturePath: string,
+ *   getExternalBase: () => string,
+ *   getInternalBase: () => string
+ * }} options
+ * @returns {{ plugin: { name: string, register: Function } }}
+ */
+export function createOidcFakePlugin({
+  name,
+  label,
+  mountPath,
+  fixturePath,
+  getExternalBase,
+  getInternalBase
+}) {
+  const keyId = crypto.randomUUID()
+  const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+    modulusLength: RSA_MODULUS_LENGTH
+  })
+  const signingKey = { privateKey, keyId }
+  const users = JSON.parse(readFileSync(fixturePath, 'utf-8'))
+  const codeStore = createCodeStore()
+
+  const discoveryHandler = createDiscoveryHandler({
+    getExternalBase,
+    getInternalBase
+  })
+  const jwksHandler = createJwksHandler({ publicKey, keyId })
+  const authorizeGetHandler = createAuthorizeGetHandler({ label, users })
+  const authorizePostHandler = createAuthorizePostHandler({
+    label,
+    users,
+    codeStore
+  })
+  const tokenHandler = createTokenHandler({
+    getInternalBase,
+    signingKey,
+    codeStore
+  })
 
   return {
     plugin: {
       name,
       register(server) {
-        server.route([
-          {
-            method: 'GET',
-            path: `${mountPath}/.well-known/openid-configuration`,
-            options: { auth: false },
-            handler: discoveryHandler
-          },
-          {
-            method: 'GET',
-            path: `${mountPath}/jwks`,
-            options: { auth: false },
-            handler: jwksHandler
-          },
-          {
-            method: 'GET',
-            path: `${mountPath}/logout`,
-            options: { auth: false },
-            handler: logoutHandler
-          },
-          {
-            method: 'GET',
-            path: `${mountPath}/authorize`,
-            options: { auth: false },
-            handler: authorizeGetHandler
-          },
-          {
-            method: 'POST',
-            path: `${mountPath}/authorize`,
-            options: { auth: false },
-            handler: authorizePostHandler
-          },
-          {
-            method: 'POST',
-            path: `${mountPath}/token`,
-            options: { auth: false },
-            handler: tokenHandler
-          }
-        ])
+        server.route(
+          buildRoutes({
+            mountPath,
+            handlers: {
+              discoveryHandler,
+              jwksHandler,
+              authorizeGetHandler,
+              authorizePostHandler,
+              tokenHandler
+            }
+          })
+        )
       }
     }
   }

@@ -65,7 +65,12 @@ src/
 
 ```js
 createOidcFakePlugin({
-  name, label, mountPath, fixturePath, getExternalBase, getInternalBase
+  name,
+  label,
+  mountPath,
+  fixturePath,
+  getExternalBase,
+  getInternalBase
 })
 ```
 

@@ -9,10 +9,7 @@ export const entraId = createOidcFakePlugin({
   name: 'entra-id',
   label: 'Entra ID',
   mountPath: '/entra-id',
-  fixturePath: path.resolve(
-    dirname,
-    '../../../data/fixtures/entra-id.json'
-  ),
+  fixturePath: path.resolve(dirname, '../../../data/fixtures/entra-id.json'),
   getExternalBase: () =>
     config.get('oidcFakes.entraId.externalBase') ??
     config.get('oidcFakes.entraId.internalBase'),
