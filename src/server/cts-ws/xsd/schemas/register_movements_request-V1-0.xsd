@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://defra.bcms.ctws/register_movements_request" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://defra.bcms.ctws/register_movements_request" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+	<!-- This schema defines the format of the register movements request messages -->
+	<!-- This schema has been defined in accordance to the "e-Government Schema Guidelines For XML" specification version 3.0c -->
+	<xs:include schemaLocation="ctws_types-V1-0.xsd">
+		<!-- reference the common ctws type definitions-->
+	</xs:include>
+	<xs:element name="RegMovs" type="RegisterMovements_Structure">
+		<xs:annotation>
+			<xs:documentation source="http://www.rpa.gov.uk/">The XML document format for registering movements via ctws</xs:documentation>
+		</xs:annotation>
+		<!-- the root element for the movement notifications document-->
+	</xs:element>
+	<xs:complexType name="RegisterMovements_Structure">
+		<xs:sequence>
+			<xs:element name="Authentication" type="Authentication_Structure">
+				<!-- element to hold SIS or CTS Online authentication details-->
+			</xs:element>
+			<xs:element name="Moves" type="Movements_Structure">
+				<xs:key name="MovementKey">
+					<xs:selector xpath=".//Mov"/>
+					<xs:field xpath="@RowNum"/>
+					<!-- constraint to ensure rowNum attributes are unique-->
+				</xs:key>
+				<!-- element to hold a list of movements-->
+			</xs:element>
+		</xs:sequence>
+		<xs:attributeGroup ref="RequestHeaderAttributes_Type"/>
+		<!-- the definition of the register movements request document element-->
+	</xs:complexType>
+	<xs:complexType name="Movements_Structure">
+		<xs:sequence minOccurs="1" maxOccurs="unbounded">
+			<xs:element name="Mov" type="Mov_Structure"/>
+		</xs:sequence>
+		<xs:attribute name="TxnId" type="UnqTansId_Type" use="required"/>
+		<!--<xs:sequence maxOccurs="9999">    changed to unbounded due to Sun JAXB compiler (out of memory) bug -->
+	</xs:complexType>
+</xs:schema>

@@ -1,6 +1,7 @@
 import { config } from '../../../../config/config.js'
 import { DomainError } from '../../errors/domain-error.js'
 import { birthStore } from '../../stores/birth.js'
+import { validateAgainstSchema } from '../../xsd/validate-against-schema.js'
 import { xmlEnvironment } from '../../xml/xml-environment.js'
 import { parseRegisterBirthsRequest } from './parse-register-births-request.js'
 
@@ -16,6 +17,18 @@ export const type = 'Register_Births_Asynchronous-V1-0'
  * @returns {string}
  */
 export function handle(innerXml) {
+  const schemaResult = validateAgainstSchema(
+    innerXml,
+    'register_births_request-V1-0.xsd'
+  )
+
+  if (schemaResult.wellFormed && !schemaResult.valid) {
+    throw new DomainError(
+      'CTWS808',
+      "Request rejected - 'data' XML does not conform to the 'data' XSD"
+    )
+  }
+
   let payload
 
   try {

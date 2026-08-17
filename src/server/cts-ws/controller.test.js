@@ -36,7 +36,7 @@ function buildTransferDataHexRequest({
 } = {}) {
   const innerXml =
     '<RegBirths xmlns="http://defra.bcms.ctws/register_births_request" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
-    `<Authentication><CTS_OL_User Usr="${ctsOlUsername}" Pwd="${ctsOlPassword}"/></Authentication>` +
+    `<Authentication><CTS_OL_User xmlns="" Usr="${ctsOlUsername}" Pwd="${ctsOlPassword}"/></Authentication>` +
     '<Births TxnId="txn-1">' +
     '<Birth RowNum="1" Etg="UK000000000001" Dob="2020-01-01" Brd="HF" Sex="f" GdEtg="UK000000000000" BLoc="01/001/0001" PLoc="01/001/0001" IWarn="n"/>' +
     '</Births>' +

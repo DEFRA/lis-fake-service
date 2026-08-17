@@ -14,6 +14,14 @@ controller.js                  outer TransferDataHex auth, dispatches on `type`
 
 Every failure mode is a thrown, typed error (`errors/domain-error.js`, `errors/transport-fault-error.js`, `errors/malformed-request-error.js`) — the plugin's `onPreResponse` extension maps each to its wire response, so handlers stay a straight-line happy path.
 
+## XSD validation
+
+Before parsing, each `Register_*`/`Get_Register_*_Validation_Results` handler validates the decoded inner XML against the real CTS request XSD for that message type via `xsd/validate-against-schema.js` (a thin `libxmljs2` wrapper). The schemas themselves (`xsd/schemas/*.xsd`) are copied verbatim from the CTS POC evidence, `<xs:include>`s and all - `ctws_types-V1-0.xsd` holds the shared type definitions the three request schemas include.
+
+Schema-invalid-but-well-formed XML is rejected as `CTWS808` (the spec's documented "Request rejected ('data' XML does not conform to the 'data' XSD)"); XML that isn't even well-formed falls through to the existing `CTWS000` malformed-payload handling.
+
+One real-wire-format quirk worth knowing: `Authentication_Structure`'s `CTS_OL_User` is defined in `ctws_types-V1-0.xsd`, which has no `targetNamespace` and doesn't set `elementFormDefault="qualified"` - so `CTS_OL_User` must appear unqualified even though its parent document uses a default `xmlns`. The real client sends `<CTS_OL_User xmlns="" .../>` to reset it; every request built in this codebase (fixtures and any client code) needs the same reset or schema validation will reject it.
+
 ## Submit-now / validate-later
 
 `Register_Births_Asynchronous` and `Register_Movements_Asynchronous` don't validate inline. They hand the batch to a `stores/*.js` `Store`:

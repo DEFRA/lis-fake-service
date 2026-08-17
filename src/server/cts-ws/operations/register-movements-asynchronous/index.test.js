@@ -21,7 +21,7 @@ function buildInnerXml({
 } = {}) {
   return (
     '<RegMovs xmlns="http://defra.bcms.ctws/register_movements_request" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
-    `<Authentication><CTS_OL_User Usr="${username}" Pwd="${password}"/></Authentication>` +
+    `<Authentication><CTS_OL_User xmlns="" Usr="${username}" Pwd="${password}"/></Authentication>` +
     `<Moves TxnId="${txnId}"><Mov RowNum="1" Etg="UK1" Loc="01/001/0001" SLoc="04" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/></Moves>` +
     '</RegMovs>'
   )
@@ -63,6 +63,26 @@ test('handle throws a DomainError for invalid credentials', () => {
   // Assert
   expect(error).toBeInstanceOf(DomainError)
   expect(error?.message).toBe('Authentication failed')
+})
+
+test('handle throws a CTWS808 DomainError for XML that does not conform to the register_movements_request XSD', () => {
+  // Arrange - MType only allows the enum values on/off/death
+  const innerXml = buildInnerXml({ txnId: 'txn-bad-schema' }).replace(
+    'MType="on"',
+    'MType="sideways"'
+  )
+  let error
+
+  // Act
+  try {
+    handle(innerXml)
+  } catch (e) {
+    error = e
+  }
+
+  // Assert
+  expect(error).toBeInstanceOf(DomainError)
+  expect(error?.exNum).toBe('CTWS808')
 })
 
 test('handle throws a CTWS807 DomainError when the same user resubmits the same TxnId', () => {

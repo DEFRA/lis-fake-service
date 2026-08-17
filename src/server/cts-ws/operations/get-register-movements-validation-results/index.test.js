@@ -47,7 +47,7 @@ function buildInnerXml({
 } = {}) {
   return (
     '<GetResults xmlns="http://defra.bcms.ctws/get_asynchronus_results" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
-    `<Authentication><CTS_OL_User Usr="${username}" Pwd="${password}"/></Authentication>` +
+    `<Authentication><CTS_OL_User xmlns="" Usr="${username}" Pwd="${password}"/></Authentication>` +
     `<Receipt Num="${receiptNum}"/>` +
     '</GetResults>'
   )
@@ -141,6 +141,23 @@ test('handle throws a DomainError for invalid credentials', () => {
   // Assert
   expect(error).toBeInstanceOf(DomainError)
   expect(error?.message).toBe('Authentication failed')
+})
+
+test('handle throws a CTWS808 DomainError for XML that does not conform to the get_asynchronous_results XSD', () => {
+  // Arrange - Receipt Num must be an integer (ReceiptId_Type)
+  const innerXml = buildInnerXml({ receiptNum: 'not-a-number' })
+  let error
+
+  // Act
+  try {
+    handle(innerXml)
+  } catch (e) {
+    error = e
+  }
+
+  // Assert
+  expect(error).toBeInstanceOf(DomainError)
+  expect(error?.exNum).toBe('CTWS808')
 })
 
 test('handle throws a DomainError when the receipt does not exist', () => {

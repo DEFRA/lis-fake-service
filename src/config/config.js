@@ -157,15 +157,15 @@ export const config = convict({
       sensitive: true
     },
     ctsOlUsername: {
-      doc: 'CTS_OL_User username the fake cts_ws operations require',
+      doc: 'CTS_OL_User username the fake cts_ws operations require - must be <=11 chars to fit the real CTSOL_UserId_Type XSD constraint',
       format: String,
-      default: 'local-dev-cts-ol-username',
+      default: 'dev-cts-usr',
       env: 'CTS_WS_CTS_OL_USERNAME'
     },
     ctsOlPassword: {
-      doc: 'CTS_OL_User password the fake cts_ws operations require',
+      doc: 'CTS_OL_User password the fake cts_ws operations require - must be <=15 chars to fit the real CTSOL_Password_Type XSD constraint',
       format: String,
-      default: 'local-dev-cts-ol-password',
+      default: 'dev-cts-pass123',
       env: 'CTS_WS_CTS_OL_PASSWORD',
       sensitive: true
     },
