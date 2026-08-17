@@ -1,9 +1,8 @@
-import { afterEach, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
 const configValues = {
   'ctsWs.ctsOlUsername': 'cts-ol-user',
   'ctsWs.ctsOlPassword': 'cts-ol-pass',
-  'ctsWs.pendingPollsBeforeResults': 0,
   'nunjucks.noCache': true
 }
 
@@ -13,83 +12,51 @@ vi.mock('../../../../config/config.js', () => ({
 
 const { handle, type } = await import('./index.js')
 const { DomainError } = await import('../../errors/domain-error.js')
-const { createReceipt } = await import('../../async-receipt-store.js')
+const { birthStore } = await import('../../stores/birth.js')
 
 const acceptedRow = {
   rowNum: 1,
   attributes: {
     RowNum: '1',
-    Etg: 'UK000000000001',
-    Dob: '2020-01-01',
+    Etg: 'UK100000000001',
+    Dob: '2026-01-01',
     Brd: 'HF',
     Sex: 'f',
-    GdEtg: 'UK000000000000',
-    BLoc: '01/001/0001',
-    PLoc: '01/001/0001',
+    GdEtg: 'UK200000000007',
+    BLoc: '22/001/0001',
+    PLoc: '22/001/0001',
     IWarn: 'n'
   }
 }
 
-// Matches row 1 of the real captured reg-failure evidence, replayed under
-// its real TxnId in cts-birth-submissions.json.
-const rejectedRow = {
+const missingEarTagRow = {
   rowNum: 1,
   attributes: {
     RowNum: '1',
-    Etg: '   ',
-    Dob: '2004-03-09',
+    Etg: '',
+    Dob: '2026-01-01',
     Brd: 'HF',
     Sex: 'f',
-    EId: '111222333',
-    GdEtg: 'UKAA2233 00009',
-    SuEtg: 'UK560002400063',
-    SiEtg: 'UK A1213 00003',
-    BLoc: '20/002/0001',
-    PLoc: '01/001/0001',
-    PSLoc: '04',
+    GdEtg: 'UK200000000007',
+    BLoc: '22/001/0001',
+    PLoc: '22/001/0001',
     IWarn: 'n'
   }
 }
 
-// The reg-success evidence's TxnId - despite the name, real CTS actually
-// rejects 7 of its 23 rows (accumulated real server-side history, not pure
-// validation of the row content), so this batch exercises both outcomes
-// under the same TxnId.
-const REG_SUCCESS_TXN_ID = 'a58fceed3f084d7080d7e38b1b90357a'
-
-// Row 1 of reg-success - genuinely accepted.
-const regSuccessAcceptedRow = {
+// Uses the excessive-calving fixture dam (UK300000000003 has four calving
+// dates all within 240 days of this Dob).
+const excessiveCalvingRow = {
   rowNum: 1,
   attributes: {
     RowNum: '1',
-    Etg: 'UK590066101017',
-    Dob: '2004-03-09',
+    Etg: 'UK100000000002',
+    Dob: '2026-05-01',
     Brd: 'HF',
     Sex: 'f',
-    EId: '111222333',
-    GdEtg: 'UKAA2233 00009',
-    SuEtg: 'UK560002400063',
-    SiEtg: 'UK A1213 00003',
-    BLoc: '20/002/0001',
-    PLoc: '21/021/0021',
-    IWarn: 'y'
-  }
-}
-
-// Row 3 of reg-success - one of the 7 real rejections in this "success" batch.
-const regSuccessRejectedRow = {
-  rowNum: 3,
-  attributes: {
-    RowNum: '3',
-    Etg: 'UK520202500138',
-    Dob: '2004-03-01',
-    Brd: 'HF',
-    Sex: 'f',
-    EId: '111222333',
-    GdEtg: 'UK560002400063',
-    BLoc: '20/002/0001',
-    PLoc: '01/001/0001',
-    PSLoc: '04',
+    GdEtg: 'UK300000000003',
+    BLoc: '22/001/0001',
+    PLoc: '22/001/0001',
     IWarn: 'n'
   }
 }
@@ -107,8 +74,14 @@ function buildInnerXml({
   )
 }
 
+beforeEach(() => {
+  vi.useFakeTimers()
+  vi.spyOn(Math, 'random').mockReturnValue(0)
+})
+
 afterEach(() => {
-  configValues['ctsWs.pendingPollsBeforeResults'] = 0
+  vi.useRealTimers()
+  vi.restoreAllMocks()
 })
 
 test('type is Get_Register_Births_Validation_Results-V1-0', () => {
@@ -116,12 +89,10 @@ test('type is Get_Register_Births_Validation_Results-V1-0', () => {
   expect(type).toBe('Get_Register_Births_Validation_Results-V1-0')
 })
 
-test('handle accepts a row under an unrecognised TxnId', () => {
+test('handle accepts a row with no matching cause once results are ready', () => {
   // Arrange
-  const receiptNum = createReceipt('births', {
-    txnId: 'unrecognised-txn',
-    rows: [acceptedRow]
-  })
+  const receiptNum = birthStore.submit({ txnId: 'txn-1', rows: [acceptedRow] })
+  vi.advanceTimersByTime(5000)
   const innerXml = buildInnerXml({ receiptNum })
 
   // Act
@@ -132,12 +103,13 @@ test('handle accepts a row under an unrecognised TxnId', () => {
   expect(result).not.toContain('<Rejected>')
 })
 
-test('handle rejects a row matching a real fixture entry with its cause', () => {
+test('handle rejects a row missing its ear tag as CTWS003 once results are ready', () => {
   // Arrange
-  const receiptNum = createReceipt('births', {
-    txnId: 'f6a3e7846dcb4d9bbf31f0957960cbe8',
-    rows: [rejectedRow]
+  const receiptNum = birthStore.submit({
+    txnId: 'txn-1',
+    rows: [missingEarTagRow]
   })
+  vi.advanceTimersByTime(5000)
   const innerXml = buildInnerXml({ receiptNum })
 
   // Act
@@ -149,30 +121,45 @@ test('handle rejects a row matching a real fixture entry with its cause', () => 
   expect(result).toContain('Missing Ear Tag')
 })
 
-test('handle replays the real mixed accept/reject outcome for the reg-success evidence TxnId', () => {
+test('handle rejects a row for a dam with excessive recent calvings as CTWS209 once results are ready', () => {
   // Arrange
-  const receiptNum = createReceipt('births', {
-    txnId: REG_SUCCESS_TXN_ID,
-    rows: [regSuccessAcceptedRow, regSuccessRejectedRow]
+  const receiptNum = birthStore.submit({
+    txnId: 'txn-1',
+    rows: [excessiveCalvingRow]
   })
+  vi.advanceTimersByTime(5000)
   const innerXml = buildInnerXml({ receiptNum })
 
   // Act
   const result = handle(innerXml)
 
   // Assert
-  expect(result).toContain('<Accept RowNum="1"/>')
-  expect(result).toContain('RowNum="3"')
   expect(result).toContain('CTWS209')
   expect(result).toContain('Multiple calvings have occurred')
 })
 
+test('handle throws a CTWS806 DomainError while the store has not yet validated the submission', () => {
+  // Arrange
+  const receiptNum = birthStore.submit({ txnId: 'txn-1', rows: [acceptedRow] })
+  const innerXml = buildInnerXml({ receiptNum })
+  let error
+
+  // Act
+  try {
+    handle(innerXml)
+  } catch (e) {
+    error = e
+  }
+
+  // Assert
+  expect(error).toBeInstanceOf(DomainError)
+  expect(error?.exNum).toBe('CTWS806')
+})
+
 test('handle throws a DomainError for invalid credentials', () => {
   // Arrange
-  const receiptNum = createReceipt('births', {
-    txnId: 'unrecognised-txn',
-    rows: []
-  })
+  const receiptNum = birthStore.submit({ txnId: 'txn-1', rows: [] })
+  vi.advanceTimersByTime(5000)
   const innerXml = buildInnerXml({ receiptNum, password: 'wrong' })
   let error
 
@@ -186,30 +173,6 @@ test('handle throws a DomainError for invalid credentials', () => {
   // Assert
   expect(error).toBeInstanceOf(DomainError)
   expect(error?.message).toBe('Authentication failed')
-})
-
-test('handle throws a CTWS806 DomainError while pending polls remain, then classifies rows once exhausted', () => {
-  // Arrange
-  configValues['ctsWs.pendingPollsBeforeResults'] = 1
-  const receiptNum = createReceipt('births', {
-    txnId: 'unrecognised-txn',
-    rows: [acceptedRow]
-  })
-  const innerXml = buildInnerXml({ receiptNum })
-  let error
-
-  // Act
-  try {
-    handle(innerXml)
-  } catch (e) {
-    error = e
-  }
-  const result = handle(innerXml)
-
-  // Assert
-  expect(error).toBeInstanceOf(DomainError)
-  expect(error?.exNum).toBe('CTWS806')
-  expect(result).toContain('<Accept RowNum="1"/>')
 })
 
 test('handle throws a DomainError when the receipt does not exist', () => {

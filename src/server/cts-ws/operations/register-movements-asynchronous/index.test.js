@@ -12,7 +12,7 @@ vi.mock('../../../../config/config.js', () => ({
 
 const { handle, type } = await import('./index.js')
 const { DomainError } = await import('../../errors/domain-error.js')
-const { getReceiptBatch } = await import('../../async-receipt-store.js')
+const { movementStore } = await import('../../stores/movement.js')
 
 function buildInnerXml({
   username = 'cts-ol-user',
@@ -31,7 +31,7 @@ test('type is Register_Movements_Asynchronous-V1-0', () => {
   expect(type).toBe('Register_Movements_Asynchronous-V1-0')
 })
 
-test('handle stores the batch and returns a receipt', () => {
+test('handle submits the batch to the movement store and returns a receipt', () => {
   // Arrange
   const innerXml = buildInnerXml()
 
@@ -42,9 +42,9 @@ test('handle stores the batch and returns a receipt', () => {
 
   // Assert
   expect(result).toContain('<MsgReceipt')
-  const batch = getReceiptBatch('movements', receiptNum)
-  expect(batch.txnId).toBe('txn-1')
-  expect(batch.rows).toHaveLength(1)
+  const entry = movementStore.submissions.get(receiptNum)
+  expect(entry.submission.txnId).toBe('txn-1')
+  expect(entry.submission.rows).toHaveLength(1)
 })
 
 test('handle throws a DomainError for invalid credentials', () => {

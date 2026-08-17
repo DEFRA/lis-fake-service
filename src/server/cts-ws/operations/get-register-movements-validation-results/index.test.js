@@ -1,9 +1,8 @@
-import { afterEach, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
 const configValues = {
   'ctsWs.ctsOlUsername': 'cts-ol-user',
   'ctsWs.ctsOlPassword': 'cts-ol-pass',
-  'ctsWs.pendingPollsBeforeResults': 0,
   'nunjucks.noCache': true
 }
 
@@ -13,15 +12,14 @@ vi.mock('../../../../config/config.js', () => ({
 
 const { handle, type } = await import('./index.js')
 const { DomainError } = await import('../../errors/domain-error.js')
-const { createReceipt } = await import('../../async-receipt-store.js')
+const { movementStore } = await import('../../stores/movement.js')
 
 const acceptedRow = {
   rowNum: 1,
   attributes: {
     RowNum: '1',
-    Etg: 'UK000000000001',
-    Loc: '01/001/0001',
-    SLoc: '04',
+    Etg: 'UK200000000001',
+    Loc: '22/001/0001',
     MDate: '2020-01-01',
     MType: 'on',
     RefNum: '1',
@@ -29,51 +27,14 @@ const acceptedRow = {
   }
 }
 
-// Matches row 1 of the real captured move-failure evidence, replayed under
-// its real TxnId in cts-movement-submissions.json.
 const rejectedRow = {
   rowNum: 1,
   attributes: {
     RowNum: '1',
-    Etg: 'UK590066500055',
-    Loc: '01/001/0001',
-    SLoc: '04',
-    MDate: '2005-05-01',
-    MType: 'off',
-    RefNum: '1',
-    IWarn: 'n'
-  }
-}
-
-// The move-failure evidence's TxnId - all but one of its 13 rows are real
-// rejections, including a CTWS336 duplicate pair (rows 12 and 13).
-const MOVE_FAILURE_TXN_ID = 'e77266c3abd74b6e9793598842660b28'
-
-// Row 12 of move-failure - genuinely accepted (first of the duplicate pair).
-const duplicateFirstRow = {
-  rowNum: 12,
-  attributes: {
-    RowNum: '12',
-    Etg: 'UK590066300242',
-    Loc: '01/001/0001',
-    SLoc: '04',
-    MDate: '2005-05-01',
-    MType: 'off',
-    RefNum: '1',
-    IWarn: 'n'
-  }
-}
-
-// Row 13 of move-failure - rejected as CTWS336 (second of the duplicate pair).
-const duplicateSecondRow = {
-  rowNum: 13,
-  attributes: {
-    RowNum: '13',
-    Etg: 'UK590066300242',
-    Loc: '01/001/0001',
-    SLoc: '04',
-    MDate: '2005-05-01',
-    MType: 'off',
+    Etg: 'UK999999999999',
+    Loc: '22/001/0001',
+    MDate: '2020-01-01',
+    MType: 'on',
     RefNum: '1',
     IWarn: 'n'
   }
@@ -92,8 +53,14 @@ function buildInnerXml({
   )
 }
 
+beforeEach(() => {
+  vi.useFakeTimers()
+  vi.spyOn(Math, 'random').mockReturnValue(0)
+})
+
 afterEach(() => {
-  configValues['ctsWs.pendingPollsBeforeResults'] = 0
+  vi.useRealTimers()
+  vi.restoreAllMocks()
 })
 
 test('type is Get_Register_Movements_Validation_Results-V1-0', () => {
@@ -101,12 +68,13 @@ test('type is Get_Register_Movements_Validation_Results-V1-0', () => {
   expect(type).toBe('Get_Register_Movements_Validation_Results-V1-0')
 })
 
-test('handle accepts a row under an unrecognised TxnId', () => {
+test('handle accepts a row with a known ear tag and an active, suitable location once results are ready', () => {
   // Arrange
-  const receiptNum = createReceipt('movements', {
-    txnId: 'unrecognised-txn',
+  const receiptNum = movementStore.submit({
+    txnId: 'txn-1',
     rows: [acceptedRow]
   })
+  vi.advanceTimersByTime(5000)
   const innerXml = buildInnerXml({ receiptNum })
 
   // Act
@@ -117,12 +85,13 @@ test('handle accepts a row under an unrecognised TxnId', () => {
   expect(result).not.toContain('<Rejected>')
 })
 
-test('handle rejects a row matching a real fixture entry with its cause', () => {
+test('handle rejects a row with an unrecognised ear tag as CTWS307 once results are ready', () => {
   // Arrange
-  const receiptNum = createReceipt('movements', {
-    txnId: MOVE_FAILURE_TXN_ID,
+  const receiptNum = movementStore.submit({
+    txnId: 'txn-1',
     rows: [rejectedRow]
   })
+  vi.advanceTimersByTime(5000)
   const innerXml = buildInnerXml({ receiptNum })
 
   // Act
@@ -134,29 +103,10 @@ test('handle rejects a row matching a real fixture entry with its cause', () => 
   expect(result).toContain('Ear Tag Not Found')
 })
 
-test('handle replays the real mixed accept/reject outcome for the move-failure evidence TxnId', () => {
+test('handle throws a CTWS806 DomainError while the store has not yet validated the submission', () => {
   // Arrange
-  const receiptNum = createReceipt('movements', {
-    txnId: MOVE_FAILURE_TXN_ID,
-    rows: [duplicateFirstRow, duplicateSecondRow]
-  })
-  const innerXml = buildInnerXml({ receiptNum })
-
-  // Act
-  const result = handle(innerXml)
-
-  // Assert
-  expect(result).toContain('<Accept RowNum="12"/>')
-  expect(result).toContain('RowNum="13"')
-  expect(result).toContain('CTWS336')
-  expect(result).toContain('Duplicate movement in file')
-})
-
-test('handle throws a CTWS806 DomainError while pending polls remain, then classifies rows once exhausted', () => {
-  // Arrange
-  configValues['ctsWs.pendingPollsBeforeResults'] = 1
-  const receiptNum = createReceipt('movements', {
-    txnId: 'unrecognised-txn',
+  const receiptNum = movementStore.submit({
+    txnId: 'txn-1',
     rows: [acceptedRow]
   })
   const innerXml = buildInnerXml({ receiptNum })
@@ -168,20 +118,16 @@ test('handle throws a CTWS806 DomainError while pending polls remain, then class
   } catch (e) {
     error = e
   }
-  const result = handle(innerXml)
 
   // Assert
   expect(error).toBeInstanceOf(DomainError)
   expect(error?.exNum).toBe('CTWS806')
-  expect(result).toContain('<Accept RowNum="1"/>')
 })
 
 test('handle throws a DomainError for invalid credentials', () => {
   // Arrange
-  const receiptNum = createReceipt('movements', {
-    txnId: 'unrecognised-txn',
-    rows: []
-  })
+  const receiptNum = movementStore.submit({ txnId: 'txn-1', rows: [] })
+  vi.advanceTimersByTime(5000)
   const innerXml = buildInnerXml({ receiptNum, username: 'wrong' })
   let error
 
@@ -200,27 +146,6 @@ test('handle throws a DomainError for invalid credentials', () => {
 test('handle throws a DomainError when the receipt does not exist', () => {
   // Arrange
   const innerXml = buildInnerXml({ receiptNum: 999_999 })
-  let error
-
-  // Act
-  try {
-    handle(innerXml)
-  } catch (e) {
-    error = e
-  }
-
-  // Assert
-  expect(error).toBeInstanceOf(DomainError)
-  expect(error?.message).toContain('not found')
-})
-
-test('handle throws a DomainError when the receipt belongs to a births batch', () => {
-  // Arrange
-  const receiptNum = createReceipt('births', {
-    txnId: 'unrecognised-txn',
-    rows: []
-  })
-  const innerXml = buildInnerXml({ receiptNum })
   let error
 
   // Act

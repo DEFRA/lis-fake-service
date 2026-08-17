@@ -1,6 +1,6 @@
 import { config } from '../../../../config/config.js'
-import { createReceipt } from '../../async-receipt-store.js'
 import { DomainError } from '../../errors/domain-error.js'
+import { movementStore } from '../../stores/movement.js'
 import { xmlEnvironment } from '../../xml/xml-environment.js'
 import { parseRegisterMovementsRequest } from './parse-register-movements-request.js'
 
@@ -8,8 +8,9 @@ export const type = 'Register_Movements_Asynchronous-V1-0'
 
 /**
  * Handles a decoded Register_Movements_Asynchronous payload: validates the
- * CTS_OL_User credentials, stores the batch for later polling, and returns
- * a receipt. Throws a DomainError for any business-level failure.
+ * CTS_OL_User credentials, submits the batch to the movement store for
+ * later polling, and returns a receipt. Throws a DomainError for any
+ * business-level failure.
  *
  * @param {string} innerXml
  * @returns {string}
@@ -33,7 +34,7 @@ export function handle(innerXml) {
     throw new DomainError('CTWS001', 'Authentication failed')
   }
 
-  const receiptNum = createReceipt('movements', {
+  const receiptNum = movementStore.submit({
     txnId: payload.txnId,
     rows: payload.rows
   })

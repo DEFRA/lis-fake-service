@@ -1,0 +1,30 @@
+{
+  "22/008/0008": {
+    "status": "cancelled"
+  },
+  "22/009/0009": {
+    "status": "inactive",
+    "inactiveFrom": "2000-01-01",
+    "inactiveTo": "2099-12-31"
+  },
+  "22/010/0010": {
+    "status": "unsuitable"
+  },
+  "22/011/0011": {
+    "status": "active",
+    "requiresSubLocation": true,
+    "subLocations": {
+      "01": {
+        "status": "active"
+      },
+      "02": {
+        "status": "cancelled"
+      },
+      "03": {
+        "status": "inactive",
+        "inactiveFrom": "2000-01-01",
+        "inactiveTo": "2099-12-31"
+      }
+    }
+  }
+}
