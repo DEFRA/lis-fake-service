@@ -37,6 +37,7 @@
     "@hapi/vision": "7.0.3",
     "convict": "6.2.5",
     "convict-format-with-validator": "6.2.0",
+    "fast-xml-parser": "^5.10.1",
     "govuk-frontend": "^6.3.0",
     "hapi-pino": "13.0.0",
     "nunjucks": "3.2.4",

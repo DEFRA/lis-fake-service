@@ -4,6 +4,7 @@ import { health } from './health/index.js'
 import { entraId } from './entra-id/index.js'
 import { defraCi } from './defra-ci/index.js'
 import { identityServiceHelper } from './identity-service-helper/index.js'
+import { ctsWs } from './cts-ws/index.js'
 
 export const router = {
   plugin: {
@@ -15,6 +16,7 @@ export const router = {
         entraId,
         defraCi,
         identityServiceHelper,
+        ctsWs,
         serveStaticFiles
       ])
     }

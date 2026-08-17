@@ -141,6 +141,40 @@ export const config = convict({
       default: 'local-dev-identity-service-helper-key',
       env: 'IDENTITY_SERVICE_HELPER_API_KEY'
     }
+  },
+  ctsWs: {
+    dthUsername: {
+      doc: 'TransferDataHex envelope username the fake cts_ws endpoint requires',
+      format: String,
+      default: 'local-dev-dth-username',
+      env: 'CTS_WS_DTH_USERNAME'
+    },
+    dthPassword: {
+      doc: 'TransferDataHex envelope password the fake cts_ws endpoint requires (sent MD5-hashed by callers, matching the real service)',
+      format: String,
+      default: 'local-dev-dth-password',
+      env: 'CTS_WS_DTH_PASSWORD',
+      sensitive: true
+    },
+    ctsOlUsername: {
+      doc: 'CTS_OL_User username the fake cts_ws operations require',
+      format: String,
+      default: 'local-dev-cts-ol-username',
+      env: 'CTS_WS_CTS_OL_USERNAME'
+    },
+    ctsOlPassword: {
+      doc: 'CTS_OL_User password the fake cts_ws operations require',
+      format: String,
+      default: 'local-dev-cts-ol-password',
+      env: 'CTS_WS_CTS_OL_PASSWORD',
+      sensitive: true
+    },
+    pendingPollsBeforeResults: {
+      doc: 'Number of Get_Register_*_Validation_Results polls per receipt that return a CTWS806 (results not yet available) before real results are returned, simulating the real CTWS backlog retry case. 0 means results are always available immediately.',
+      format: 'nat',
+      default: 0,
+      env: 'CTS_WS_PENDING_POLLS_BEFORE_RESULTS'
+    }
   }
 })
 
