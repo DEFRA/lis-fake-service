@@ -169,17 +169,27 @@ export const config = convict({
       env: 'CTS_WS_CTS_OL_PASSWORD',
       sensitive: true
     },
-    pendingPollsBeforeResults: {
-      doc: 'Number of Get_Register_*_Validation_Results polls per receipt that return a CTWS806 (results not yet available) before real results are returned, simulating the real CTWS backlog retry case. 0 means results are always available immediately.',
-      format: 'nat',
-      default: 0,
-      env: 'CTS_WS_PENDING_POLLS_BEFORE_RESULTS'
-    },
     serviceUnavailableProbability: {
       doc: "Probability (0-1) that any TransferDataHex request returns CTWS809 (service unavailable), simulating the real service's occasional outages. 0 disables it.",
       format: Number,
       default: 0.05,
       env: 'CTS_WS_SERVICE_UNAVAILABLE_PROBABILITY'
+    },
+    births: {
+      maxValidationDelaySeconds: {
+        doc: "Upper bound (inclusive) of the random delay, in seconds, before a Register_Births_Asynchronous submission's results become available, simulating the real CTS async proving turnaround.",
+        format: 'nat',
+        default: 5,
+        env: 'CTS_WS_BIRTHS_MAX_VALIDATION_DELAY_SECONDS'
+      }
+    },
+    movements: {
+      maxValidationDelaySeconds: {
+        doc: "Upper bound (inclusive) of the random delay, in seconds, before a Register_Movements_Asynchronous submission's results become available, simulating the real CTS async proving turnaround.",
+        format: 'nat',
+        default: 5,
+        env: 'CTS_WS_MOVEMENTS_MAX_VALIDATION_DELAY_SECONDS'
+      }
     }
   }
 })

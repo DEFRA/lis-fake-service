@@ -9,7 +9,7 @@ Unlike the OIDC fakes (see the root README), this isn't fixture-replay of canned
 ```
 controller.js                  outer TransferDataHex auth, dispatches on `type`
   → operations/index.js        maps `type` → operation module
-    → operations/<name>/index.js   handler for that operation
+    → operations/<name>.js     handler for that operation
 ```
 
 Every failure mode is a thrown, typed error (`errors/domain-error.js`, `errors/transport-fault-error.js`, `errors/malformed-request-error.js`) — the plugin's `onPreResponse` extension maps each to its wire response, so handlers stay a straight-line happy path.
@@ -30,8 +30,8 @@ One real-wire-format quirk worth knowing: `Authentication_Structure`'s `CTS_OL_U
 
 ```
 stores/store.js       generic Store(causes, maxDelaySeconds) class
-stores/birth.js        birthStore = new Store(birthCauses, 5)
-stores/movement.js     movementStore = new Store(movementCauses, 5)
+stores/birth.js        birthStore = new Store(birthCauses, ctsWs.births.maxValidationDelaySeconds)
+stores/movement.js     movementStore = new Store(movementCauses, ctsWs.movements.maxValidationDelaySeconds)
 ```
 
 `store.submit({ username, txnId, rows })` stores the batch and returns a receipt number immediately. After a random delay (0–`maxDelaySeconds`, simulating the real CTS async turnaround), the `Store` classifies every row against its `causes` table and caches `{ txnId, accepted, rejected }`. `store.retrieveResults(receiptNum)` returns `undefined` (unknown receipt), `{ ready: false }` (still pending — the `Get_Register_*_Validation_Results` handler turns this into `CTWS806`), or `{ ready: true, results }`.

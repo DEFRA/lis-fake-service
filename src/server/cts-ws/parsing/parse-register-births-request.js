@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser'
 
-import { extractXmlAttributes } from '../../parsing/extract-xml-attributes.js'
-import { parseCtsOlUser } from '../../parsing/parse-cts-ol-user.js'
+import { extractXmlAttributes } from './extract-xml-attributes.js'
+import { parseCtsOlUser } from './parse-cts-ol-user.js'
 
 const BIRTH_ATTRIBUTE_NAMES = [
   'RowNum',

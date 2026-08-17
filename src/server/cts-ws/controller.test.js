@@ -1,26 +1,23 @@
 import crypto from 'node:crypto'
 
-import { afterEach, expect, test, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
+import { config } from '../../config/config.js'
+import { transferDataHexHandler } from './controller.js'
+import { decodeDataPayload, encodeDataPayload } from './xml/soap-envelope.js'
+import { DomainError } from './errors/domain-error.js'
+import { TransportFaultError } from './errors/transport-fault-error.js'
+import { getOperation } from './operations/index.js'
 
-const configValues = {
-  'ctsWs.dthUsername': 'dth-user',
-  'ctsWs.dthPassword': 'dth-pass',
-  'ctsWs.ctsOlUsername': 'cts-ol-user',
-  'ctsWs.ctsOlPassword': 'cts-ol-pass',
-  'ctsWs.serviceUnavailableProbability': 0,
-  'nunjucks.noCache': true
+let serviceUnavailableProbability = 0
+const realConfigGet = config.get.bind(config)
+
+vi.mock('./operations/index.js')
+
+const mocks = {
+  configGet: vi.spyOn(config, 'get'),
+  getOperation: vi.mocked(getOperation),
+  operationHandle: vi.fn()
 }
-
-vi.mock('../../config/config.js', () => ({
-  config: { get: (key) => configValues[key] }
-}))
-
-const { transferDataHexHandler } = await import('./controller.js')
-const { decodeDataPayload, encodeDataPayload } =
-  await import('./xml/soap-envelope.js')
-const { DomainError } = await import('./errors/domain-error.js')
-const { TransportFaultError } =
-  await import('./errors/transport-fault-error.js')
 
 // Matches the real service's MD5-hashed password scheme - test-only, not a security control.
 function md5(value) {
@@ -29,27 +26,15 @@ function md5(value) {
 }
 
 function buildTransferDataHexRequest({
-  dthUsername = 'dth-user',
-  dthPassword = 'dth-pass',
-  type = 'Register_Births_Asynchronous-V1-0',
-  ctsOlUsername = 'cts-ol-user',
-  ctsOlPassword = 'cts-ol-pass'
+  dthUsername = config.get('ctsWs.dthUsername'),
+  dthPassword = config.get('ctsWs.dthPassword'),
+  type = 'Register_Births_Asynchronous-V1-0'
 } = {}) {
-  const innerXml =
-    '<RegBirths xmlns="http://defra.bcms.ctws/register_births_request" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
-    `<Authentication><CTS_OL_User xmlns="" Usr="${ctsOlUsername}" Pwd="${ctsOlPassword}"/></Authentication>` +
-    '<Births TxnId="txn-1">' +
-    '<Birth RowNum="1" Etg="UK000000000001" Dob="2020-01-01" Brd="HF" Sex="f" GdEtg="UK000000000000" BLoc="01/001/0001" PLoc="01/001/0001" IWarn="n"/>' +
-    '</Births>' +
-    '</RegBirths>'
-
   return {
     username: dthUsername,
     password: md5(dthPassword),
     serviceName: 'DEFRA-CTWS-FULL-PROVING',
-    data: encodeDataPayload(
-      `<?xml version="1.0" encoding="utf-8"?>${innerXml}`
-    ),
+    data: encodeDataPayload('<?xml version="1.0" encoding="utf-8"?><Fake/>'),
     type
   }
 }
@@ -67,123 +52,146 @@ function makeH() {
   return h
 }
 
-afterEach(() => {
-  configValues['ctsWs.serviceUnavailableProbability'] = 0
-})
+describe('transferDataHexHandler', () => {
+  beforeAll(() => {
+    mocks.configGet.mockImplementation((key) =>
+      key === 'ctsWs.serviceUnavailableProbability'
+        ? serviceUnavailableProbability
+        : realConfigGet(key)
+    )
+    mocks.getOperation.mockReturnValue({
+      type: 'Register_Births_Asynchronous-V1-0',
+      handle: mocks.operationHandle
+    })
+    mocks.operationHandle.mockReturnValue(
+      '<MsgReceipt><Receipt Num="1"/></MsgReceipt>'
+    )
+  })
 
-test('it returns a successful MsgReceipt payload for a supported type', () => {
-  // Arrange
-  const request = makeRequest(buildTransferDataHexRequest())
-  const h = makeH()
+  afterEach(() => {
+    vi.clearAllMocks()
+    serviceUnavailableProbability = 0
+  })
 
-  // Act
-  transferDataHexHandler(request, h)
+  test("it returns the operation handler's result for a supported type", () => {
+    // Arrange
+    const request = makeRequest(buildTransferDataHexRequest())
+    const h = makeH()
 
-  // Assert
-  expect(h.type).toHaveBeenCalledWith('text/xml')
-  expect(h.code).toHaveBeenCalledWith(200)
-  const [responseXml] = h.response.mock.calls[0]
-  const resultMatch = responseXml.match(
-    /<TransferDataHexResult>(.*?)<\/TransferDataHexResult>/
-  )
-  const decodedResult = decodeDataPayload(resultMatch[1])
-  expect(decodedResult).toContain('<MsgReceipt')
-})
-
-test('it throws a TransportFaultError for an invalid outer username', () => {
-  // Arrange
-  const request = makeRequest(
-    buildTransferDataHexRequest({ dthUsername: 'wrong' })
-  )
-  const h = makeH()
-  let error
-
-  // Act
-  try {
+    // Act
     transferDataHexHandler(request, h)
-  } catch (e) {
-    error = e
-  }
 
-  // Assert
-  expect(error).toBeInstanceOf(TransportFaultError)
-  expect(error?.message).toBe('Authentication failed')
-})
+    // Assert
+    expect(h.type).toHaveBeenCalledWith('text/xml')
+    expect(h.code).toHaveBeenCalledWith(200)
+    const [responseXml] = h.response.mock.calls[0]
+    const resultMatch = responseXml.match(
+      /<TransferDataHexResult>(.*?)<\/TransferDataHexResult>/
+    )
+    const decodedResult = decodeDataPayload(resultMatch[1])
+    expect(decodedResult).toContain('<MsgReceipt')
+  })
 
-test('it throws a TransportFaultError for an invalid outer password', () => {
-  // Arrange
-  const request = makeRequest(
-    buildTransferDataHexRequest({ dthPassword: 'wrong' })
-  )
-  const h = makeH()
-  let error
+  test('it throws a TransportFaultError for an invalid outer username', () => {
+    // Arrange
+    const request = makeRequest(
+      buildTransferDataHexRequest({ dthUsername: 'wrong' })
+    )
+    const h = makeH()
+    let error
 
-  // Act
-  try {
-    transferDataHexHandler(request, h)
-  } catch (e) {
-    error = e
-  }
+    // Act
+    try {
+      transferDataHexHandler(request, h)
+    } catch (e) {
+      error = e
+    }
 
-  // Assert
-  expect(error).toBeInstanceOf(TransportFaultError)
-})
+    // Assert
+    expect(error).toBeInstanceOf(TransportFaultError)
+    expect(error?.message).toBe('Authentication failed')
+    expect(mocks.operationHandle).not.toHaveBeenCalled()
+  })
 
-test('it throws a DomainError for an unsupported type', () => {
-  // Arrange
-  const request = makeRequest(
-    buildTransferDataHexRequest({ type: 'Something-Else-V1-0' })
-  )
-  const h = makeH()
-  let error
+  test('it throws a TransportFaultError for an invalid outer password', () => {
+    // Arrange
+    const request = makeRequest(
+      buildTransferDataHexRequest({ dthPassword: 'wrong' })
+    )
+    const h = makeH()
+    let error
 
-  // Act
-  try {
-    transferDataHexHandler(request, h)
-  } catch (e) {
-    error = e
-  }
+    // Act
+    try {
+      transferDataHexHandler(request, h)
+    } catch (e) {
+      error = e
+    }
 
-  // Assert
-  expect(error).toBeInstanceOf(DomainError)
-  expect(error?.message).toContain('Unsupported service type')
-})
+    // Assert
+    expect(error).toBeInstanceOf(TransportFaultError)
+  })
 
-test('it propagates the DomainError an operation throws for invalid inner credentials', () => {
-  // Arrange
-  const request = makeRequest(
-    buildTransferDataHexRequest({ ctsOlUsername: 'wrong' })
-  )
-  const h = makeH()
-  let error
+  test('it throws a DomainError for an unsupported type', () => {
+    // Arrange
+    mocks.getOperation.mockReturnValueOnce(undefined)
+    const request = makeRequest(
+      buildTransferDataHexRequest({ type: 'Something-Else-V1-0' })
+    )
+    const h = makeH()
+    let error
 
-  // Act
-  try {
-    transferDataHexHandler(request, h)
-  } catch (e) {
-    error = e
-  }
+    // Act
+    try {
+      transferDataHexHandler(request, h)
+    } catch (e) {
+      error = e
+    }
 
-  // Assert
-  expect(error).toBeInstanceOf(DomainError)
-  expect(error?.exNum).toBe('CTWS001')
-})
+    // Assert
+    expect(error).toBeInstanceOf(DomainError)
+    expect(error?.message).toContain('Unsupported service type')
+    expect(mocks.operationHandle).not.toHaveBeenCalled()
+  })
 
-test('it throws a CTWS809 DomainError when the simulated outage roll lands', () => {
-  // Arrange
-  configValues['ctsWs.serviceUnavailableProbability'] = 1
-  const request = makeRequest(buildTransferDataHexRequest())
-  const h = makeH()
-  let error
+  test('it propagates the DomainError the dispatched operation throws', () => {
+    // Arrange
+    mocks.operationHandle.mockImplementationOnce(() => {
+      throw new DomainError('CTWS001', 'Authentication failed')
+    })
+    const request = makeRequest(buildTransferDataHexRequest())
+    const h = makeH()
+    let error
 
-  // Act
-  try {
-    transferDataHexHandler(request, h)
-  } catch (e) {
-    error = e
-  }
+    // Act
+    try {
+      transferDataHexHandler(request, h)
+    } catch (e) {
+      error = e
+    }
 
-  // Assert
-  expect(error).toBeInstanceOf(DomainError)
-  expect(error?.exNum).toBe('CTWS809')
+    // Assert
+    expect(error).toBeInstanceOf(DomainError)
+    expect(error?.exNum).toBe('CTWS001')
+  })
+
+  test('it throws a CTWS809 DomainError when the simulated outage roll lands', () => {
+    // Arrange
+    serviceUnavailableProbability = 1
+    const request = makeRequest(buildTransferDataHexRequest())
+    const h = makeH()
+    let error
+
+    // Act
+    try {
+      transferDataHexHandler(request, h)
+    } catch (e) {
+      error = e
+    }
+
+    // Assert
+    expect(error).toBeInstanceOf(DomainError)
+    expect(error?.exNum).toBe('CTWS809')
+    expect(mocks.operationHandle).not.toHaveBeenCalled()
+  })
 })

@@ -4,7 +4,7 @@ import { config } from '../../config/config.js'
 import { statusCodes } from '../common/constants/status-codes.js'
 import { DomainError } from './errors/domain-error.js'
 import { TransportFaultError } from './errors/transport-fault-error.js'
-import { operations } from './operations/index.js'
+import { getOperation } from './operations/index.js'
 import { decodeDataPayload } from './xml/soap-envelope.js'
 import { buildTransferDataHexResponse } from './xml/build-transfer-data-hex-response.js'
 
@@ -51,7 +51,7 @@ export function transferDataHexHandler(request, h) {
     throw new TransportFaultError('soap:Client', 'Authentication failed')
   }
 
-  const operation = operations[transferDataHexRequest.type]
+  const operation = getOperation(transferDataHexRequest.type)
 
   if (!operation) {
     throw new DomainError(

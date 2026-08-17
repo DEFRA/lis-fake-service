@@ -1,9 +1,9 @@
-import { config } from '../../../../config/config.js'
-import { DomainError } from '../../errors/domain-error.js'
-import { parseGetResultsRequest } from '../../parsing/parse-get-results-request.js'
-import { movementStore } from '../../stores/movement.js'
-import { validateAgainstSchema } from '../../xsd/validate-against-schema.js'
-import { xmlEnvironment } from '../../xml/xml-environment.js'
+import { config } from '../../../config/config.js'
+import { DomainError } from '../errors/domain-error.js'
+import { parseGetResultsRequest } from '../parsing/parse-get-results-request.js'
+import { movementStore } from '../stores/movement.js'
+import { validateAgainstSchema } from '../xsd/validate-against-schema.js'
+import { xmlEnvironment } from '../xml/xml-environment.js'
 
 export const type = 'Get_Register_Movements_Validation_Results-V1-0'
 
@@ -64,7 +64,7 @@ export function handle(innerXml) {
   }
 
   return xmlEnvironment.render(
-    'operations/get-register-movements-validation-results/movement-results.njk',
+    'operations/get-register-movements-validation-results.njk',
     {
       schemaVersion: '1.0',
       programName: 'CTS Webservices',

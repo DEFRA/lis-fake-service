@@ -1,9 +1,9 @@
-import { config } from '../../../../config/config.js'
-import { DomainError } from '../../errors/domain-error.js'
-import { birthStore } from '../../stores/birth.js'
-import { validateAgainstSchema } from '../../xsd/validate-against-schema.js'
-import { xmlEnvironment } from '../../xml/xml-environment.js'
-import { parseRegisterBirthsRequest } from './parse-register-births-request.js'
+import { config } from '../../../config/config.js'
+import { DomainError } from '../errors/domain-error.js'
+import { parseRegisterBirthsRequest } from '../parsing/parse-register-births-request.js'
+import { birthStore } from '../stores/birth.js'
+import { validateAgainstSchema } from '../xsd/validate-against-schema.js'
+import { xmlEnvironment } from '../xml/xml-environment.js'
 
 export const type = 'Register_Births_Asynchronous-V1-0'
 

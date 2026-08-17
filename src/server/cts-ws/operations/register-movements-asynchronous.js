@@ -1,9 +1,9 @@
-import { config } from '../../../../config/config.js'
-import { DomainError } from '../../errors/domain-error.js'
-import { movementStore } from '../../stores/movement.js'
-import { validateAgainstSchema } from '../../xsd/validate-against-schema.js'
-import { xmlEnvironment } from '../../xml/xml-environment.js'
-import { parseRegisterMovementsRequest } from './parse-register-movements-request.js'
+import { config } from '../../../config/config.js'
+import { DomainError } from '../errors/domain-error.js'
+import { parseRegisterMovementsRequest } from '../parsing/parse-register-movements-request.js'
+import { movementStore } from '../stores/movement.js'
+import { validateAgainstSchema } from '../xsd/validate-against-schema.js'
+import { xmlEnvironment } from '../xml/xml-environment.js'
 
 export const type = 'Register_Movements_Asynchronous-V1-0'
 

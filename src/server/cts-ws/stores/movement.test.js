@@ -1,16 +1,6 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { movementStore } from './movement.js'
-
-beforeEach(() => {
-  vi.useFakeTimers()
-  vi.spyOn(Math, 'random').mockReturnValue(0)
-})
-
-afterEach(() => {
-  vi.useRealTimers()
-  vi.restoreAllMocks()
-})
 
 const acceptedRow = {
   rowNum: 1,
@@ -38,68 +28,80 @@ const rejectedRow = {
   }
 }
 
-test('movementStore validates an accepted row and reports it once results are ready', () => {
-  // Arrange
-  const receiptNum = movementStore.submit({
-    txnId: 'txn-1',
-    rows: [acceptedRow]
+describe('movementStore', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.spyOn(Math, 'random').mockReturnValue(0)
   })
 
-  // Act
-  vi.advanceTimersByTime(5000)
-  const result = movementStore.retrieveResults(receiptNum)
-
-  // Assert
-  expect(result).toEqual({
-    ready: true,
-    results: { txnId: 'txn-1', accepted: [1], rejected: [] }
-  })
-})
-
-test('movementStore validates a rejected row and reports its causes once results are ready', () => {
-  // Arrange
-  const receiptNum = movementStore.submit({
-    txnId: 'txn-1',
-    rows: [rejectedRow]
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
   })
 
-  // Act
-  vi.advanceTimersByTime(5000)
-  const result = movementStore.retrieveResults(receiptNum)
-
-  // Assert
-  expect(result).toEqual({
-    ready: true,
-    results: {
+  test('movementStore validates an accepted row and reports it once results are ready', () => {
+    // Arrange
+    const receiptNum = movementStore.submit({
       txnId: 'txn-1',
-      accepted: [],
-      rejected: [
-        {
-          attributes: rejectedRow.attributes,
-          causes: [
-            {
-              code: 'CTWS307',
-              desc: 'Ear Tag Not Found',
-              sev: 'e',
-              field: 'Etg'
-            }
-          ]
-        }
-      ]
-    }
-  })
-})
+      rows: [acceptedRow]
+    })
 
-test('movementStore reports not ready before the submission has been validated', () => {
-  // Arrange
-  const receiptNum = movementStore.submit({
-    txnId: 'txn-1',
-    rows: [acceptedRow]
+    // Act
+    vi.advanceTimersByTime(5000)
+    const result = movementStore.retrieveResults(receiptNum)
+
+    // Assert
+    expect(result).toEqual({
+      ready: true,
+      results: { txnId: 'txn-1', accepted: [1], rejected: [] }
+    })
   })
 
-  // Act
-  const result = movementStore.retrieveResults(receiptNum)
+  test('movementStore validates a rejected row and reports its causes once results are ready', () => {
+    // Arrange
+    const receiptNum = movementStore.submit({
+      txnId: 'txn-1',
+      rows: [rejectedRow]
+    })
 
-  // Assert
-  expect(result).toEqual({ ready: false })
+    // Act
+    vi.advanceTimersByTime(5000)
+    const result = movementStore.retrieveResults(receiptNum)
+
+    // Assert
+    expect(result).toEqual({
+      ready: true,
+      results: {
+        txnId: 'txn-1',
+        accepted: [],
+        rejected: [
+          {
+            attributes: rejectedRow.attributes,
+            causes: [
+              {
+                code: 'CTWS307',
+                desc: 'Ear Tag Not Found',
+                sev: 'e',
+                field: 'Etg'
+              }
+            ]
+          }
+        ]
+      }
+    })
+  })
+
+  test('movementStore reports not ready before the submission has been validated', () => {
+    // Arrange
+    const receiptNum = movementStore.submit({
+      txnId: 'txn-1',
+      rows: [acceptedRow]
+    })
+
+    // Act
+    const result = movementStore.retrieveResults(receiptNum)
+
+    // Assert
+    expect(result).toEqual({ ready: false })
+  })
 })
