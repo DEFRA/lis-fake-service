@@ -1,0 +1,18 @@
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHex xmlns="http://www.defra.gov.uk">
+      <username>local-dev-dth-username</username>
+      <password>0f88918e424bcb8f8a731e2289a0e6af</password>
+      <serviceName>DEFRA-CTWS-FULL-PROVING</serviceName>
+      <RegMovs xmlns="http://defra.bcms.ctws/register_movements_request" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">
+        <Authentication><CTS_OL_User xmlns="" Usr="dev-cts-usr" Pwd="dev-cts-pass123"/></Authentication>
+        <Moves TxnId="reg-movements-success-example">
+          <Mov RowNum="1" Etg="UK200000000001" Loc="22/001/0001" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>
+          <Mov RowNum="2" Etg="UK200000000002" Loc="22/001/0001" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>
+          <Mov RowNum="3" Etg="UK200000000001" Loc="22/001/0001" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>
+        </Moves>
+      </RegMovs>
+      <type>Register_Movements_Asynchronous-V1-0</type>
+    </TransferDataHex>
+  </soap:Body>
+</soap:Envelope>

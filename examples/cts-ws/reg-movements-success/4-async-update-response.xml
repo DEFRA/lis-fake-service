@@ -1,0 +1,8 @@
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHexResponse xmlns="http://www.defra.gov.uk">
+      <?xml version="1.0" encoding="utf-8"?><MovResults xmlns="http://defra.bcms.ctws/register_movements_request_results" SchemaVersion="1.0" ProgramName="CTS Webservices" ProgramVersion="1h" ResponseTimeStamp="2026-08-17T19:34:55.458Z"><Results TxnId="reg-movements-success-example"><Accepted><Accept RowNum="1"/><Accept RowNum="2"/></Accepted><Rejected><Reject><Mov RowNum="3" Etg="UK200000000001" Loc="22/001/0001" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n" /><Causes><Cause Code="CTWS336" Desc="Duplicate movement in file" Sev="w" Field="Etg"/></Causes></Reject></Rejected></Results></MovResults>
+
+    </TransferDataHexResponse>
+  </soap:Body>
+</soap:Envelope>

@@ -1,0 +1,8 @@
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHexResponse xmlns="http://www.defra.gov.uk">
+      <?xml version="1.0" encoding="utf-8"?><MovResults xmlns="http://defra.bcms.ctws/register_movements_request_results" SchemaVersion="1.0" ProgramName="CTS Webservices" ProgramVersion="1h" ResponseTimeStamp="2026-08-17T19:35:01.476Z"><Results TxnId="reg-movements-failure-example"><Accepted><Accept RowNum="6"/></Accepted><Rejected><Reject><Mov RowNum="1" Etg="UK999999999999" Loc="22/001/0001" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n" /><Causes><Cause Code="CTWS307" Desc="Ear Tag Not Found" Sev="e" Field="Etg"/></Causes></Reject><Reject><Mov RowNum="2" Etg="UK200000000003" Loc="22/008/0008" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n" /><Causes><Cause Code="CTWS329" Desc="Cancelled Location" Sev="w" Field="Loc"/></Causes></Reject><Reject><Mov RowNum="3" Etg="UK200000000004" Loc="22/010/0010" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n" /><Causes><Cause Code="CTWS320" Desc="Location Unsuitable for Movements" Sev="e" Field="Loc"/></Causes></Reject><Reject><Mov RowNum="4" Etg="UK200000000005" Loc="22/011/0011" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n" /><Causes><Cause Code="CTWS324" Desc="Missing Sub-Location" Sev="e" Field="Loc"/></Causes></Reject><Reject><Mov RowNum="5" Etg="UK200000000006" Loc="22/011/0011" SLoc="99" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n" /><Causes><Cause Code="CTWS330" Desc="Sublocation not found" Sev="e" Field="Loc"/></Causes></Reject></Rejected></Results></MovResults>
+
+    </TransferDataHexResponse>
+  </soap:Body>
+</soap:Envelope>

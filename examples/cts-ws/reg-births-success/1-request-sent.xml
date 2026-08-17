@@ -1,0 +1,18 @@
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHex xmlns="http://www.defra.gov.uk">
+      <username>local-dev-dth-username</username>
+      <password>0f88918e424bcb8f8a731e2289a0e6af</password>
+      <serviceName>DEFRA-CTWS-FULL-PROVING</serviceName>
+      <RegBirths xmlns="http://defra.bcms.ctws/register_births_request" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">
+        <Authentication><CTS_OL_User xmlns="" Usr="dev-cts-usr" Pwd="dev-cts-pass123"/></Authentication>
+        <Births TxnId="reg-births-success-example">
+          <Birth RowNum="1" Etg="UK100000000003" Dob="2026-01-01" Brd="HF" Sex="f" GdEtg="UK200000000007" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>
+          <Birth RowNum="2" Etg="UK100000000004" Dob="2026-01-01" Brd="LIM" Sex="f" GdEtg="UK200000000008" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>
+          <Birth RowNum="3" Etg="UK100000000005" Dob="2026-06-01" Brd="HF" Sex="f" GdEtg="UK300000000002" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>
+        </Births>
+      </RegBirths>
+      <type>Register_Births_Asynchronous-V1-0</type>
+    </TransferDataHex>
+  </soap:Body>
+</soap:Envelope>

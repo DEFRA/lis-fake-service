@@ -1,0 +1,8 @@
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHexResponse xmlns="http://www.defra.gov.uk">
+      <?xml version="1.0" encoding="utf-8"?><MsgReceipt xmlns="http://defra.bcms.ctws/asynchronous_receipt" SchemaVersion="1.0" ProgramName="CTS Webservices" ProgramVersion="1h" ResponseTimeStamp="2026-08-17T19:34:43.425Z"><Receipt Num="2"/></MsgReceipt>
+
+    </TransferDataHexResponse>
+  </soap:Body>
+</soap:Envelope>

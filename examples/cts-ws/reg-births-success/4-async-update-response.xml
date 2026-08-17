@@ -1,0 +1,8 @@
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHexResponse xmlns="http://www.defra.gov.uk">
+      <?xml version="1.0" encoding="utf-8"?><BirthResults xmlns="http://defra.bcms.ctws/register_births_request_results" SchemaVersion="1.0" ProgramName="CTS Webservices" ProgramVersion="1h" ResponseTimeStamp="2026-08-17T19:34:43.415Z"><Results TxnId="reg-births-success-example"><Accepted><Accept RowNum="1"/><Accept RowNum="2"/></Accepted><Rejected><Reject><Birth RowNum="3" Etg="UK100000000005" Dob="2026-06-01" Brd="HF" Sex="f" GdEtg="UK300000000002" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n" /><Causes><Cause Code="CTWS200" Desc="Dam has already given birth" Sev="w" Field="GdEtg"/></Causes></Reject></Rejected></Results></BirthResults>
+
+    </TransferDataHexResponse>
+  </soap:Body>
+</soap:Envelope>
