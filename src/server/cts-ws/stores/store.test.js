@@ -102,6 +102,41 @@ test('retrieveResults rejects a row whose content matches a cause once the delay
   })
 })
 
+test('hasSubmission returns false for a TxnId that has not been submitted by that user', () => {
+  // Arrange
+  const store = new Store([rejectsFoo], 5)
+
+  // Act
+  const result = store.hasSubmission('user-1', 'txn-1')
+
+  // Assert
+  expect(result).toBe(false)
+})
+
+test('hasSubmission returns true once that user has submitted that TxnId', () => {
+  // Arrange
+  const store = new Store([rejectsFoo], 5)
+  store.submit({ username: 'user-1', txnId: 'txn-1', rows: [] })
+
+  // Act
+  const result = store.hasSubmission('user-1', 'txn-1')
+
+  // Assert
+  expect(result).toBe(true)
+})
+
+test('hasSubmission is scoped per user, not global', () => {
+  // Arrange
+  const store = new Store([rejectsFoo], 5)
+  store.submit({ username: 'user-1', txnId: 'txn-1', rows: [] })
+
+  // Act
+  const result = store.hasSubmission('user-2', 'txn-1')
+
+  // Assert
+  expect(result).toBe(false)
+})
+
 test('submissions for different receipts are validated independently', () => {
   // Arrange
   vi.spyOn(Math, 'random').mockReturnValue(0)

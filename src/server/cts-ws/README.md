@@ -24,7 +24,9 @@ stores/birth.js        birthStore = new Store(birthCauses, 5)
 stores/movement.js     movementStore = new Store(movementCauses, 5)
 ```
 
-`store.submit({ txnId, rows })` stores the batch and returns a receipt number immediately. After a random delay (0–`maxDelaySeconds`, simulating the real CTS async turnaround), the `Store` classifies every row against its `causes` table and caches `{ txnId, accepted, rejected }`. `store.retrieveResults(receiptNum)` returns `undefined` (unknown receipt), `{ ready: false }` (still pending — the `Get_Register_*_Validation_Results` handler turns this into `CTWS806`), or `{ ready: true, results }`.
+`store.submit({ username, txnId, rows })` stores the batch and returns a receipt number immediately. After a random delay (0–`maxDelaySeconds`, simulating the real CTS async turnaround), the `Store` classifies every row against its `causes` table and caches `{ txnId, accepted, rejected }`. `store.retrieveResults(receiptNum)` returns `undefined` (unknown receipt), `{ ready: false }` (still pending — the `Get_Register_*_Validation_Results` handler turns this into `CTWS806`), or `{ ready: true, results }`.
+
+Each `Store` also tracks which `(username, txnId)` pairs it's already seen. The register-\*-asynchronous handlers check `store.hasSubmission(username, txnId)` before calling `submit()` and reject a resubmission with `CTWS807` — the Full Proving spec's documented "Request rejected (submitted already)" Register\_\* response, TxnId being unique per user rather than globally.
 
 ## Causes tables
 

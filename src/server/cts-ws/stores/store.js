@@ -1,12 +1,13 @@
 const SECONDS_TO_MS = 1000
 
 /**
- * A submit-now/validate-later store: submit() stores a { txnId, rows }
- * submission and returns a receipt number immediately, then classifies each
- * row against the causes table after a random delay (simulating the real
- * CTS async proving turnaround) so retrieveResults() only returns results
- * once that delay has elapsed. The same class backs both births and
- * movements - just constructed with a different causes table.
+ * A submit-now/validate-later store: submit() stores a
+ * { username, txnId, rows } submission and returns a receipt number
+ * immediately, then classifies each row against the causes table after a
+ * random delay (simulating the real CTS async proving turnaround) so
+ * retrieveResults() only returns results once that delay has elapsed. The
+ * same class backs both births and movements - just constructed with a
+ * different causes table.
  */
 export class Store {
   /**
@@ -18,17 +19,34 @@ export class Store {
     this.causes = causes
     this.maxDelaySeconds = maxDelaySeconds
     this.submissions = new Map()
+    this.submittedTxnIds = new Set()
     this.nextReceiptNum = 1
   }
 
   /**
-   * @param {{txnId: string, rows: {rowNum: number, attributes: Record<string, string>}[]}} submission
+   * The real TxnId uniqueness rule is "unique per user", not global - see
+   * the Full Proving Facility spec's note on Register_* responses
+   * ("Request rejected (submitted already)"). Callers should check this
+   * before submit() and reject accordingly; Store only tracks the fact,
+   * since it has no CTWS-specific error codes to raise itself.
+   *
+   * @param {string} username
+   * @param {string} txnId
+   * @returns {boolean}
+   */
+  hasSubmission(username, txnId) {
+    return this.submittedTxnIds.has(`${username}::${txnId}`)
+  }
+
+  /**
+   * @param {{username: string, txnId: string, rows: {rowNum: number, attributes: Record<string, string>}[]}} submission
    * @returns {number} the receipt number to poll via retrieveResults
    */
   submit(submission) {
     const receiptNum = this.nextReceiptNum
     this.nextReceiptNum += 1
 
+    this.submittedTxnIds.add(`${submission.username}::${submission.txnId}`)
     this.submissions.set(receiptNum, { submission, ready: false })
 
     // Not a security control - just simulating the real CTS async turnaround.

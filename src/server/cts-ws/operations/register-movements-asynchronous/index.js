@@ -34,7 +34,15 @@ export function handle(innerXml) {
     throw new DomainError('CTWS001', 'Authentication failed')
   }
 
+  if (movementStore.hasSubmission(payload.username, payload.txnId)) {
+    // Neither the ExNum nor ExMsg text is confirmed by real evidence -
+    // CTWS807 replays the Full Proving spec's documented "Request rejected
+    // (submitted already)" Register_* response, TxnId being unique per user.
+    throw new DomainError('CTWS807', 'Request rejected - already submitted')
+  }
+
   const receiptNum = movementStore.submit({
+    username: payload.username,
     txnId: payload.txnId,
     rows: payload.rows
   })
