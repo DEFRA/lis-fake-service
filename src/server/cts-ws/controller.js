@@ -33,6 +33,14 @@ function hashPassword(password) {
  * @returns {ResponseObject}
  */
 export function transferDataHexHandler(request, h) {
+  // Not a security control - just simulating the real service's occasional
+  // "Request rejected (service unavailable)" response (spec §6.3.1/6.3.2).
+  // Neither the ExNum nor ExMsg text is confirmed by real evidence.
+  // eslint-disable-next-line sonarjs/pseudo-random
+  if (Math.random() < config.get('ctsWs.serviceUnavailableProbability')) {
+    throw new DomainError('CTWS809', 'Request rejected - service unavailable')
+  }
+
   const transferDataHexRequest = request.pre.transferDataHexRequest
 
   if (

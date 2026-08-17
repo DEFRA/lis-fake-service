@@ -1,12 +1,13 @@
 import crypto from 'node:crypto'
 
-import { expect, test, vi } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 
 const configValues = {
   'ctsWs.dthUsername': 'dth-user',
   'ctsWs.dthPassword': 'dth-pass',
   'ctsWs.ctsOlUsername': 'cts-ol-user',
   'ctsWs.ctsOlPassword': 'cts-ol-pass',
+  'ctsWs.serviceUnavailableProbability': 0,
   'nunjucks.noCache': true
 }
 
@@ -65,6 +66,10 @@ function makeH() {
   }
   return h
 }
+
+afterEach(() => {
+  configValues['ctsWs.serviceUnavailableProbability'] = 0
+})
 
 test('it returns a successful MsgReceipt payload for a supported type', () => {
   // Arrange
@@ -162,4 +167,23 @@ test('it propagates the DomainError an operation throws for invalid inner creden
   // Assert
   expect(error).toBeInstanceOf(DomainError)
   expect(error?.exNum).toBe('CTWS001')
+})
+
+test('it throws a CTWS809 DomainError when the simulated outage roll lands', () => {
+  // Arrange
+  configValues['ctsWs.serviceUnavailableProbability'] = 1
+  const request = makeRequest(buildTransferDataHexRequest())
+  const h = makeH()
+  let error
+
+  // Act
+  try {
+    transferDataHexHandler(request, h)
+  } catch (e) {
+    error = e
+  }
+
+  // Assert
+  expect(error).toBeInstanceOf(DomainError)
+  expect(error?.exNum).toBe('CTWS809')
 })

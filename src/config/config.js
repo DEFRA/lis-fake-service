@@ -174,6 +174,12 @@ export const config = convict({
       format: 'nat',
       default: 0,
       env: 'CTS_WS_PENDING_POLLS_BEFORE_RESULTS'
+    },
+    serviceUnavailableProbability: {
+      doc: "Probability (0-1) that any TransferDataHex request returns CTWS809 (service unavailable), simulating the real service's occasional outages. 0 disables it.",
+      format: Number,
+      default: 0.05,
+      env: 'CTS_WS_SERVICE_UNAVAILABLE_PROBABILITY'
     }
   }
 })

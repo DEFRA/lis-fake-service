@@ -14,6 +14,8 @@ controller.js                  outer TransferDataHex auth, dispatches on `type`
 
 Every failure mode is a thrown, typed error (`errors/domain-error.js`, `errors/transport-fault-error.js`, `errors/malformed-request-error.js`) — the plugin's `onPreResponse` extension maps each to its wire response, so handlers stay a straight-line happy path.
 
+Before any of that, every request has an independent `ctsWs.serviceUnavailableProbability` (default `0.05`) chance of failing as `CTWS809` ("Request rejected (service unavailable)"), simulating the real service's occasional outages. Set `CTS_WS_SERVICE_UNAVAILABLE_PROBABILITY=0` to disable it (e.g. for deterministic manual testing).
+
 ## XSD validation
 
 Before parsing, each `Register_*`/`Get_Register_*_Validation_Results` handler validates the decoded inner XML against the real CTS request XSD for that message type via `xsd/validate-against-schema.js` (a thin `libxmljs2` wrapper). The schemas themselves (`xsd/schemas/*.xsd`) are copied verbatim from the CTS POC evidence, `<xs:include>`s and all - `ctws_types-V1-0.xsd` holds the shared type definitions the three request schemas include.
