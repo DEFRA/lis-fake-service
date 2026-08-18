@@ -4,4 +4,6 @@ coverage/
 .cache/
 *.log
 .npmrc
-package-lock.json
+tools/
+.cake/
+artifacts/
