@@ -6,7 +6,7 @@ export const ctsWs = {
   plugin: {
     name: 'cts-ws',
     register(server) {
-      server.ext('onPreResponse', onPreResponse)
+      server.ext('onPreResponse', onPreResponse, { sandbox: 'plugin' })
 
       server.route({
         method: 'POST',

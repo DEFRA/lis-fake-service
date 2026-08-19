@@ -1,12 +1,9 @@
 /** @import { Server } from '@hapi/hapi' */
-import path from 'node:path'
 import hapi from '@hapi/hapi'
-import Inert from '@hapi/inert'
 
 import { router } from './router.js'
 import { config } from '../config/config.js'
 import { catchAll } from './common/helpers/errors.js'
-import { nunjucksConfig } from '../config/nunjucks/nunjucks.js'
 import { requestLogger } from './common/helpers/logging/request-logger.js'
 
 /**
@@ -17,9 +14,6 @@ export async function createServer() {
     host: config.get('host'),
     port: config.get('port'),
     routes: {
-      files: {
-        relativeTo: path.resolve(config.get('root'), '.public')
-      },
       security: {
         hsts: {
           maxAge: 31536000,
@@ -42,7 +36,7 @@ export async function createServer() {
     }
   })
 
-  await server.register([Inert, requestLogger, nunjucksConfig, router])
+  await server.register([requestLogger, router])
 
   server.ext('onPreResponse', catchAll)
 
