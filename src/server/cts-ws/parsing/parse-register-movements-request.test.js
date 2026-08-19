@@ -38,6 +38,22 @@ describe('parseRegisterMovementsRequest()', () => {
     ])
   })
 
+  test('it treats a Moves element with no Mov rows as an empty array', () => {
+    // Arrange
+    const innerXml =
+      '<RegMovs xmlns="http://defra.bcms.ctws/register_movements_request">' +
+      // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake test fixture, not a real secret
+      '<Authentication><CTS_OL_User Usr="cts-ol-user" Pwd="cts-ol-pass"/></Authentication>' +
+      '<Moves TxnId="txn-1"/>' +
+      '</RegMovs>'
+
+    // Act
+    const result = parseRegisterMovementsRequest(innerXml)
+
+    // Assert
+    expect(result.rows).toEqual([])
+  })
+
   test('it throws when the payload is not a RegMovs request', () => {
     // Arrange
     const innerXml = '<SomethingElse/>'

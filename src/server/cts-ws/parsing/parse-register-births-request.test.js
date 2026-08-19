@@ -57,6 +57,22 @@ describe('parseRegisterBirthsRequest()', () => {
     expect(result.rows).toHaveLength(1)
   })
 
+  test('it treats a Births element with no Birth rows as an empty array', () => {
+    // Arrange
+    const innerXml =
+      '<RegBirths xmlns="http://defra.bcms.ctws/register_births_request">' +
+      // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake test fixture, not a real secret
+      '<Authentication><CTS_OL_User Usr="cts-ol-user" Pwd="cts-ol-pass"/></Authentication>' +
+      '<Births TxnId="txn-1"/>' +
+      '</RegBirths>'
+
+    // Act
+    const result = parseRegisterBirthsRequest(innerXml)
+
+    // Assert
+    expect(result.rows).toEqual([])
+  })
+
   test('it throws when the payload is not a RegBirths request', () => {
     // Arrange
     const innerXml = '<SomethingElse/>'
