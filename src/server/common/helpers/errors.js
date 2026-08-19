@@ -38,14 +38,15 @@ export function catchAll(request, h) {
   }
 
   const payload = {
-    pageTitle: errorMessage,
-    heading: statusCode,
-    message: errorMessage
+    error: {
+      statusCode,
+      message: errorMessage
+    }
   }
 
   if (!config.get('isProduction')) {
-    payload.devMessage = response.message
+    payload.error.devMessage = response.message
   }
 
-  return h.view('error/index', payload).code(statusCode)
+  return h.response(payload).code(statusCode)
 }

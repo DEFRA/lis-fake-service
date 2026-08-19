@@ -2,7 +2,7 @@
 
 Fakes the CTS Web Services `DefraDataTransferPublicNWSE.asmx` `TransferDataHex` operation — the legacy SOAP protocol `Register_Births_Asynchronous`, `Register_Movements_Asynchronous` and their `Get_Register_*_Validation_Results` poll counterparts are built on. Mounted at `POST /cts_ws/DefraDataTransferPublicNWSE.asmx`.
 
-Unlike the OIDC fakes (see the root README), this isn't fixture-replay of canned responses: submitted rows are validated dynamically against fixture reference data (known animals, holdings, breed codes), so arbitrary content — not just a fixed set of pre-recorded scenarios — gets a real accept/reject outcome.
+Unlike the OIDC fakes (see [`lis-fake-idp`](https://github.com/DEFRA/lis-fake-idp)), this isn't fixture-replay of canned responses: submitted rows are validated dynamically against fixture reference data (known animals, holdings, breed codes), so arbitrary content — not just a fixed set of pre-recorded scenarios — gets a real accept/reject outcome.
 
 ## Request flow
 

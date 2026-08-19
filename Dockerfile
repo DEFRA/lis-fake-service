@@ -16,15 +16,12 @@ EXPOSE ${PORT} ${PORT_DEBUG}
 COPY --chown=node:node --chmod=755 package*.json .npmrc* ./
 RUN npm install
 COPY --chown=node:node --chmod=755 . .
-RUN npm run build:frontend
 
 CMD [ "npm", "run", "docker:dev" ]
 
 FROM development AS production_build
 
 ENV NODE_ENV=production
-
-RUN npm run build:frontend
 
 FROM defradigital/node:${PARENT_VERSION} AS production
 ARG PARENT_VERSION
@@ -40,7 +37,6 @@ USER node
 
 COPY --from=production_build /home/node/package*.json /home/node/.npmrc* ./
 COPY --from=production_build /home/node/src ./src/
-COPY --from=production_build /home/node/.public/ ./.public/
 COPY --from=production_build /home/node/data ./data/
 
 RUN npm ci --omit=dev

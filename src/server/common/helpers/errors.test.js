@@ -27,7 +27,7 @@ mocks.configGet = vi.spyOn(config, 'get')
 
 function makeH() {
   const h = {
-    view: vi.fn(() => h),
+    response: vi.fn(() => h),
     code: vi.fn(() => h),
     continue: Symbol('continue')
   }
@@ -66,10 +66,10 @@ describe('catchAll', () => {
 
     // Assert
     expect(result).toBe(h.continue)
-    expect(h.view).not.toHaveBeenCalled()
+    expect(h.response).not.toHaveBeenCalled()
   })
 
-  test('it renders the 404 page for a not found error', () => {
+  test('it returns a 404 JSON error for a not found error', () => {
     // Arrange
     const request = {
       response: boomResponse({ statusCode: statusCodes.notFound })
@@ -80,18 +80,18 @@ describe('catchAll', () => {
     catchAll(request, h)
 
     // Assert
-    expect(h.view).toHaveBeenCalledWith(
-      'error/index',
+    expect(h.response).toHaveBeenCalledWith(
       expect.objectContaining({
-        pageTitle: 'Page not found',
-        heading: statusCodes.notFound,
-        message: 'Page not found'
+        error: expect.objectContaining({
+          statusCode: statusCodes.notFound,
+          message: 'Page not found'
+        })
       })
     )
     expect(h.code).toHaveBeenCalledWith(statusCodes.notFound)
   })
 
-  test('it renders the forbidden page for a forbidden error', () => {
+  test('it returns a forbidden message for a forbidden error', () => {
     // Arrange
     const request = {
       response: boomResponse({ statusCode: statusCodes.forbidden })
@@ -102,13 +102,14 @@ describe('catchAll', () => {
     catchAll(request, h)
 
     // Assert
-    expect(h.view).toHaveBeenCalledWith(
-      'error/index',
-      expect.objectContaining({ message: 'Forbidden' })
+    expect(h.response).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'Forbidden' })
+      })
     )
   })
 
-  test('it renders the unauthorized page for an unauthorized error', () => {
+  test('it returns an unauthorized message for an unauthorized error', () => {
     // Arrange
     const request = {
       response: boomResponse({ statusCode: statusCodes.unauthorized })
@@ -119,13 +120,14 @@ describe('catchAll', () => {
     catchAll(request, h)
 
     // Assert
-    expect(h.view).toHaveBeenCalledWith(
-      'error/index',
-      expect.objectContaining({ message: 'Unauthorized' })
+    expect(h.response).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'Unauthorized' })
+      })
     )
   })
 
-  test('it renders the bad request page for a bad request error', () => {
+  test('it returns a bad request message for a bad request error', () => {
     // Arrange
     const request = {
       response: boomResponse({ statusCode: statusCodes.badRequest })
@@ -136,13 +138,14 @@ describe('catchAll', () => {
     catchAll(request, h)
 
     // Assert
-    expect(h.view).toHaveBeenCalledWith(
-      'error/index',
-      expect.objectContaining({ message: 'Bad Request' })
+    expect(h.response).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'Bad Request' })
+      })
     )
   })
 
-  test('it renders a generic message for any other status code', () => {
+  test('it returns a generic message for any other status code', () => {
     // Arrange
     const request = {
       response: boomResponse({ statusCode: statusCodes.internalServerError })
@@ -153,9 +156,10 @@ describe('catchAll', () => {
     catchAll(request, h)
 
     // Assert
-    expect(h.view).toHaveBeenCalledWith(
-      'error/index',
-      expect.objectContaining({ message: 'Something went wrong' })
+    expect(h.response).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'Something went wrong' })
+      })
     )
   })
 
@@ -202,9 +206,12 @@ describe('catchAll', () => {
     catchAll(request, h)
 
     // Assert
-    expect(h.view).toHaveBeenCalledWith(
-      'error/index',
-      expect.objectContaining({ devMessage: 'something broke unexpectedly' })
+    expect(h.response).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({
+          devMessage: 'something broke unexpectedly'
+        })
+      })
     )
   })
 
@@ -223,7 +230,7 @@ describe('catchAll', () => {
     catchAll(request, h)
 
     // Assert
-    const [, payload] = h.view.mock.calls[0]
-    expect(payload).not.toHaveProperty('devMessage')
+    const [payload] = h.response.mock.calls[0]
+    expect(payload.error).not.toHaveProperty('devMessage')
   })
 })
