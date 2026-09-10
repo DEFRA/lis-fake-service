@@ -1,31 +1,18 @@
 import { describe, expect, test } from 'vitest'
 
-import { findUser, userId } from './users.js'
+import { findUser } from './users.js'
 
 const OAKFIELD_EMAIL = 'oakfield.farmer@oakhill-farms.co.uk'
-
-describe('userId()', () => {
-  test('it derives a stable v5 UUID from the email', () => {
-    // Act
-    const first = userId(OAKFIELD_EMAIL)
-    const second = userId(OAKFIELD_EMAIL)
-
-    // Assert
-    expect(first).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
-    )
-    expect(first).toBe(second)
-  })
-})
+const OAKFIELD_SUB = 'cd91b1e0-bae4-4cee-becf-3529cc557311'
 
 describe('findUser()', () => {
-  test('it returns the record, keyed by the derived id, for a known user', () => {
+  test('it returns the record, keyed by the IdP-issued sub, for a known user', () => {
     // Act
-    const user = findUser(userId(OAKFIELD_EMAIL))
+    const user = findUser(OAKFIELD_SUB)
 
     // Assert
     expect(user).toMatchObject({
-      id: userId(OAKFIELD_EMAIL),
+      sub: OAKFIELD_SUB,
       email: OAKFIELD_EMAIL,
       firstName: 'Oakfield',
       displayName: 'Oakfield Farmer',
@@ -34,7 +21,7 @@ describe('findUser()', () => {
     })
   })
 
-  test('it returns undefined for an unknown id', () => {
+  test('it returns undefined for an unknown sub', () => {
     // Act
     const user = findUser('not-a-real-id')
 

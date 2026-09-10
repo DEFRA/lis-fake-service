@@ -2,16 +2,15 @@ import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import hapi from '@hapi/hapi'
 import { config } from '../../config/config.js'
 import { holdingId } from '../common/data/locations.js'
-import { userId } from '../common/data/users.js'
 import { identityServiceHelper } from './index.js'
 
 const configValues = {
   'identityServiceHelper.apiKey': 'test-api-key'
 }
 
-const TEST_FARMER_ID = userId('farmer@example.com')
+const TEST_FARMER_ID = '00000000-0000-0000-0000-000000000002'
 const OAKFIELD_EMAIL = 'oakfield.farmer@oakhill-farms.co.uk'
-const OAKFIELD_ID = userId(OAKFIELD_EMAIL)
+const OAKFIELD_ID = 'cd91b1e0-bae4-4cee-becf-3529cc557311'
 
 const mocks = {
   configGet: vi.spyOn(config, 'get')

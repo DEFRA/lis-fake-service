@@ -25,22 +25,16 @@ Start the service first: `npm run dev`.
 
 ## identity-service-helper `{id}`
 
-`{id}` is the OIDC `sub`, derived as
-`uuidv5(email, uuidv5('uk.gov.defra.lis.fake-service.user', uuidv5.DNS))`. The
-`*Sub` env vars are precomputed:
+`{id}` is the OIDC `sub`. It's the value the IdP fake issues for the address
+(`fake/idp/data/fixtures/defra-ci.json`), stored alongside each record in
+`data/fixtures/users.json` so the two fakes stay aligned. The `*Sub` env vars
+mirror it:
 
 | email                                    | sub                                    |
 | ---------------------------------------- | -------------------------------------- |
-| `farmer@example.com`                     | `3217adee-4546-58df-b1bd-ac2f3588b203` |
-| `oakfield.farmer@oakhill-farms.co.uk`    | `da2cc82a-69df-5e68-866c-f1bb05d729fb` |
-| `fairfield.farmer@fairfield-farms.co.uk` | `5cdb455c-23c5-5677-8eb0-0abd55ace666` |
-
-Regenerate after changing an email in `data/fixtures/users.json`:
-
-```bash
-node -e "const{v5}=require('uuid');const ns=v5('uk.gov.defra.lis.fake-service.user',v5.DNS);
-         console.log(v5('oakfield.farmer@oakhill-farms.co.uk', ns))"
-```
+| `farmer@example.com`                     | `00000000-0000-0000-0000-000000000002` |
+| `oakfield.farmer@oakhill-farms.co.uk`    | `cd91b1e0-bae4-4cee-becf-3529cc557311` |
+| `fairfield.farmer@fairfield-farms.co.uk` | `52b36302-6b7c-48e7-a386-b7bf81bd8911` |
 
 ## cts-ws
 
