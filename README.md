@@ -6,6 +6,9 @@ Currently fakes:
 
 - **CTS Web Services** — `POST /cts_ws/DefraDataTransferPublicNWSE.asmx`. See [`src/server/cts-ws/README.md`](src/server/cts-ws/README.md) for the SOAP `TransferDataHex` protocol details.
 - **identity-service-helper** — `GET /identity-service-helper/users/{id}/profile`, backed by `data/fixtures/identity-service-helper.json`.
+- **cads-data-service** — bovine animal endpoints under `/cads`, backed by `data/fixtures/cads-*.json` (the same animals as the CTS fake's `cts-animals.json`, with the extra detail CADS holds). Require a valid `x-api-key` header (`CADS_API_KEY`, default `local-dev-cads-key`).
+  - `GET /cads/api/v1/bovine/animals/{identifier}` — animal details (LANI-802)
+  - `GET /cads/api/v1/bovine/animals?CPH={cph}` — animals on a holding (LANI-803), in cads-data-service's `PaginatedResult<T>` shape. Supports `page` (default 1) and `pageSize` (default 10). Sorting (`order`/`sort`), free-text search and `holdingAssociation` filtering are not yet implemented.
 
 OIDC identity provider fakes (DEFRA CI, Entra ID) live in the separate [`lis-fake-idp`](https://github.com/DEFRA/lis-fake-idp) repo, so OIDC auth flows work against a proper CDP frontend-tier service.
 
@@ -45,5 +48,6 @@ src/
 │   │       └── logging/            # pino + ECS format
 │   ├── health/                 # GET /health
 │   ├── identity-service-helper/  # Fakes the identity-service-helper profile endpoint
-│   └── cts-ws/                 # Fakes the CTS SOAP TransferDataHex endpoint — see its own README
+│   ├── cts-ws/                 # Fakes the CTS SOAP TransferDataHex endpoint — see its own README
+│   └── cads/                   # Fakes the cads-data-service bovine animal endpoints (/cads)
 ```

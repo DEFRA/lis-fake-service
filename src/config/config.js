@@ -87,6 +87,14 @@ export const config = convict({
       env: 'IDENTITY_SERVICE_HELPER_API_KEY'
     }
   },
+  cads: {
+    apiKey: {
+      doc: 'x-api-key value the fake cads-data-service (/cads) endpoints require, matching its real ApiKeyOrCognito auth policy',
+      format: String,
+      default: 'local-dev-cads-key',
+      env: 'CADS_API_KEY'
+    }
+  },
   ctsWs: {
     dthUsername: {
       doc: 'TransferDataHex envelope username the fake cts_ws endpoint requires',
