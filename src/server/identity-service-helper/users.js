@@ -1,29 +1,51 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { readFileSync } from 'node:fs'
+import { v5 as uuidv5 } from 'uuid'
 import { statusCodes } from '../common/constants/status-codes.js'
+import { holdingId } from '../common/data/locations.js'
+import { findUser } from '../common/data/users.js'
 import { AUTH_STRATEGY } from './auth.js'
 
-const dirname = path.dirname(fileURLToPath(import.meta.url))
-
-const fixturePath = path.resolve(
-  dirname,
-  '../../../data/fixtures/identity-service-helper.json'
+// Namespaces for the ids derived per assignment - stable, not stored.
+const ASSIGNMENT_NAMESPACE = uuidv5(
+  'uk.gov.defra.lis.fake-service.assignment',
+  uuidv5.DNS
 )
+const ROLE_NAMESPACE = uuidv5('uk.gov.defra.lis.fake-service.role', uuidv5.DNS)
 
-// Keyed by user id (the OIDC `sub`), mirroring identity-service-helper's
-// GET /users/{id}/profile — same field names/shape as its UserProfile
-// response so consumers can be pointed at either without changes.
-const profiles = JSON.parse(readFileSync(fixturePath, 'utf-8'))
+// Expands a minimal user record into identity-service-helper's UserProfile
+// shape - same field names as the real response so consumers can point at
+// either.
+function toProfile(user) {
+  return {
+    userDetails: {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      displayName: user.displayName,
+      active: user.active
+    },
+    directAssignments: user.cphs.map(({ cph, role }) => ({
+      id: uuidv5(`${user.id}:${cph}`, ASSIGNMENT_NAMESPACE),
+      countyParishHoldingId: holdingId(cph),
+      countyParishHoldingNumber: cph,
+      userId: user.id,
+      roleId: uuidv5(role, ROLE_NAMESPACE),
+      roleName: role,
+      email: user.email,
+      displayName: user.displayName
+    })),
+    inboundDelegations: [],
+    outboundDelegations: []
+  }
+}
 
 function getProfileHandler(request, h) {
-  const profile = profiles[request.params.id]
+  const user = findUser(request.params.id)
 
-  if (!profile) {
+  if (!user) {
     return h.response().code(statusCodes.notFound)
   }
 
-  return h.response(profile).code(statusCodes.ok)
+  return h.response(toProfile(user)).code(statusCodes.ok)
 }
 
 export const usersRoutes = [

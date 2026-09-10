@@ -1,7 +1,6 @@
-import animalDetails from '../../../data/fixtures/cads-animal-details.json' with { type: 'json' }
-import animalsOnHolding from '../../../data/fixtures/cads-animals-on-holding.json' with { type: 'json' }
 import { statusCodes } from '../common/constants/status-codes.js'
 import { AUTH_STRATEGY } from './auth.js'
+import { animalsForCph, findAnimalDetail, isKnownCph } from './data/animals.js'
 import { problem } from './helpers/problem.js'
 import {
   DEFAULT_PAGE,
@@ -39,7 +38,7 @@ const ANIMAL_DETAIL_SOURCE = {
  */
 function getAnimalDetailsHandler(request, h) {
   const { identifier } = request.params
-  const animalDetail = animalDetails[identifier]
+  const animalDetail = findAnimalDetail(identifier)
 
   if (!animalDetail) {
     return problem(
@@ -98,11 +97,9 @@ function getAnimalsOnHoldingHandler(request, h) {
     )
   }
 
-  const animals = animalsOnHolding[cph]
-
-  // A recognised CPH with no animals is a success (an empty array); only an
-  // unrecognised CPH (undefined) is a 404 (LANI-803).
-  if (!animals) {
+  // A recognised CPH with no animals is a success (an empty page); only an
+  // unrecognised CPH is a 404 (LANI-803).
+  if (!isKnownCph(cph)) {
     return problem(
       h,
       statusCodes.notFound,
@@ -111,7 +108,7 @@ function getAnimalsOnHoldingHandler(request, h) {
     )
   }
 
-  const ordered = [...animals].sort(byEarTag)
+  const ordered = animalsForCph(cph).sort(byEarTag)
 
   return h.response(paginate(ordered, page, pageSize)).code(statusCodes.ok)
 }

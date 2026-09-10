@@ -1,5 +1,5 @@
 import { isKnownEarTag } from '../data/animals.js'
-import { findLocation } from '../data/locations.js'
+import { findLocation } from '../../common/data/locations.js'
 
 const CPH_FORMAT = /^\d{2}\/\d{3}\/\d{4}$/
 const ISO_DATE_LENGTH = 10

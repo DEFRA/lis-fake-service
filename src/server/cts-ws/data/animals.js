@@ -1,9 +1,6 @@
-import animals from '../../../../data/fixtures/cts-animals.json' with { type: 'json' }
+import { animalsByEarTag } from '../../common/data/animals.js'
 
-const animalsByEarTag = new Map(
-  animals.map((animal) => [animal.ear_tag, animal])
-)
-const cphsWithAnimals = new Set(animals.map((animal) => animal.current_cph))
+/** @import { Animal } from '../../common/data/animals.js' */
 
 /**
  * @param {string} earTag
@@ -15,16 +12,8 @@ export function isKnownEarTag(earTag) {
 
 /**
  * @param {string} earTag
- * @returns {{ear_tag: string, sex: string, breed: string, dob: string, current_cph: string, dead_on?: string, calving_dates?: string[]} | undefined}
+ * @returns {Animal | undefined}
  */
 export function findAnimal(earTag) {
   return animalsByEarTag.get(earTag)
-}
-
-/**
- * @param {string} cph
- * @returns {boolean}
- */
-export function hasAnimalOnHolding(cph) {
-  return cphsWithAnimals.has(cph)
 }

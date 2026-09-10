@@ -58,14 +58,16 @@ Each `Store` also tracks which `(username, txnId)` pairs it's already seen. The 
 
 ## Fixture data (`data/`)
 
-Each module loads one `data/fixtures/*.json` file and exposes lookup functions — no other module reads fixture JSON directly.
+Each module exposes lookup functions — no other module reads fixture JSON directly.
 
-| Module                    | Fixture                    | Provides                                                                                                                                                                               |
-| ------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `data/animals.js`         | `cts-animals.json`         | Known animals: ear tag, sex, breed, DOB, current CPH, and (for a few dedicated test dams) `dead_on` / `calving_dates`                                                                  |
-| `data/locations.js`       | `cts-locations.json`       | Sparse status overrides (cancelled / inactive-dated / unsuitable / sub-location-requiring) for specific CPHs; any CPH with an animal on it and no override is a normal active location |
-| `data/breed-codes.js`     | `cts-breed-codes.json`     | Official GOV.UK cattle breed codes, plus their `X` cross-breed variants                                                                                                                |
-| `data/unused-ear-tags.js` | `cts-unused-ear-tags.json` | Ear tags issued to a CPH and not yet used — a new birth's `Etg` must come from this pool for its `BLoc`                                                                                |
+| Module                    | Fixture                                                                  | Provides                                                                                                                                                                                                          |
+| ------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data/animals.js`         | `data/fixtures/animals/*.json` (via `src/server/common/data/animals.js`) | Known animals from the shared canonical set — ear tag, sex, breed code, birth date, current CPH, plus `dateOfDeath` / `calvingDates` for the dedicated test dams. Projects nothing; returns the canonical record. |
+| `data/unused-ear-tags.js` | `cts-unused-ear-tags.json`                                               | Ear tags issued to a CPH and not yet used — a new birth's `Etg` must come from this pool for its `BLoc`                                                                                                           |
+
+Movement validation also reads the shared `src/server/common/data/locations.js` / `data/fixtures/locations.json` — the holding registry, one entry per recognised CPH with its id, movement-suitability status, and (where relevant) inactive date range or sub-location structure. The cads fake reads it for CPH recognition; identity-service-helper resolves a keeper's CPH to its holding id.
+
+Breed-code validation (`CTWS014` in `validation/birth.js`) uses the shared `src/server/common/data/breeds.js` / `data/fixtures/breed-names.json` — the GOV.UK "Official cattle breeds and codes" list, which the cads fake also reads for breed names.
 
 ## Adding a validation rule
 

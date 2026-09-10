@@ -1,11 +1,17 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import hapi from '@hapi/hapi'
 import { config } from '../../config/config.js'
+import { holdingId } from '../common/data/locations.js'
+import { userId } from '../common/data/users.js'
 import { identityServiceHelper } from './index.js'
 
 const configValues = {
   'identityServiceHelper.apiKey': 'test-api-key'
 }
+
+const TEST_FARMER_ID = userId('farmer@example.com')
+const OAKFIELD_EMAIL = 'oakfield.farmer@oakhill-farms.co.uk'
+const OAKFIELD_ID = userId(OAKFIELD_EMAIL)
 
 const mocks = {
   configGet: vi.spyOn(config, 'get')
@@ -34,7 +40,7 @@ describe('identityServiceHelper', () => {
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: '/identity-service-helper/users/00000000-0000-0000-0000-000000000002/profile',
+      url: `/identity-service-helper/users/${TEST_FARMER_ID}/profile`,
       headers: { 'x-correlation-id': 'correlation-1' }
     })
 
@@ -51,7 +57,7 @@ describe('identityServiceHelper', () => {
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: '/identity-service-helper/users/00000000-0000-0000-0000-000000000002/profile',
+      url: `/identity-service-helper/users/${TEST_FARMER_ID}/profile`,
       headers: {
         'x-api-key': 'wrong-key',
         'x-correlation-id': 'correlation-1'
@@ -70,7 +76,7 @@ describe('identityServiceHelper', () => {
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: '/identity-service-helper/users/00000000-0000-0000-0000-000000000002/profile',
+      url: `/identity-service-helper/users/${TEST_FARMER_ID}/profile`,
       headers: { 'x-api-key': 'test-api-key' }
     })
 
@@ -87,7 +93,7 @@ describe('identityServiceHelper', () => {
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: '/identity-service-helper/users/00000000-0000-0000-0000-000000000002/profile',
+      url: `/identity-service-helper/users/${TEST_FARMER_ID}/profile`,
       headers: { 'x-api-key': 'test-api-key', 'x-correlation-id': ' "" ' }
     })
 
@@ -121,7 +127,7 @@ describe('identityServiceHelper', () => {
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: '/identity-service-helper/users/00000000-0000-0000-0000-000000000002/profile',
+      url: `/identity-service-helper/users/${TEST_FARMER_ID}/profile`,
       headers: {
         'x-api-key': 'test-api-key',
         'x-correlation-id': 'correlation-1'
@@ -130,8 +136,42 @@ describe('identityServiceHelper', () => {
 
     // Assert
     expect(response.statusCode).toBe(200)
-    expect(response.result.userDetails.id).toBe(
-      '00000000-0000-0000-0000-000000000002'
+    expect(response.result.userDetails.id).toBe(TEST_FARMER_ID)
+  })
+
+  test('it resolves each direct assignment holding from the shared locations registry', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/identity-service-helper/users/${OAKFIELD_ID}/profile`,
+      headers: {
+        'x-api-key': 'test-api-key',
+        'x-correlation-id': 'correlation-1'
+      }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.userDetails).toEqual({
+      id: OAKFIELD_ID,
+      email: OAKFIELD_EMAIL,
+      firstName: 'Oakfield',
+      displayName: 'Oakfield Farmer',
+      active: true
+    })
+    expect(response.result.directAssignments).toEqual([
+      expect.objectContaining({
+        countyParishHoldingNumber: '22/001/0001',
+        countyParishHoldingId: holdingId('22/001/0001'),
+        roleName: 'Keeper',
+        userId: OAKFIELD_ID
+      })
+    ])
+    expect(response.result.directAssignments[0].id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
     )
   })
 })
