@@ -45,7 +45,7 @@ function getAnimalDetailsHandler(request, h) {
       h,
       statusCodes.notFound,
       'Not Found',
-      `No animal found for identifier ${identifier}.`
+      'No animal found for the requested identifier.'
     )
   }
 
@@ -74,9 +74,9 @@ function getAnimalDetailsHandler(request, h) {
  * @returns {ResponseObject}
  */
 function getAnimalsOnHoldingHandler(request, h) {
-  const cph = request.query[CPH_QUERY_PARAM]
+  const rawCph = request.query[CPH_QUERY_PARAM]
 
-  if (!cph) {
+  if (!rawCph) {
     return problem(
       h,
       statusCodes.badRequest,
@@ -84,6 +84,9 @@ function getAnimalsOnHoldingHandler(request, h) {
       `Query parameter ${CPH_QUERY_PARAM} is required.`
     )
   }
+
+  // A repeated ?CPH= gives Hapi an array; take the first value.
+  const cph = Array.isArray(rawCph) ? rawCph[0] : rawCph
 
   const page = parsePagingParam(request.query.page, DEFAULT_PAGE)
   const pageSize = parsePagingParam(request.query.pageSize, DEFAULT_PAGE_SIZE)
@@ -104,7 +107,7 @@ function getAnimalsOnHoldingHandler(request, h) {
       h,
       statusCodes.notFound,
       'Not Found',
-      `No holding found for CPH ${cph}.`
+      'No holding found for the requested CPH.'
     )
   }
 
