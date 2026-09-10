@@ -1,0 +1,157 @@
+# cts-ws - Register Births (async submit + poll), against this fake's fixture data.
+#
+# The SOAP <data> element is the inner request base64-encoded, with an XML
+# declaration prepended. Each request builds it in a `< {% %}` pre-request script
+# from a readable string and sets it as {{data}}, so you edit plain XML.
+# btoa needs IntelliJ HTTP Client 2023.2+.
+#
+# Flow: run a submit -> it returns <MsgReceipt><Receipt Num="N"/> -> put N in the
+# matching poll's <Receipt Num> and run it. Poll too soon -> CTWS806. ~5% of any
+# request returns CTWS809 (service unavailable) - just resend.
+
+### SUCCESS - submit (3 rows: 2 accepted, row 3 rejected CTWS200 - dam has a recent calving)
+< {%
+  request.variables.set("data", btoa(
+    '<?xml version="1.0" encoding="utf-8"?>' +
+    '<RegBirths xmlns="http://defra.bcms.ctws/register_births_request" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
+      '<Authentication><CTS_OL_User xmlns="" Usr="dev-cts-usr" Pwd="dev-cts-pass123"/></Authentication>' +
+      '<Births TxnId="reg-births-success-example">' +
+        '<Birth RowNum="1" Etg="UK100000000003" Dob="2026-01-01" Brd="HF"  Sex="f" GdEtg="UK200000000007" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>' +
+        '<Birth RowNum="2" Etg="UK100000000004" Dob="2026-01-01" Brd="LIM" Sex="f" GdEtg="UK200000000008" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>' +
+        '<Birth RowNum="3" Etg="UK100000000005" Dob="2026-06-01" Brd="HF"  Sex="f" GdEtg="UK300000000002" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>' +
+      '</Births>' +
+    '</RegBirths>'
+  ));
+%}
+POST {{baseUrl}}/cts_ws/DefraDataTransferPublicNWSE.asmx
+Content-Type: text/xml; charset=utf-8
+SOAPAction: http://www.defra.gov.uk/TransferDataHex
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHex xmlns="http://www.defra.gov.uk">
+      <username>local-dev-dth-username</username>
+      <password>0f88918e424bcb8f8a731e2289a0e6af</password>
+      <serviceName>DEFRA-CTWS-FULL-PROVING</serviceName>
+      <data>{{data}}</data>
+      <type>Register_Births_Asynchronous-V1-0</type>
+    </TransferDataHex>
+  </soap:Body>
+</soap:Envelope>
+
+> {%
+  // Decode the base64 <TransferDataHexResult> and print it to the response console.
+  const raw = String(response.body && response.body.raw ? response.body.raw : response.body);
+  const m = /<TransferDataHexResult>([^<]*)<\/TransferDataHexResult>/.exec(raw);
+  client.log(m ? atob(m[1]) : "(no TransferDataHexResult in response)");
+%}
+
+### SUCCESS - poll (expect: Accepted rows 1,2; Rejected row 3 CTWS200 "Dam has already given birth")
+< {%
+  request.variables.set("data", btoa(
+    '<?xml version="1.0" encoding="utf-8"?>' +
+    '<GetResults xmlns="http://defra.bcms.ctws/get_asynchronus_results" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
+      '<Authentication><CTS_OL_User xmlns="" Usr="dev-cts-usr" Pwd="dev-cts-pass123"/></Authentication>' +
+      '<Receipt Num="1"/>' +
+    '</GetResults>'
+  ));
+%}
+POST {{baseUrl}}/cts_ws/DefraDataTransferPublicNWSE.asmx
+Content-Type: text/xml; charset=utf-8
+SOAPAction: http://www.defra.gov.uk/TransferDataHex
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHex xmlns="http://www.defra.gov.uk">
+      <username>local-dev-dth-username</username>
+      <password>0f88918e424bcb8f8a731e2289a0e6af</password>
+      <serviceName>DEFRA-CTWS-FULL-PROVING</serviceName>
+      <data>{{data}}</data>
+      <type>Get_Register_Births_Validation_Results-V1-0</type>
+    </TransferDataHex>
+  </soap:Body>
+</soap:Envelope>
+
+> {%
+  // Decode the base64 <TransferDataHexResult> and print it to the response console.
+  const raw = String(response.body && response.body.raw ? response.body.raw : response.body);
+  const m = /<TransferDataHexResult>([^<]*)<\/TransferDataHexResult>/.exec(raw);
+  client.log(m ? atob(m[1]) : "(no TransferDataHexResult in response)");
+%}
+
+### FAILURE - submit (7 rows: only row 7 accepted, rows 1-6 rejected)
+< {%
+  request.variables.set("data", btoa(
+    '<?xml version="1.0" encoding="utf-8"?>' +
+    '<RegBirths xmlns="http://defra.bcms.ctws/register_births_request" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
+      '<Authentication><CTS_OL_User xmlns="" Usr="dev-cts-usr" Pwd="dev-cts-pass123"/></Authentication>' +
+      '<Births TxnId="reg-births-failure-example">' +
+        '<Birth RowNum="1" Etg="UK12345"        Dob="2026-01-01" Brd="HF" Sex="f" GdEtg="UK200000000007" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>' +
+        '<Birth RowNum="2" Etg="UK100000000006" Dob="2026-01-01" Brd="ZZ" Sex="f" GdEtg="UK200000000007" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>' +
+        '<Birth RowNum="3" Etg="UK500000000001" Dob="2026-01-01" Brd="HF" Sex="f" GdEtg="UK200000000007" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>' +
+        '<Birth RowNum="4" Etg="UK200000000001" Dob="2026-01-01" Brd="HF" Sex="f" GdEtg="UK200000000007" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>' +
+        '<Birth RowNum="5" Etg="UK100000000007" Dob="2026-01-01" Brd="HF" Sex="f" GdEtg="UK999999999999" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>' +
+        '<Birth RowNum="6" Etg="UK100000000008" Dob="2026-06-01" Brd="HF" Sex="f" GdEtg="UK300000000001" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>' +
+        '<Birth RowNum="7" Etg="UK100000000009" Dob="2026-01-01" Brd="HF" Sex="f" GdEtg="UK200000000007" BLoc="22/001/0001" PLoc="22/001/0001" IWarn="n"/>' +
+      '</Births>' +
+    '</RegBirths>'
+  ));
+%}
+POST {{baseUrl}}/cts_ws/DefraDataTransferPublicNWSE.asmx
+Content-Type: text/xml; charset=utf-8
+SOAPAction: http://www.defra.gov.uk/TransferDataHex
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHex xmlns="http://www.defra.gov.uk">
+      <username>local-dev-dth-username</username>
+      <password>0f88918e424bcb8f8a731e2289a0e6af</password>
+      <serviceName>DEFRA-CTWS-FULL-PROVING</serviceName>
+      <data>{{data}}</data>
+      <type>Register_Births_Asynchronous-V1-0</type>
+    </TransferDataHex>
+  </soap:Body>
+</soap:Envelope>
+
+> {%
+  // Decode the base64 <TransferDataHexResult> and print it to the response console.
+  const raw = String(response.body && response.body.raw ? response.body.raw : response.body);
+  const m = /<TransferDataHexResult>([^<]*)<\/TransferDataHexResult>/.exec(raw);
+  client.log(m ? atob(m[1]) : "(no TransferDataHexResult in response)");
+%}
+
+### FAILURE - poll
+# expect Accepted row 7; Rejected:
+#   1 CTWS004 Invalid Ear Tag   2 CTWS014 Invalid Breed Code   3 CTWS111 Ear Tag not issued
+#   4 CTWS192 Ear Tag already used   5 CTWS180 Birth Dam not found (w)   6 CTWS198 Dam dead on birth date
+< {%
+  request.variables.set("data", btoa(
+    '<?xml version="1.0" encoding="utf-8"?>' +
+    '<GetResults xmlns="http://defra.bcms.ctws/get_asynchronus_results" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
+      '<Authentication><CTS_OL_User xmlns="" Usr="dev-cts-usr" Pwd="dev-cts-pass123"/></Authentication>' +
+      '<Receipt Num="2"/>' +
+    '</GetResults>'
+  ));
+%}
+POST {{baseUrl}}/cts_ws/DefraDataTransferPublicNWSE.asmx
+Content-Type: text/xml; charset=utf-8
+SOAPAction: http://www.defra.gov.uk/TransferDataHex
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHex xmlns="http://www.defra.gov.uk">
+      <username>local-dev-dth-username</username>
+      <password>0f88918e424bcb8f8a731e2289a0e6af</password>
+      <serviceName>DEFRA-CTWS-FULL-PROVING</serviceName>
+      <data>{{data}}</data>
+      <type>Get_Register_Births_Validation_Results-V1-0</type>
+    </TransferDataHex>
+  </soap:Body>
+</soap:Envelope>
+
+> {%
+  // Decode the base64 <TransferDataHexResult> and print it to the response console.
+  const raw = String(response.body && response.body.raw ? response.body.raw : response.body);
+  const m = /<TransferDataHexResult>([^<]*)<\/TransferDataHexResult>/.exec(raw);
+  client.log(m ? atob(m[1]) : "(no TransferDataHexResult in response)");
+%}

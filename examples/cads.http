@@ -1,0 +1,41 @@
+# cads - fakes cads-data-service. Every route needs x-api-key: {{cadsApiKey}}.
+
+### Animal details (LANI-802)
+GET {{baseUrl}}/cads/api/v1/bovine/animals/{{animalId}}
+x-api-key: {{cadsApiKey}}
+
+### Animal details - dead animal (state: Dead, dateOfDeath)
+GET {{baseUrl}}/cads/api/v1/bovine/animals/{{deadAnimalId}}
+x-api-key: {{cadsApiKey}}
+
+### Animal details - not found (404 ProblemDetails)
+GET {{baseUrl}}/cads/api/v1/bovine/animals/UK999999999999
+x-api-key: {{cadsApiKey}}
+
+### Animals on holding (LANI-803, PaginatedResult<T>)
+# order / sort / q / holdingAssociation are accepted but ignored; results are ear-tag ascending.
+GET {{baseUrl}}/cads/api/v1/bovine/animals?CPH={{cph}}
+x-api-key: {{cadsApiKey}}
+
+### Animals on holding - paged
+GET {{baseUrl}}/cads/api/v1/bovine/animals?CPH={{cph}}&page=2&pageSize=5
+x-api-key: {{cadsApiKey}}
+
+### Animals on holding - cancelled holding (200 with empty results, not 404)
+GET {{baseUrl}}/cads/api/v1/bovine/animals?CPH={{cancelledCph}}
+x-api-key: {{cadsApiKey}}
+
+### Animals on holding - unknown CPH (404)
+GET {{baseUrl}}/cads/api/v1/bovine/animals?CPH=99/999/9999
+x-api-key: {{cadsApiKey}}
+
+### Animals on holding - missing CPH (400)
+GET {{baseUrl}}/cads/api/v1/bovine/animals
+x-api-key: {{cadsApiKey}}
+
+### Animals on holding - bad page (400)
+GET {{baseUrl}}/cads/api/v1/bovine/animals?CPH={{cph}}&page=x
+x-api-key: {{cadsApiKey}}
+
+### Unauthorized - no x-api-key (401)
+GET {{baseUrl}}/cads/api/v1/bovine/animals/{{animalId}}
