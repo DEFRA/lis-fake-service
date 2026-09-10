@@ -21,7 +21,7 @@ const HOLDING_NAMESPACE = uuidv5(
  *   isn't recognised
  */
 export function findLocation(cph) {
-  return locations[cph]
+  return Object.hasOwn(locations, cph) ? locations[cph] : undefined
 }
 
 /**

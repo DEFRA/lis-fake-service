@@ -18,5 +18,5 @@ export function isKnownBreedCode(code) {
  * @returns {string} the breed name for the code, or the code itself if unknown
  */
 export function breedName(code) {
-  return breedNames[code] ?? code
+  return Object.hasOwn(breedNames, code) ? breedNames[code] : code
 }

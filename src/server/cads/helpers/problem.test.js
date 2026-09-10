@@ -22,7 +22,12 @@ describe('problem()', () => {
     const result = problem(h, status, title, detail)
 
     // Assert
-    expect(h.response).toHaveBeenCalledWith({ title, status, detail })
+    expect(h.response).toHaveBeenCalledWith({
+      type: 'https://tools.ietf.org/html/rfc9110#section-15.5.5',
+      title,
+      status,
+      detail
+    })
     expect(response.code).toHaveBeenCalledWith(404)
     expect(result).toBe(response)
   })

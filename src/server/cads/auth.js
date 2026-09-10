@@ -1,6 +1,7 @@
 /** @import { Request, ResponseToolkit } from '@hapi/hapi' */
 import { config } from '../../config/config.js'
 import { statusCodes } from '../common/constants/status-codes.js'
+import { problem } from './helpers/problem.js'
 
 const API_KEY_HEADER = 'x-api-key'
 const STRATEGY_NAME = 'cads'
@@ -8,15 +9,12 @@ const STRATEGY_NAME = 'cads'
 // Mirrors the shape ASP.NET returns for an unauthenticated request against the
 // real cads-data-service (RFC 7807 ProblemDetails).
 function unauthorized(h) {
-  return h
-    .response({
-      type: 'https://tools.ietf.org/html/rfc9110#section-15.5.2',
-      title: 'Unauthorized',
-      status: statusCodes.unauthorized,
-      detail: `A valid ${API_KEY_HEADER} header is required.`
-    })
-    .code(statusCodes.unauthorized)
-    .takeover()
+  return problem(
+    h,
+    statusCodes.unauthorized,
+    'Unauthorized',
+    `A valid ${API_KEY_HEADER} header is required.`
+  ).takeover()
 }
 
 /**
