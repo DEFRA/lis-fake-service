@@ -1,5 +1,6 @@
 [
   {
+    "sub": "00000000-0000-0000-0000-000000000002",
     "email": "farmer@example.com",
     "firstName": "Test",
     "displayName": "Test Farmer",
@@ -7,6 +8,7 @@
     "cphs": []
   },
   {
+    "sub": "cd91b1e0-bae4-4cee-becf-3529cc557311",
     "email": "oakfield.farmer@oakhill-farms.co.uk",
     "firstName": "Oakfield",
     "displayName": "Oakfield Farmer",
@@ -14,6 +16,7 @@
     "cphs": [{ "cph": "22/001/0001", "role": "Keeper" }]
   },
   {
+    "sub": "52b36302-6b7c-48e7-a386-b7bf81bd8911",
     "email": "fairfield.farmer@fairfield-farms.co.uk",
     "firstName": "Fairfield",
     "displayName": "Fairfield Farmer",

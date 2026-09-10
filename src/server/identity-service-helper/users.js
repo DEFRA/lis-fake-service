@@ -17,17 +17,17 @@ const ROLE_NAMESPACE = uuidv5('uk.gov.defra.lis.fake-service.role', uuidv5.DNS)
 function toProfile(user) {
   return {
     userDetails: {
-      id: user.id,
+      id: user.sub,
       email: user.email,
       firstName: user.firstName,
       displayName: user.displayName,
       active: user.active
     },
     directAssignments: user.cphs.map(({ cph, role }) => ({
-      id: uuidv5(`${user.id}:${cph}`, ASSIGNMENT_NAMESPACE),
+      id: uuidv5(`${user.sub}:${cph}`, ASSIGNMENT_NAMESPACE),
       countyParishHoldingId: holdingId(cph),
       countyParishHoldingNumber: cph,
-      userId: user.id,
+      userId: user.sub,
       roleId: uuidv5(role, ROLE_NAMESPACE),
       roleName: role,
       email: user.email,
