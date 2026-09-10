@@ -1,0 +1,19 @@
+{
+  "earTag": "UK200000000007",
+  "sex": "Female",
+  "breedCode": "HI",
+  "birthDate": "2023-03-15",
+  "currentCph": "22/001/0001",
+  "registrationDate": "2023-03-18",
+  "dateOnCph": "2023-03-15",
+  "dateOffCph": null,
+  "dateOfDeath": null,
+  "calvingDates": [],
+  "parentage": [
+    {
+      "relationship": "GeneticDam",
+      "earTag": "UK200000000097"
+    }
+  ],
+  "restrictionStatus": "Restricted"
+}

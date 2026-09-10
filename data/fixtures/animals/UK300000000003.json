@@ -1,0 +1,14 @@
+{
+  "earTag": "UK300000000003",
+  "sex": "Female",
+  "breedCode": "HF",
+  "birthDate": "2020-01-01",
+  "currentCph": "22/001/0001",
+  "registrationDate": "2020-01-01",
+  "dateOnCph": "2020-01-01",
+  "dateOffCph": null,
+  "dateOfDeath": null,
+  "calvingDates": ["2026-01-01", "2026-02-01", "2026-03-01", "2026-04-01"],
+  "parentage": [],
+  "restrictionStatus": "None"
+}

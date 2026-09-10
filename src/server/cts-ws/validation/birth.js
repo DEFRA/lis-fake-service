@@ -1,4 +1,4 @@
-import { isValidBreedCode } from '../data/breed-codes.js'
+import { isKnownBreedCode } from '../../common/data/breeds.js'
 import { findAnimal } from '../data/animals.js'
 import { isIssuedAndUnused } from '../data/unused-ear-tags.js'
 
@@ -19,7 +19,7 @@ function daysBetween(fromIso, toIso) {
 }
 
 function recentCalvingCount(dam, row) {
-  return (dam.calving_dates ?? []).filter((calvingDate) => {
+  return (dam.calvingDates ?? []).filter((calvingDate) => {
     const daysSince = daysBetween(calvingDate, row.Dob)
     return daysSince >= 0 && daysSince <= CALVING_WINDOW_DAYS
   }).length
@@ -133,7 +133,7 @@ export const birthCauses = [
     desc: 'Invalid Breed Code',
     sev: 'e',
     field: 'Brd',
-    validate: (row) => Boolean(row.Brd) && !isValidBreedCode(row.Brd)
+    validate: (row) => Boolean(row.Brd) && !isKnownBreedCode(row.Brd)
   },
   {
     code: 'CTWS180',
@@ -165,14 +165,14 @@ export const birthCauses = [
     desc: "Dam's sex is invalid",
     sev: 'e',
     field: 'GdEtg',
-    validate: (row) => findAnimal(row.GdEtg)?.sex === 'm'
+    validate: (row) => findAnimal(row.GdEtg)?.sex === 'Male'
   },
   {
     code: 'CTWS196',
     desc: "Sire's sex is invalid",
     sev: 'w',
     field: 'SiEtg',
-    validate: (row) => findAnimal(row.SiEtg)?.sex === 'f'
+    validate: (row) => findAnimal(row.SiEtg)?.sex === 'Female'
   },
   {
     code: 'CTWS198',
@@ -181,7 +181,7 @@ export const birthCauses = [
     field: 'GdEtg',
     validate: (row) => {
       const dam = findAnimal(row.GdEtg)
-      return Boolean(dam?.dead_on) && row.Dob >= dam.dead_on
+      return Boolean(dam?.dateOfDeath) && row.Dob >= dam.dateOfDeath
     }
   },
   {
@@ -191,7 +191,7 @@ export const birthCauses = [
     field: 'GdEtg',
     validate: (row) => {
       const dam = findAnimal(row.GdEtg)
-      return Boolean(dam) && dam.current_cph !== row.BLoc
+      return Boolean(dam) && dam.currentCph !== row.BLoc
     }
   },
   {
@@ -216,7 +216,7 @@ export const birthCauses = [
         return false
       }
 
-      const ageInDays = daysBetween(dam.dob, row.Dob)
+      const ageInDays = daysBetween(dam.birthDate, row.Dob)
 
       return (
         ageInDays < MIN_DAM_AGE_MONTHS * DAYS_PER_MONTH ||

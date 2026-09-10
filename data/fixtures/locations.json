@@ -1,0 +1,30 @@
+{
+  "22/001/0001": { "status": "active" },
+  "22/002/0002": { "status": "active" },
+  "22/003/0003": { "status": "active" },
+  "22/004/0004": { "status": "active" },
+  "22/005/0005": { "status": "active" },
+  "22/006/0006": { "status": "active" },
+  "22/007/0007": { "status": "active" },
+  "22/008/0008": { "status": "cancelled" },
+  "22/009/0009": {
+    "status": "inactive",
+    "inactiveFrom": "2000-01-01",
+    "inactiveTo": "2099-12-31"
+  },
+  "22/010/0010": { "status": "unsuitable" },
+  "22/011/0011": {
+    "status": "active",
+    "requiresSubLocation": true,
+    "subLocations": {
+      "01": { "status": "active" },
+      "02": { "status": "cancelled" },
+      "03": {
+        "status": "inactive",
+        "inactiveFrom": "2000-01-01",
+        "inactiveTo": "2099-12-31"
+      }
+    }
+  },
+  "22/099/0099": { "status": "active" }
+}

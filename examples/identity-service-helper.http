@@ -1,0 +1,35 @@
+# identity-service-helper - fakes GET /users/{id}/profile.
+# Needs x-api-key: {{ishApiKey}} and a non-empty x-correlation-id.
+#
+# {id} is the OIDC sub, derived as uuidv5(email, uuidv5('uk.gov.defra.lis.fake-service.user', uuidv5.DNS)).
+# The *Sub env vars are precomputed. To regenerate:
+#   node -e "const{v5}=require('uuid');const ns=v5('uk.gov.defra.lis.fake-service.user',v5.DNS);
+#            console.log(v5('oakfield.farmer@oakhill-farms.co.uk', ns))"
+
+### Profile - Oakfield Farmer (1 holding: 22/001/0001)
+GET {{baseUrl}}/identity-service-helper/users/{{oakfieldSub}}/profile
+x-api-key: {{ishApiKey}}
+x-correlation-id: {{correlationId}}
+
+### Profile - Fairfield Farmer (6 holdings: 22/002/0002 .. 22/007/0007)
+GET {{baseUrl}}/identity-service-helper/users/{{fairfieldSub}}/profile
+x-api-key: {{ishApiKey}}
+x-correlation-id: {{correlationId}}
+
+### Profile - Test Farmer (no holdings)
+GET {{baseUrl}}/identity-service-helper/users/{{testFarmerSub}}/profile
+x-api-key: {{ishApiKey}}
+x-correlation-id: {{correlationId}}
+
+### Profile - unknown sub (404)
+GET {{baseUrl}}/identity-service-helper/users/not-a-real-sub/profile
+x-api-key: {{ishApiKey}}
+x-correlation-id: {{correlationId}}
+
+### Missing x-api-key (400)
+GET {{baseUrl}}/identity-service-helper/users/{{oakfieldSub}}/profile
+x-correlation-id: {{correlationId}}
+
+### Missing x-correlation-id (400)
+GET {{baseUrl}}/identity-service-helper/users/{{oakfieldSub}}/profile
+x-api-key: {{ishApiKey}}

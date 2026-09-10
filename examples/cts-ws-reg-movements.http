@@ -1,0 +1,156 @@
+# cts-ws - Register Movements (async submit + poll), against this fake's fixture data.
+#
+# The SOAP <data> element is the inner request base64-encoded, with an XML
+# declaration prepended. Each request builds it in a `< {% %}` pre-request script
+# from a readable string and sets it as {{data}}, so you edit plain XML.
+# btoa needs IntelliJ HTTP Client 2023.2+.
+#
+# Flow: run a submit -> it returns <MsgReceipt><Receipt Num="N"/> -> put N in the
+# matching poll's <Receipt Num> and run it. Poll too soon -> CTWS806. ~5% of any
+# request returns CTWS809 (service unavailable) - just resend.
+
+### SUCCESS - submit (3 rows: rows 1,2 accepted, row 3 rejected CTWS336 - duplicates row 1)
+< {%
+  request.variables.set("data", btoa(
+    '<?xml version="1.0" encoding="utf-8"?>' +
+    '<RegMovs xmlns="http://defra.bcms.ctws/register_movements_request" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
+      '<Authentication><CTS_OL_User xmlns="" Usr="dev-cts-usr" Pwd="dev-cts-pass123"/></Authentication>' +
+      '<Moves TxnId="reg-movements-success-example">' +
+        '<Mov RowNum="1" Etg="UK200000000001" Loc="22/001/0001" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>' +
+        '<Mov RowNum="2" Etg="UK200000000002" Loc="22/001/0001" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>' +
+        '<Mov RowNum="3" Etg="UK200000000001" Loc="22/001/0001" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>' +
+      '</Moves>' +
+    '</RegMovs>'
+  ));
+%}
+POST {{baseUrl}}/cts_ws/DefraDataTransferPublicNWSE.asmx
+Content-Type: text/xml; charset=utf-8
+SOAPAction: http://www.defra.gov.uk/TransferDataHex
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHex xmlns="http://www.defra.gov.uk">
+      <username>local-dev-dth-username</username>
+      <password>0f88918e424bcb8f8a731e2289a0e6af</password>
+      <serviceName>DEFRA-CTWS-FULL-PROVING</serviceName>
+      <data>{{data}}</data>
+      <type>Register_Movements_Asynchronous-V1-0</type>
+    </TransferDataHex>
+  </soap:Body>
+</soap:Envelope>
+
+> {%
+  // Decode the base64 <TransferDataHexResult> and print it to the response console.
+  const raw = String(response.body && response.body.raw ? response.body.raw : response.body);
+  const m = /<TransferDataHexResult>([^<]*)<\/TransferDataHexResult>/.exec(raw);
+  client.log(m ? atob(m[1]) : "(no TransferDataHexResult in response)");
+%}
+
+### SUCCESS - poll (expect: Accepted rows 1,2; Rejected row 3 CTWS336 "Duplicate movement in file")
+< {%
+  request.variables.set("data", btoa(
+    '<?xml version="1.0" encoding="utf-8"?>' +
+    '<GetResults xmlns="http://defra.bcms.ctws/get_asynchronus_results" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
+      '<Authentication><CTS_OL_User xmlns="" Usr="dev-cts-usr" Pwd="dev-cts-pass123"/></Authentication>' +
+      '<Receipt Num="1"/>' +
+    '</GetResults>'
+  ));
+%}
+POST {{baseUrl}}/cts_ws/DefraDataTransferPublicNWSE.asmx
+Content-Type: text/xml; charset=utf-8
+SOAPAction: http://www.defra.gov.uk/TransferDataHex
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHex xmlns="http://www.defra.gov.uk">
+      <username>local-dev-dth-username</username>
+      <password>0f88918e424bcb8f8a731e2289a0e6af</password>
+      <serviceName>DEFRA-CTWS-FULL-PROVING</serviceName>
+      <data>{{data}}</data>
+      <type>Get_Register_Movements_Validation_Results-V1-0</type>
+    </TransferDataHex>
+  </soap:Body>
+</soap:Envelope>
+
+> {%
+  // Decode the base64 <TransferDataHexResult> and print it to the response console.
+  const raw = String(response.body && response.body.raw ? response.body.raw : response.body);
+  const m = /<TransferDataHexResult>([^<]*)<\/TransferDataHexResult>/.exec(raw);
+  client.log(m ? atob(m[1]) : "(no TransferDataHexResult in response)");
+%}
+
+### FAILURE - submit (6 rows: only row 6 accepted)
+< {%
+  request.variables.set("data", btoa(
+    '<?xml version="1.0" encoding="utf-8"?>' +
+    '<RegMovs xmlns="http://defra.bcms.ctws/register_movements_request" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
+      '<Authentication><CTS_OL_User xmlns="" Usr="dev-cts-usr" Pwd="dev-cts-pass123"/></Authentication>' +
+      '<Moves TxnId="reg-movements-failure-example">' +
+        '<Mov RowNum="1" Etg="UK999999999999" Loc="22/001/0001"          MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>' +
+        '<Mov RowNum="2" Etg="UK200000000003" Loc="22/008/0008"          MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>' +
+        '<Mov RowNum="3" Etg="UK200000000004" Loc="22/010/0010"          MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>' +
+        '<Mov RowNum="4" Etg="UK200000000005" Loc="22/011/0011"          MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>' +
+        '<Mov RowNum="5" Etg="UK200000000006" Loc="22/011/0011" SLoc="99" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>' +
+        '<Mov RowNum="6" Etg="UK200000000009" Loc="22/001/0001"          MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>' +
+      '</Moves>' +
+    '</RegMovs>'
+  ));
+%}
+POST {{baseUrl}}/cts_ws/DefraDataTransferPublicNWSE.asmx
+Content-Type: text/xml; charset=utf-8
+SOAPAction: http://www.defra.gov.uk/TransferDataHex
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHex xmlns="http://www.defra.gov.uk">
+      <username>local-dev-dth-username</username>
+      <password>0f88918e424bcb8f8a731e2289a0e6af</password>
+      <serviceName>DEFRA-CTWS-FULL-PROVING</serviceName>
+      <data>{{data}}</data>
+      <type>Register_Movements_Asynchronous-V1-0</type>
+    </TransferDataHex>
+  </soap:Body>
+</soap:Envelope>
+
+> {%
+  // Decode the base64 <TransferDataHexResult> and print it to the response console.
+  const raw = String(response.body && response.body.raw ? response.body.raw : response.body);
+  const m = /<TransferDataHexResult>([^<]*)<\/TransferDataHexResult>/.exec(raw);
+  client.log(m ? atob(m[1]) : "(no TransferDataHexResult in response)");
+%}
+
+### FAILURE - poll
+# expect Accepted row 6; Rejected:
+#   1 CTWS307 Ear Tag Not Found   2 CTWS329 Cancelled Location (w)   3 CTWS320 Location Unsuitable
+#   4 CTWS324 Missing Sub-Location   5 CTWS330 Sublocation not found
+< {%
+  request.variables.set("data", btoa(
+    '<?xml version="1.0" encoding="utf-8"?>' +
+    '<GetResults xmlns="http://defra.bcms.ctws/get_asynchronus_results" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
+      '<Authentication><CTS_OL_User xmlns="" Usr="dev-cts-usr" Pwd="dev-cts-pass123"/></Authentication>' +
+      '<Receipt Num="2"/>' +
+    '</GetResults>'
+  ));
+%}
+POST {{baseUrl}}/cts_ws/DefraDataTransferPublicNWSE.asmx
+Content-Type: text/xml; charset=utf-8
+SOAPAction: http://www.defra.gov.uk/TransferDataHex
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <TransferDataHex xmlns="http://www.defra.gov.uk">
+      <username>local-dev-dth-username</username>
+      <password>0f88918e424bcb8f8a731e2289a0e6af</password>
+      <serviceName>DEFRA-CTWS-FULL-PROVING</serviceName>
+      <data>{{data}}</data>
+      <type>Get_Register_Movements_Validation_Results-V1-0</type>
+    </TransferDataHex>
+  </soap:Body>
+</soap:Envelope>
+
+> {%
+  // Decode the base64 <TransferDataHexResult> and print it to the response console.
+  const raw = String(response.body && response.body.raw ? response.body.raw : response.body);
+  const m = /<TransferDataHexResult>([^<]*)<\/TransferDataHexResult>/.exec(raw);
+  client.log(m ? atob(m[1]) : "(no TransferDataHexResult in response)");
+%}
