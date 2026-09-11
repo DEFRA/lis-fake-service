@@ -20,7 +20,7 @@ async function makeServer() {
 const KNOWN_IDENTIFIER = 'UK200000000001'
 const DEAD_IDENTIFIER = 'UK300000000001'
 const KNOWN_CPH = '22/001/0001'
-const KNOWN_CPH_COUNT = 17
+const KNOWN_CPH_COUNT = 35
 const KNOWN_EMPTY_CPH = '22/099/0099'
 
 describe('cads', () => {
@@ -146,7 +146,7 @@ describe('cads', () => {
       totalCount: KNOWN_CPH_COUNT,
       page: 1,
       pageSize: 10,
-      totalPages: 2,
+      totalPages: 4,
       hasNextPage: true,
       hasPreviousPage: false
     })
@@ -209,7 +209,7 @@ describe('cads', () => {
       totalCount: KNOWN_CPH_COUNT,
       page: 2,
       pageSize: 3,
-      totalPages: 6,
+      totalPages: 12,
       hasNextPage: true,
       hasPreviousPage: true
     })
