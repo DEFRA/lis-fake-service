@@ -9,6 +9,8 @@ Currently fakes:
 - **cads-data-service** — bovine animal endpoints under `/cads`. Mapped from the shared canonical animal set (`data/fixtures/animals/*.json`) that the CTS fake also uses, with the extra detail CADS holds. Require a valid `Authorization: Basic base64(clientId:secret)` header, matching the real service's ApiKeyOrCognito Basic-scheme auth policy (`CADS_CLIENT_ID`/`CADS_CLIENT_SECRET`, defaults `local-dev-cads-client`/`local-dev-cads-secret`).
   - `GET /cads/api/v1/bovine/animals/{identifier}` — animal details (LANI-802)
   - `GET /cads/api/v1/bovine/animals?CPH={cph}` — animals on a holding (LANI-803), in cads-data-service's `PaginatedResult<T>` shape. Supports `page` (default 1) and `pageSize` (default 10). Sorting (`order`/`sort`), free-text search and `holdingAssociation` filtering are not yet implemented.
+- **keeper-data-api** (krds, not yet built) — holding detail under `/krds`. Currently a standalone fixture (`src/server/krds/data/krds-holdings.json`), pending consolidation with the shared canonical location data once the real endpoint lands. Requires a valid `Authorization: Basic base64(clientId:secret)` header, standing in for the real service's Bearer-or-Basic auth policy (`KRDS_CLIENT_ID`/`KRDS_CLIENT_SECRET`, defaults `local-dev-krds-client`/`local-dev-krds-secret`).
+  - `GET /krds/api/v2/holdings/{county}/{parish}/{holding}` — holding detail by CPH. Returns 400 with field-level errors when a segment fails its format (`county` 2 digits, `parish` 3 digits, `holding` 4 digits), 404 when the CPH isn't in the fixture.
 
 OIDC identity provider fakes (DEFRA CI, Entra ID) live in the separate [`lis-fake-idp`](https://github.com/DEFRA/lis-fake-idp) repo, so OIDC auth flows work against a proper CDP frontend-tier service.
 

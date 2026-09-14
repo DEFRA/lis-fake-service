@@ -1,0 +1,114 @@
+[
+  {
+    "county": "22",
+    "parish": "001",
+    "holding": "0001",
+    "identifier": "22/001/0001",
+    "holdingType": "AH",
+    "name": "Oakfield Farm",
+    "startDate": "2010-04-01T00:00:00Z",
+    "endDate": null,
+    "location": {
+      "osMapReference": "SJ4912",
+      "easting": 349120,
+      "northing": 312450,
+      "address": {
+        "udprn": "12345678",
+        "addressLine1": "Oakfield Farm",
+        "addressLine2": "Church Lane",
+        "postTown": "Shrewsbury",
+        "locality": "Shropshire",
+        "postcode": "SY4 1AB",
+        "country": "England"
+      }
+    },
+    "associations": [
+      {
+        "customerNumber": "CUST0001",
+        "title": "Mr",
+        "firstName": "John",
+        "lastName": "Oakfield",
+        "name": "John Oakfield",
+        "partyType": "Individual",
+        "email": "john@oakhill-farms.co.uk",
+        "mobile": "+447700900001",
+        "telephone": null,
+        "roles": [{ "code": "Keeper", "species": ["Cattle"] }]
+      }
+    ],
+    "allowedSpecies": ["Cattle"],
+    "marks": [
+      {
+        "mark": "UK 324537",
+        "startDate": "2010-04-01T00:00:00Z",
+        "endDate": null,
+        "species": ["Cattle"]
+      }
+    ]
+  },
+  {
+    "county": "22",
+    "parish": "002",
+    "holding": "0002",
+    "identifier": "22/002/0002",
+    "holdingType": "AH",
+    "name": "Fairfield Farm",
+    "startDate": "2008-09-15T00:00:00Z",
+    "endDate": null,
+    "location": {
+      "osMapReference": "SP8945",
+      "easting": 489450,
+      "northing": 253100,
+      "address": {
+        "udprn": "23456789",
+        "addressLine1": "Fairfield Farm",
+        "addressLine2": "Manor Road",
+        "postTown": "Lavendon",
+        "locality": "Buckinghamshire",
+        "postcode": "MK1 1AA",
+        "country": "England"
+      }
+    },
+    "associations": [
+      {
+        "customerNumber": "CUST0002",
+        "title": null,
+        "firstName": null,
+        "lastName": null,
+        "name": "Fairfield Livestock Ltd",
+        "partyType": "Business",
+        "email": "office@fairfield-farms.co.uk",
+        "mobile": null,
+        "telephone": "+441908555000",
+        "roles": [{ "code": "Keeper", "species": ["Cattle", "Sheep"] }]
+      },
+      {
+        "customerNumber": "CUST0003",
+        "title": "Mrs",
+        "firstName": "Sarah",
+        "lastName": "Fairfield",
+        "name": "Sarah Fairfield",
+        "partyType": "Individual",
+        "email": "sarah@fairfield-farms.co.uk",
+        "mobile": "+447700900002",
+        "telephone": null,
+        "roles": [{ "code": "Agent", "species": ["Cattle"] }]
+      }
+    ],
+    "allowedSpecies": ["Cattle", "Sheep"],
+    "marks": [
+      {
+        "mark": "UK 324788",
+        "startDate": "2008-09-15T00:00:00Z",
+        "endDate": null,
+        "species": ["Cattle"]
+      },
+      {
+        "mark": "UK 324789",
+        "startDate": "2015-03-01T00:00:00Z",
+        "endDate": null,
+        "species": ["Sheep"]
+      }
+    ]
+  }
+]
