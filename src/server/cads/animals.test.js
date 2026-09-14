@@ -103,7 +103,7 @@ describe('cads', () => {
     expect(response.result.animalDetail.parentage).toHaveLength(2)
   })
 
-  test('it returns the richer CADS detail for a dead animal', async () => {
+  test("it marks a dead animal's state, without a dateOfDeath field the real DTO does not have", async () => {
     // Arrange
     const server = await makeServer()
 
@@ -117,7 +117,7 @@ describe('cads', () => {
     // Assert
     expect(response.statusCode).toBe(200)
     expect(response.result.animalDetail.state).toBe('Dead')
-    expect(response.result.animalDetail.dateOfDeath).toBe('2026-01-01')
+    expect(response.result.animalDetail.dateOfDeath).toBeUndefined()
   })
 
   test('it returns 404 with a problem body for an unknown identifier', async () => {
