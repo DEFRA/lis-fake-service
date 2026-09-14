@@ -1,0 +1,50 @@
+{
+  "status": "active",
+  "identifier": "22/005/0005",
+  "holdingType": "AH",
+  "name": "Riverside Farm",
+  "startDate": "2008-09-15T00:00:00Z",
+  "endDate": null,
+  "location": {
+    "osMapReference": "SP8945",
+    "easting": 489455,
+    "northing": 253105,
+    "address": {
+      "udprn": "23456785",
+      "addressLine1": "Riverside Farm",
+      "addressLine2": "Riverbank Lane",
+      "postTown": "Lavendon",
+      "locality": "Buckinghamshire",
+      "postcode": "MK1 1AD",
+      "country": "England"
+    }
+  },
+  "associations": [
+    {
+      "customerNumber": "CUST0002",
+      "title": null,
+      "firstName": "Fairfield",
+      "lastName": "Farmer",
+      "name": "Fairfield Farmer",
+      "partyType": "Individual",
+      "email": "fairfield.farmer@fairfield-farms.co.uk",
+      "mobile": null,
+      "telephone": null,
+      "roles": [
+        {
+          "code": "Keeper",
+          "species": ["Cattle"]
+        }
+      ]
+    }
+  ],
+  "allowedSpecies": ["Cattle"],
+  "marks": [
+    {
+      "mark": "UK 324790",
+      "startDate": "2008-09-15T00:00:00Z",
+      "endDate": null,
+      "species": ["Cattle"]
+    }
+  ]
+}

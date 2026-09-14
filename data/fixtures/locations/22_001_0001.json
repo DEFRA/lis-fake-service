@@ -1,0 +1,50 @@
+{
+  "status": "active",
+  "identifier": "22/001/0001",
+  "holdingType": "AH",
+  "name": "Oakfield Farm",
+  "startDate": "2010-04-01T00:00:00Z",
+  "endDate": null,
+  "location": {
+    "osMapReference": "SJ4912",
+    "easting": 349120,
+    "northing": 312450,
+    "address": {
+      "udprn": "12345678",
+      "addressLine1": "Oakfield Farm",
+      "addressLine2": "Church Lane",
+      "postTown": "Shrewsbury",
+      "locality": "Shropshire",
+      "postcode": "SY4 1AB",
+      "country": "England"
+    }
+  },
+  "associations": [
+    {
+      "customerNumber": "CUST0001",
+      "title": null,
+      "firstName": "Oakfield",
+      "lastName": "Farmer",
+      "name": "Oakfield Farmer",
+      "partyType": "Individual",
+      "email": "oakfield.farmer@oakhill-farms.co.uk",
+      "mobile": null,
+      "telephone": null,
+      "roles": [
+        {
+          "code": "Keeper",
+          "species": ["Cattle"]
+        }
+      ]
+    }
+  ],
+  "allowedSpecies": ["Cattle"],
+  "marks": [
+    {
+      "mark": "UK 324537",
+      "startDate": "2010-04-01T00:00:00Z",
+      "endDate": null,
+      "species": ["Cattle"]
+    }
+  ]
+}

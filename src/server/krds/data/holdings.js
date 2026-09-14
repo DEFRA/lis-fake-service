@@ -1,15 +1,14 @@
-import holdings from './krds-holdings.json' with { type: 'json' }
+import { findLocation } from '../../common/data/locations.js'
 
 /**
  * @param {string} county
  * @param {string} parish
  * @param {string} holding
- * @returns {object | undefined} the HoldingDetail body, or undefined
+ * @returns {object | undefined} the HoldingDetail body, or undefined if the
+ *   CPH isn't recognised
  */
 export function findHolding(county, parish, holding) {
-  const record = holdings.find(
-    (h) => h.county === county && h.parish === parish && h.holding === holding
-  )
+  const record = findLocation(`${county}/${parish}/${holding}`)
 
   if (!record) {
     return undefined

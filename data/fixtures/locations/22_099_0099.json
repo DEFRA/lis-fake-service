@@ -1,0 +1,32 @@
+{
+  "status": "active",
+  "identifier": "22/099/0099",
+  "holdingType": "AH",
+  "name": "Empty Holding",
+  "startDate": "2018-01-01T00:00:00Z",
+  "endDate": null,
+  "location": {
+    "osMapReference": null,
+    "easting": null,
+    "northing": null,
+    "address": {
+      "udprn": null,
+      "addressLine1": "22/099/0099",
+      "addressLine2": null,
+      "postTown": "Lavendon",
+      "locality": "Buckinghamshire",
+      "postcode": "MK1 1BE",
+      "country": "England"
+    }
+  },
+  "associations": [],
+  "allowedSpecies": ["Cattle"],
+  "marks": [
+    {
+      "mark": "UK 324797",
+      "startDate": "2018-01-01T00:00:00Z",
+      "endDate": null,
+      "species": ["Cattle"]
+    }
+  ]
+}

@@ -87,12 +87,17 @@ describe('krds', () => {
     expect(response.result.identifier).toBe('22/001/0001')
     expect(response.result.name).toBe('Oakfield Farm')
     expect(response.result.location.address.postTown).toBe('Shrewsbury')
-    expect(response.result.associations).toHaveLength(1)
+    expect(response.result.associations).toEqual([
+      expect.objectContaining({
+        name: 'Oakfield Farmer',
+        email: 'oakfield.farmer@oakhill-farms.co.uk'
+      })
+    ])
     expect(response.result.allowedSpecies).toEqual(['Cattle'])
     expect(response.result.marks).toHaveLength(1)
   })
 
-  test('it returns a holding with multiple associations and marks', async () => {
+  test("it aligns a holding's keeper association with identity-service-helper's user fixture", async () => {
     // Arrange
     const server = await makeServer()
 
@@ -105,9 +110,29 @@ describe('krds', () => {
 
     // Assert
     expect(response.statusCode).toBe(200)
-    expect(response.result.associations).toHaveLength(2)
-    expect(response.result.marks).toHaveLength(2)
-    expect(response.result.allowedSpecies).toEqual(['Cattle', 'Sheep'])
+    expect(response.result.name).toBe('Fairfield Farm')
+    expect(response.result.associations).toEqual([
+      expect.objectContaining({
+        name: 'Fairfield Farmer',
+        email: 'fairfield.farmer@fairfield-farms.co.uk'
+      })
+    ])
+  })
+
+  test('it returns a known holding with no associations when no keeper is mapped to it', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: '/krds/api/v2/holdings/22/008/0008',
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.associations).toEqual([])
   })
 
   test('it returns 404 with a problem body for an unknown CPH', async () => {

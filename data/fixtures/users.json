@@ -2,32 +2,16 @@
   {
     "sub": "00000000-0000-0000-0000-000000000002",
     "email": "farmer@example.com",
-    "firstName": "Test",
-    "displayName": "Test Farmer",
-    "active": true,
-    "cphs": []
+    "active": true
   },
   {
     "sub": "cd91b1e0-bae4-4cee-becf-3529cc557311",
     "email": "oakfield.farmer@oakhill-farms.co.uk",
-    "firstName": "Oakfield",
-    "displayName": "Oakfield Farmer",
-    "active": true,
-    "cphs": [{ "cph": "22/001/0001", "role": "Keeper" }]
+    "active": true
   },
   {
     "sub": "52b36302-6b7c-48e7-a386-b7bf81bd8911",
     "email": "fairfield.farmer@fairfield-farms.co.uk",
-    "firstName": "Fairfield",
-    "displayName": "Fairfield Farmer",
-    "active": true,
-    "cphs": [
-      { "cph": "22/002/0002", "role": "Keeper" },
-      { "cph": "22/003/0003", "role": "Keeper" },
-      { "cph": "22/004/0004", "role": "Keeper" },
-      { "cph": "22/005/0005", "role": "Keeper" },
-      { "cph": "22/006/0006", "role": "Keeper" },
-      { "cph": "22/007/0007", "role": "Keeper" }
-    ]
+    "active": true
   }
 ]
