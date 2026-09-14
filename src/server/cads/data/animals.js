@@ -53,7 +53,6 @@ function toDetail(animal) {
     birthDate: animal.birthDate,
     registrationDate: animal.registrationDate,
     dateOnCph: animal.dateOnCph,
-    ...(animal.dateOfDeath ? { dateOfDeath: animal.dateOfDeath } : {}),
     breedCode: breedCode(animal),
     parentage: animal.parentage.map((p) => ({
       relationship: p.relationship,
