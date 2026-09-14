@@ -6,7 +6,7 @@ Currently fakes:
 
 - **CTS Web Services** — `POST /cts_ws/DefraDataTransferPublicNWSE.asmx`. See [`src/server/cts-ws/README.md`](src/server/cts-ws/README.md) for the SOAP `TransferDataHex` protocol details.
 - **identity-service-helper** — `GET /identity-service-helper/users/{id}/profile`, expanded from `data/fixtures/users.json` (minimal identity + `{ cph, role }` list) into the full `UserProfile` shape; each holding's id comes from the shared `data/fixtures/locations.json`.
-- **cads-data-service** — bovine animal endpoints under `/cads`. Mapped from the shared canonical animal set (`data/fixtures/animals/*.json`) that the CTS fake also uses, with the extra detail CADS holds. Require a valid `x-api-key` header (`CADS_API_KEY`, default `local-dev-cads-key`).
+- **cads-data-service** — bovine animal endpoints under `/cads`. Mapped from the shared canonical animal set (`data/fixtures/animals/*.json`) that the CTS fake also uses, with the extra detail CADS holds. Require a valid `Authorization: Basic base64(clientId:secret)` header, matching the real service's ApiKeyOrCognito Basic-scheme auth policy (`CADS_CLIENT_ID`/`CADS_CLIENT_SECRET`, defaults `local-dev-cads-client`/`local-dev-cads-secret`).
   - `GET /cads/api/v1/bovine/animals/{identifier}` — animal details (LANI-802)
   - `GET /cads/api/v1/bovine/animals?CPH={cph}` — animals on a holding (LANI-803), in cads-data-service's `PaginatedResult<T>` shape. Supports `page` (default 1) and `pageSize` (default 10). Sorting (`order`/`sort`), free-text search and `holdingAssociation` filtering are not yet implemented.
 

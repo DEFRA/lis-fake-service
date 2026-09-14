@@ -88,11 +88,17 @@ export const config = convict({
     }
   },
   cads: {
-    apiKey: {
-      doc: 'x-api-key value the fake cads-data-service (/cads) endpoints require, matching its real ApiKeyOrCognito auth policy',
+    clientId: {
+      doc: 'Basic auth client ID (ACL client key) the fake cads-data-service (/cads) endpoints require, matching its real ApiKeyOrCognito Basic-scheme auth policy',
       format: String,
-      default: 'local-dev-cads-key',
-      env: 'CADS_API_KEY'
+      default: 'local-dev-cads-client',
+      env: 'CADS_CLIENT_ID'
+    },
+    clientSecret: {
+      doc: 'Basic auth secret paired with cads.clientId',
+      format: String,
+      default: 'local-dev-cads-secret',
+      env: 'CADS_CLIENT_SECRET'
     }
   },
   ctsWs: {
