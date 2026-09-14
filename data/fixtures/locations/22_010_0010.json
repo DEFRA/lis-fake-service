@@ -1,0 +1,32 @@
+{
+  "status": "unsuitable",
+  "identifier": "22/010/0010",
+  "holdingType": "AH",
+  "name": "Unsuitable Holding",
+  "startDate": "2012-01-01T00:00:00Z",
+  "endDate": null,
+  "location": {
+    "osMapReference": null,
+    "easting": null,
+    "northing": null,
+    "address": {
+      "udprn": null,
+      "addressLine1": "22/010/0010",
+      "addressLine2": null,
+      "postTown": "Lavendon",
+      "locality": "Buckinghamshire",
+      "postcode": "MK1 1BC",
+      "country": "England"
+    }
+  },
+  "associations": [],
+  "allowedSpecies": ["Cattle"],
+  "marks": [
+    {
+      "mark": "UK 324795",
+      "startDate": "2012-01-01T00:00:00Z",
+      "endDate": null,
+      "species": ["Cattle"]
+    }
+  ]
+}

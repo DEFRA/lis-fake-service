@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'vitest'
 
-import { findLocation, holdingId, isKnownCph } from './locations.js'
+import {
+  associationForEmail,
+  cphsForEmail,
+  findLocation,
+  holdingId,
+  isKnownCph
+} from './locations.js'
 
 describe('findLocation()', () => {
   test('it returns the record for a recognised active holding', () => {
@@ -8,7 +14,10 @@ describe('findLocation()', () => {
     const location = findLocation('22/001/0001')
 
     // Assert
-    expect(location).toEqual({ status: 'active' })
+    expect(location).toMatchObject({
+      status: 'active',
+      identifier: '22/001/0001'
+    })
   })
 
   test('it returns the override record for a CPH with a non-default status', () => {
@@ -59,6 +68,60 @@ describe('isKnownCph()', () => {
 
     // Assert
     expect(result).toBe(false)
+  })
+})
+
+describe('cphsForEmail()', () => {
+  test('it returns every CPH/role pair for a keeper with one holding', () => {
+    // Act
+    const result = cphsForEmail('oakfield.farmer@oakhill-farms.co.uk')
+
+    // Assert
+    expect(result).toEqual([{ cph: '22/001/0001', role: 'Keeper' }])
+  })
+
+  test('it returns every CPH/role pair for a keeper with multiple holdings', () => {
+    // Act
+    const result = cphsForEmail('fairfield.farmer@fairfield-farms.co.uk')
+
+    // Assert
+    expect(result).toEqual([
+      { cph: '22/002/0002', role: 'Keeper' },
+      { cph: '22/003/0003', role: 'Keeper' },
+      { cph: '22/004/0004', role: 'Keeper' },
+      { cph: '22/005/0005', role: 'Keeper' },
+      { cph: '22/006/0006', role: 'Keeper' },
+      { cph: '22/007/0007', role: 'Keeper' }
+    ])
+  })
+
+  test('it returns an empty array for an email with no associations', () => {
+    // Act
+    const result = cphsForEmail('nobody@example.com')
+
+    // Assert
+    expect(result).toEqual([])
+  })
+})
+
+describe('associationForEmail()', () => {
+  test('it returns the association record for a known keeper', () => {
+    // Act
+    const result = associationForEmail('oakfield.farmer@oakhill-farms.co.uk')
+
+    // Assert
+    expect(result).toMatchObject({
+      firstName: 'Oakfield',
+      name: 'Oakfield Farmer'
+    })
+  })
+
+  test('it returns undefined for an email with no associations', () => {
+    // Act
+    const result = associationForEmail('nobody@example.com')
+
+    // Assert
+    expect(result).toBeUndefined()
   })
 })
 

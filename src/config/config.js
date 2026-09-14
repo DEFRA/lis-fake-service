@@ -101,6 +101,20 @@ export const config = convict({
       env: 'CADS_CLIENT_SECRET'
     }
   },
+  krds: {
+    clientId: {
+      doc: 'Basic auth client ID the fake keeper-data-api (/krds) endpoints require, standing in for its real Bearer-or-Basic auth policy',
+      format: String,
+      default: 'local-dev-krds-client',
+      env: 'KRDS_CLIENT_ID'
+    },
+    clientSecret: {
+      doc: 'Basic auth secret paired with krds.clientId',
+      format: String,
+      default: 'local-dev-krds-secret',
+      env: 'KRDS_CLIENT_SECRET'
+    }
+  },
   ctsWs: {
     dthUsername: {
       doc: 'TransferDataHex envelope username the fake cts_ws endpoint requires',

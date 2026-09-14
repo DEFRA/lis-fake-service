@@ -1,0 +1,34 @@
+{
+  "status": "inactive",
+  "inactiveFrom": "2000-01-01",
+  "inactiveTo": "2099-12-31",
+  "identifier": "22/009/0009",
+  "holdingType": "AH",
+  "name": "Inactive Holding",
+  "startDate": "2000-01-01T00:00:00Z",
+  "endDate": null,
+  "location": {
+    "osMapReference": null,
+    "easting": null,
+    "northing": null,
+    "address": {
+      "udprn": null,
+      "addressLine1": "22/009/0009",
+      "addressLine2": null,
+      "postTown": "Lavendon",
+      "locality": "Buckinghamshire",
+      "postcode": "MK1 1BB",
+      "country": "England"
+    }
+  },
+  "associations": [],
+  "allowedSpecies": ["Cattle"],
+  "marks": [
+    {
+      "mark": "UK 324794",
+      "startDate": "2000-01-01T00:00:00Z",
+      "endDate": null,
+      "species": ["Cattle"]
+    }
+  ]
+}

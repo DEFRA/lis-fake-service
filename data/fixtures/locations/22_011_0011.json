@@ -1,0 +1,46 @@
+{
+  "status": "active",
+  "requiresSubLocation": true,
+  "subLocations": {
+    "01": {
+      "status": "active"
+    },
+    "02": {
+      "status": "cancelled"
+    },
+    "03": {
+      "status": "inactive",
+      "inactiveFrom": "2000-01-01",
+      "inactiveTo": "2099-12-31"
+    }
+  },
+  "identifier": "22/011/0011",
+  "holdingType": "AH",
+  "name": "Sub-location Holding",
+  "startDate": "2015-01-01T00:00:00Z",
+  "endDate": null,
+  "location": {
+    "osMapReference": null,
+    "easting": null,
+    "northing": null,
+    "address": {
+      "udprn": null,
+      "addressLine1": "22/011/0011",
+      "addressLine2": null,
+      "postTown": "Lavendon",
+      "locality": "Buckinghamshire",
+      "postcode": "MK1 1BD",
+      "country": "England"
+    }
+  },
+  "associations": [],
+  "allowedSpecies": ["Cattle"],
+  "marks": [
+    {
+      "mark": "UK 324796",
+      "startDate": "2015-01-01T00:00:00Z",
+      "endDate": null,
+      "species": ["Cattle"]
+    }
+  ]
+}

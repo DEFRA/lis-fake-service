@@ -1,0 +1,50 @@
+{
+  "status": "active",
+  "identifier": "22/007/0007",
+  "holdingType": "AH",
+  "name": "Orchard Farm",
+  "startDate": "2008-09-15T00:00:00Z",
+  "endDate": null,
+  "location": {
+    "osMapReference": "SP8945",
+    "easting": 489457,
+    "northing": 253107,
+    "address": {
+      "udprn": "23456787",
+      "addressLine1": "Orchard Farm",
+      "addressLine2": "Orchard Road",
+      "postTown": "Lavendon",
+      "locality": "Buckinghamshire",
+      "postcode": "MK1 1AF",
+      "country": "England"
+    }
+  },
+  "associations": [
+    {
+      "customerNumber": "CUST0002",
+      "title": null,
+      "firstName": "Fairfield",
+      "lastName": "Farmer",
+      "name": "Fairfield Farmer",
+      "partyType": "Individual",
+      "email": "fairfield.farmer@fairfield-farms.co.uk",
+      "mobile": null,
+      "telephone": null,
+      "roles": [
+        {
+          "code": "Keeper",
+          "species": ["Cattle"]
+        }
+      ]
+    }
+  ],
+  "allowedSpecies": ["Cattle"],
+  "marks": [
+    {
+      "mark": "UK 324792",
+      "startDate": "2008-09-15T00:00:00Z",
+      "endDate": null,
+      "species": ["Cattle"]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { statusCodes } from '../../common/constants/status-codes.js'
+import { statusCodes } from '../constants/status-codes.js'
 
 /** @import { ResponseToolkit, ResponseObject } from '@hapi/hapi' */
 
@@ -13,7 +13,8 @@ const PROBLEM_TYPE = {
 
 /**
  * Builds an RFC 7807 ProblemDetails response, matching what ASP.NET returns
- * from the real cads-data-service for 4xx responses.
+ * from a real upstream (cads-data-service, keeper-data-api) for 4xx
+ * responses.
  *
  * @param {ResponseToolkit} h
  * @param {number} status
@@ -25,4 +26,26 @@ export function problem(h, status, title, detail) {
   return h
     .response({ type: PROBLEM_TYPE[status], title, status, detail })
     .code(status)
+}
+
+/**
+ * Builds an RFC 7807 ValidationProblemDetails response - a ProblemDetails
+ * with a field-name-keyed `errors` map, matching what ASP.NET model
+ * validation returns for a malformed request.
+ *
+ * @param {ResponseToolkit} h
+ * @param {string} detail
+ * @param {Record<string, string[]>} errors
+ * @returns {ResponseObject}
+ */
+export function validationProblem(h, detail, errors) {
+  return h
+    .response({
+      type: PROBLEM_TYPE[statusCodes.badRequest],
+      title: 'Bad Request',
+      status: statusCodes.badRequest,
+      detail,
+      errors
+    })
+    .code(statusCodes.badRequest)
 }
