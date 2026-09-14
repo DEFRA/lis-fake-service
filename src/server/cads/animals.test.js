@@ -3,8 +3,16 @@ import hapi from '@hapi/hapi'
 import { config } from '../../config/config.js'
 import { cads } from './index.js'
 
+const CLIENT_ID = 'test-client'
+const CLIENT_SECRET = 'test-secret'
+const encodedCredentials = Buffer.from(
+  `${CLIENT_ID}:${CLIENT_SECRET}`
+).toString('base64')
+const VALID_AUTH_HEADER = `Basic ${encodedCredentials}`
+
 const configValues = {
-  'cads.apiKey': 'test-cads-key'
+  'cads.clientId': CLIENT_ID,
+  'cads.clientSecret': CLIENT_SECRET
 }
 
 const mocks = {
@@ -33,7 +41,7 @@ describe('cads', () => {
     mocks.configGet.mockImplementation((key) => configValues[key])
   })
 
-  test('it returns 401 when the x-api-key header is missing', async () => {
+  test('it returns 401 when the Authorization header is missing', async () => {
     // Arrange
     const server = await makeServer()
 
@@ -49,15 +57,16 @@ describe('cads', () => {
     expect(response.result.status).toBe(401)
   })
 
-  test('it returns 401 when the x-api-key header is invalid', async () => {
+  test('it returns 401 when the Basic credentials are invalid', async () => {
     // Arrange
     const server = await makeServer()
+    const wrongHeader = `Basic ${Buffer.from('wrong-client:wrong-secret').toString('base64')}`
 
     // Act
     const response = await server.inject({
       method: 'GET',
       url: `/cads/api/v1/bovine/animals/${KNOWN_IDENTIFIER}`,
-      headers: { 'x-api-key': 'wrong-key' }
+      headers: { authorization: wrongHeader }
     })
 
     // Assert
@@ -73,7 +82,7 @@ describe('cads', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/cads/api/v1/bovine/animals/${KNOWN_IDENTIFIER}`,
-      headers: { 'x-api-key': 'test-cads-key' }
+      headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
@@ -102,7 +111,7 @@ describe('cads', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/cads/api/v1/bovine/animals/${DEAD_IDENTIFIER}`,
-      headers: { 'x-api-key': 'test-cads-key' }
+      headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
@@ -119,7 +128,7 @@ describe('cads', () => {
     const response = await server.inject({
       method: 'GET',
       url: '/cads/api/v1/bovine/animals/UK000000000000',
-      headers: { 'x-api-key': 'test-cads-key' }
+      headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
@@ -136,7 +145,7 @@ describe('cads', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}`,
-      headers: { 'x-api-key': 'test-cads-key' }
+      headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
@@ -166,7 +175,7 @@ describe('cads', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&order=sex&sort=desc`,
-      headers: { 'x-api-key': 'test-cads-key' }
+      headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
@@ -183,7 +192,7 @@ describe('cads', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&holdingAssociation=RegisteredOnHolding&q=UK2000&direction=desc`,
-      headers: { 'x-api-key': 'test-cads-key' }
+      headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
@@ -199,7 +208,7 @@ describe('cads', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&page=2&pageSize=3`,
-      headers: { 'x-api-key': 'test-cads-key' }
+      headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
@@ -226,7 +235,7 @@ describe('cads', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&page=99&pageSize=3`,
-      headers: { 'x-api-key': 'test-cads-key' }
+      headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
@@ -250,7 +259,7 @@ describe('cads', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&page=0`,
-      headers: { 'x-api-key': 'test-cads-key' }
+      headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
@@ -266,7 +275,7 @@ describe('cads', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_EMPTY_CPH}`,
-      headers: { 'x-api-key': 'test-cads-key' }
+      headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
@@ -291,7 +300,7 @@ describe('cads', () => {
     const response = await server.inject({
       method: 'GET',
       url: '/cads/api/v1/bovine/animals?CPH=99/999/9999',
-      headers: { 'x-api-key': 'test-cads-key' }
+      headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
@@ -307,7 +316,7 @@ describe('cads', () => {
     const response = await server.inject({
       method: 'GET',
       url: '/cads/api/v1/bovine/animals',
-      headers: { 'x-api-key': 'test-cads-key' }
+      headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
