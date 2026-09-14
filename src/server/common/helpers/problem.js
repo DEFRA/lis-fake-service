@@ -1,4 +1,4 @@
-import { statusCodes } from '../../common/constants/status-codes.js'
+import { statusCodes } from '../constants/status-codes.js'
 
 /** @import { ResponseToolkit, ResponseObject } from '@hapi/hapi' */
 
@@ -13,7 +13,8 @@ const PROBLEM_TYPE = {
 
 /**
  * Builds an RFC 7807 ProblemDetails response, matching what ASP.NET returns
- * from the real keeper-data-api for 4xx responses.
+ * from a real upstream (cads-data-service, keeper-data-api) for 4xx
+ * responses.
  *
  * @param {ResponseToolkit} h
  * @param {number} status

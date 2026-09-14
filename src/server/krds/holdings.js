@@ -1,7 +1,7 @@
 import { statusCodes } from '../common/constants/status-codes.js'
 import { AUTH_STRATEGY } from './auth.js'
 import { findHolding } from './data/holdings.js'
-import { problem, validationProblem } from './helpers/problem.js'
+import { problem, validationProblem } from '../common/helpers/problem.js'
 
 /** @import { Request, ResponseToolkit, ResponseObject } from '@hapi/hapi' */
 

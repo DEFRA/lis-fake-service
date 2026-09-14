@@ -1,7 +1,7 @@
 import { statusCodes } from '../common/constants/status-codes.js'
 import { AUTH_STRATEGY } from './auth.js'
 import { animalsForCph, findAnimalDetail, isKnownCph } from './data/animals.js'
-import { problem } from './helpers/problem.js'
+import { problem } from '../common/helpers/problem.js'
 import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
