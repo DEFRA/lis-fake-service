@@ -1,12 +1,9 @@
-// cads-data-service pagination, mirroring its BuildingBlocks QueryFactory /
-// PagedQuery<T> defaults and PaginatedResult<T> response shape. Shared by the
-// /cads feature routes; kept here so it can grow its own tests and be reused
-// by other fakes.
-
-// The 25-per-page figure in LANI-803 is a front-office page-size choice, not
-// the endpoint's default.
+// cads-data-service's bovine animals-on-CPH pagination (LANI-803,
+// feature/lani-803's GetAnimalsOnCph/AnimalCollectionDto). page/page-size
+// always default when absent - the endpoint has no "return everything"
+// mode.
 export const DEFAULT_PAGE = 1
-export const DEFAULT_PAGE_SIZE = 10
+export const DEFAULT_PAGE_SIZE = 25
 
 /**
  * Parses a paging query param: absent -> fallback; present and a positive
@@ -27,37 +24,34 @@ export function parsePagingParam(value, fallback) {
 
 /**
  * Slices `items` to the requested page and wraps it in cads-data-service's
- * PaginatedResult<T> shape (serialised camelCase).
+ * AnimalCollectionDto shape (serialised camelCase). totalPages is always at
+ * least 1, even for zero records (Math.Max(1, ...) in the real service).
  *
  * @template T
  * @param {T[]} items - the full, already-filtered/sorted collection
  * @param {number} page - 1-indexed
  * @param {number} pageSize
  * @returns {{
- *   results: T[],
- *   count: number,
- *   totalCount: number,
+ *   resourceType: string,
  *   page: number,
  *   pageSize: number,
  *   totalPages: number,
- *   hasNextPage: boolean,
- *   hasPreviousPage: boolean
+ *   totalRecords: number,
+ *   animals: T[]
  * }}
  */
 export function paginate(items, page, pageSize) {
-  const totalCount = items.length
+  const totalRecords = items.length
   const start = (page - 1) * pageSize
-  const results = items.slice(start, start + pageSize)
-  const totalPages = Math.ceil(totalCount / pageSize)
+  const animals = items.slice(start, start + pageSize)
+  const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize))
 
   return {
-    results,
-    count: results.length,
-    totalCount,
+    resourceType: 'AnimalCollection',
     page,
     pageSize,
     totalPages,
-    hasNextPage: page < totalPages,
-    hasPreviousPage: page > 1
+    totalRecords,
+    animals
   }
 }

@@ -13,11 +13,13 @@ import {
 
 const CPH_QUERY_PARAM = 'CPH'
 
-// Orders animals by ear tag ascending. This is the only ordering the fake
-// applies: ULITP-5614's default when no order-by is given. The order/sort
-// query params are accepted but not yet honoured.
-function byEarTag(a, b) {
-  return a.identifier.identifier.localeCompare(b.identifier.identifier)
+// A repeated query param gives Hapi an array; a single one gives a string.
+// Normalise to an array so filters can treat both the same way.
+function asArray(value) {
+  if (value === undefined) {
+    return []
+  }
+  return Array.isArray(value) ? value : [value]
 }
 
 // Static metadata attached to every AnimalDetail response, mirroring the
@@ -63,11 +65,12 @@ function getAnimalDetailsHandler(request, h) {
 /**
  * GET /cads/api/v1/bovine/animals?CPH=08/065/0077
  * Static bovine animals on a CPH (LANI-803), in cads-data-service's
- * PaginatedResult<T> shape, ordered by ear tag ascending.
+ * AnimalCollectionDto shape (feature/lani-803).
  *
- * Only `page` / `pageSize` are honoured. `order` / `sort` / `holdingAssociation`
- * / `q` (and any other query param) are accepted without error but ignored -
- * they're not yet part of what the fake needs to reproduce.
+ * Supports holdingAssociation (MovedOnHolding default, or
+ * RegisteredOnHolding), status/breedCode filters (repeatable) and a single
+ * sex filter, dateOnCPHFrom, free-text search (q), sorting
+ * (order-by/direction) and paging (page/page-size, defaulting to 1/25).
  *
  * @param {Request} request
  * @param {ResponseToolkit} h
@@ -89,14 +92,17 @@ function getAnimalsOnHoldingHandler(request, h) {
   const cph = Array.isArray(rawCph) ? rawCph[0] : rawCph
 
   const page = parsePagingParam(request.query.page, DEFAULT_PAGE)
-  const pageSize = parsePagingParam(request.query.pageSize, DEFAULT_PAGE_SIZE)
+  const pageSize = parsePagingParam(
+    request.query['page-size'],
+    DEFAULT_PAGE_SIZE
+  )
 
   if (page === null || pageSize === null) {
     return problem(
       h,
       statusCodes.badRequest,
       'Bad Request',
-      'Query parameters page and pageSize must be positive integers.'
+      'Query parameters page and page-size must be positive integers.'
     )
   }
 
@@ -111,9 +117,18 @@ function getAnimalsOnHoldingHandler(request, h) {
     )
   }
 
-  const ordered = animalsForCph(cph).sort(byEarTag)
+  const filtered = animalsForCph(cph, {
+    holdingAssociation: request.query.holdingAssociation,
+    status: asArray(request.query.status),
+    sex: request.query.sex,
+    breedCode: asArray(request.query.breedCode),
+    dateOnCPHFrom: request.query.dateOnCPHFrom,
+    q: request.query.q,
+    orderBy: request.query['order-by'],
+    direction: request.query.direction
+  })
 
-  return h.response(paginate(ordered, page, pageSize)).code(statusCodes.ok)
+  return h.response(paginate(filtered, page, pageSize)).code(statusCodes.ok)
 }
 
 export const animalsRoutes = [

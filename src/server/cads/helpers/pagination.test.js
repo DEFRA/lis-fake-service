@@ -93,14 +93,12 @@ describe('paginate()', () => {
 
     // Assert
     expect(result).toEqual({
-      results: items,
-      count: 8,
-      totalCount: 8,
+      resourceType: 'AnimalCollection',
       page: 1,
-      pageSize: 10,
+      pageSize: 25,
       totalPages: 1,
-      hasNextPage: false,
-      hasPreviousPage: false
+      totalRecords: 8,
+      animals: items
     })
   })
 
@@ -114,14 +112,12 @@ describe('paginate()', () => {
 
     // Assert
     expect(result).toEqual({
-      results: ['d', 'e', 'f'],
-      count: 3,
-      totalCount: 8,
+      resourceType: 'AnimalCollection',
       page: 2,
       pageSize: 3,
       totalPages: 3,
-      hasNextPage: true,
-      hasPreviousPage: true
+      totalRecords: 8,
+      animals: ['d', 'e', 'f']
     })
   })
 
@@ -134,19 +130,16 @@ describe('paginate()', () => {
     const result = paginate(items, page, pageSize)
 
     // Assert
-    expect(result.results).toEqual([])
+    expect(result.animals).toEqual([])
     expect(result).toMatchObject({
-      count: 0,
-      totalCount: 8,
       page: 99,
       pageSize: 3,
       totalPages: 3,
-      hasNextPage: false,
-      hasPreviousPage: true
+      totalRecords: 8
     })
   })
 
-  test('it reports zero pages for an empty collection', () => {
+  test('it reports one page (not zero) for an empty collection', () => {
     // Arrange
     const empty = []
     const page = DEFAULT_PAGE
@@ -157,14 +150,12 @@ describe('paginate()', () => {
 
     // Assert
     expect(result).toEqual({
-      results: [],
-      count: 0,
-      totalCount: 0,
+      resourceType: 'AnimalCollection',
       page: 1,
-      pageSize: 10,
-      totalPages: 0,
-      hasNextPage: false,
-      hasPreviousPage: false
+      pageSize: 25,
+      totalPages: 1,
+      totalRecords: 0,
+      animals: []
     })
   })
 })
