@@ -27,8 +27,10 @@ async function makeServer() {
 
 const KNOWN_IDENTIFIER = 'UK200000000001'
 const DEAD_IDENTIFIER = 'UK300000000001'
+const OFF_FARM_IDENTIFIER = 'UK300000000025'
+const CROSS_BREED_IDENTIFIER = 'UK300000000024'
 const KNOWN_CPH = '22/001/0001'
-const KNOWN_CPH_COUNT = 35
+const KNOWN_CPH_COUNT = 37
 const KNOWN_EMPTY_CPH = '22/099/0099'
 
 describe('cads', () => {
@@ -137,7 +139,7 @@ describe('cads', () => {
     expect(response.result.status).toBe(404)
   })
 
-  test('it returns the first page of animals for a known CPH when no paging params are given', async () => {
+  test('it returns page 1 at the default page size when no paging params are given', async () => {
     // Arrange
     const server = await makeServer()
 
@@ -151,103 +153,63 @@ describe('cads', () => {
     // Assert
     expect(response.statusCode).toBe(200)
     expect(response.result).toMatchObject({
-      count: 10,
-      totalCount: KNOWN_CPH_COUNT,
+      resourceType: 'AnimalCollection',
       page: 1,
-      pageSize: 10,
-      totalPages: 4,
-      hasNextPage: true,
-      hasPreviousPage: false
+      pageSize: 25,
+      totalPages: 2,
+      totalRecords: KNOWN_CPH_COUNT
     })
-    expect(response.result.results).toHaveLength(10)
+    expect(response.result.animals).toHaveLength(25)
 
-    // The endpoint orders by ear tag ascending regardless of fixture order.
-    const earTags = response.result.results.map((a) => a.identifier.identifier)
+    // Sorted by ear tag ascending by default.
+    const earTags = response.result.animals.map((a) => a.identifier.identifier)
     expect(earTags).toEqual([...earTags].sort())
     expect(earTags[0]).toBe(KNOWN_IDENTIFIER)
   })
 
-  test('it ignores order and sort params, always returning ear tag ascending', async () => {
+  test('it applies page and page-size to the animals on a known CPH', async () => {
     // Arrange
     const server = await makeServer()
 
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&order=sex&sort=desc`,
-      headers: { authorization: VALID_AUTH_HEADER }
-    })
-
-    // Assert
-    expect(response.statusCode).toBe(200)
-    const earTags = response.result.results.map((a) => a.identifier.identifier)
-    expect(earTags).toEqual([...earTags].sort())
-  })
-
-  test('it accepts unknown query params without failing', async () => {
-    // Arrange
-    const server = await makeServer()
-
-    // Act
-    const response = await server.inject({
-      method: 'GET',
-      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&holdingAssociation=RegisteredOnHolding&q=UK2000&direction=desc`,
-      headers: { authorization: VALID_AUTH_HEADER }
-    })
-
-    // Assert
-    expect(response.statusCode).toBe(200)
-    expect(response.result.totalCount).toBe(KNOWN_CPH_COUNT)
-  })
-
-  test('it applies page and pageSize to the animals on a known CPH', async () => {
-    // Arrange
-    const server = await makeServer()
-
-    // Act
-    const response = await server.inject({
-      method: 'GET',
-      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&page=2&pageSize=3`,
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&page=2&page-size=3`,
       headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
     expect(response.statusCode).toBe(200)
     expect(response.result).toMatchObject({
-      count: 3,
-      totalCount: KNOWN_CPH_COUNT,
       page: 2,
       pageSize: 3,
-      totalPages: 12,
-      hasNextPage: true,
-      hasPreviousPage: true
+      totalPages: 13,
+      totalRecords: KNOWN_CPH_COUNT
     })
-    expect(response.result.results.map((a) => a.identifier.identifier)).toEqual(
+    expect(response.result.animals.map((a) => a.identifier.identifier)).toEqual(
       ['UK200000000004', 'UK200000000005', 'UK200000000006']
     )
   })
 
-  test('it returns an empty page for a page past the end', async () => {
+  test('it returns an empty page for a page past the end, still reporting the totals', async () => {
     // Arrange
     const server = await makeServer()
 
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&page=99&pageSize=3`,
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&page=99&page-size=3`,
       headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
     expect(response.statusCode).toBe(200)
-    expect(response.result.results).toEqual([])
+    expect(response.result.animals).toEqual([])
     expect(response.result).toMatchObject({
-      count: 0,
-      totalCount: KNOWN_CPH_COUNT,
       page: 99,
       pageSize: 3,
-      hasNextPage: false,
-      hasPreviousPage: true
+      totalPages: 13,
+      totalRecords: KNOWN_CPH_COUNT
     })
   })
 
@@ -267,7 +229,178 @@ describe('cads', () => {
     expect(response.result.title).toBe('Bad Request')
   })
 
-  test('it returns an empty results page for a recognised CPH with no animals', async () => {
+  test('it sorts by the requested column and direction, ignoring case', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&order-by=BirthDate&direction=Desc`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    // UK300000000004 (born 2026-06-01) is the most recent birth date.
+    expect(response.result.animals[0].identifier.identifier).toBe(
+      'UK300000000004'
+    )
+  })
+
+  test('it uses the registered-on-CPH date when holdingAssociation is RegisteredOnHolding', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&holdingAssociation=RegisteredOnHolding`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.totalRecords).toBe(KNOWN_CPH_COUNT)
+    const known = response.result.animals.find(
+      (a) => a.identifier.identifier === KNOWN_IDENTIFIER
+    )
+    expect(known.dateOnCPH).toBe('2023-02-05')
+  })
+
+  test('it filters by status', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const [dead, offFarm] = await Promise.all([
+      server.inject({
+        method: 'GET',
+        url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&status=Dead`,
+        headers: { authorization: VALID_AUTH_HEADER }
+      }),
+      server.inject({
+        method: 'GET',
+        url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&status=OffFarm`,
+        headers: { authorization: VALID_AUTH_HEADER }
+      })
+    ])
+
+    // Assert
+    expect(dead.result.animals.map((a) => a.identifier.identifier)).toEqual([
+      DEAD_IDENTIFIER
+    ])
+    expect(offFarm.result.animals.map((a) => a.identifier.identifier)).toEqual([
+      OFF_FARM_IDENTIFIER
+    ])
+  })
+
+  test('it filters by a single sex value', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&sex=Male&page-size=100`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.animals.every((a) => a.sex === 'Male')).toBe(true)
+    expect(
+      response.result.animals.some(
+        (a) => a.identifier.identifier === OFF_FARM_IDENTIFIER
+      )
+    ).toBe(false)
+  })
+
+  test('it filters by breed code, matching exactly rather than as a substring', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&breedCode=HFX`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.result.animals.map((a) => a.identifier.identifier)).toEqual(
+      [CROSS_BREED_IDENTIFIER]
+    )
+  })
+
+  test('it filters by dateOnCPHFrom', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&dateOnCPHFrom=2025-04-01&page-size=100`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    const earTags = response.result.animals.map((a) => a.identifier.identifier)
+    expect(earTags).toContain(CROSS_BREED_IDENTIFIER)
+    expect(earTags).not.toContain(KNOWN_IDENTIFIER)
+  })
+
+  test('it searches breed name for a partial, case-insensitive match', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&q=friesian cross`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.result.animals.map((a) => a.identifier.identifier)).toEqual(
+      [CROSS_BREED_IDENTIFIER]
+    )
+  })
+
+  test('it searches sex by whole value only, so "male" excludes Female animals', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&q=male&page-size=100`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.result.animals.length).toBeGreaterThan(0)
+    expect(response.result.animals.every((a) => a.sex === 'Male')).toBe(true)
+  })
+
+  test('it searches the ear tag for a partial match', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&q=${CROSS_BREED_IDENTIFIER}`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.result.animals.map((a) => a.identifier.identifier)).toEqual(
+      [CROSS_BREED_IDENTIFIER]
+    )
+  })
+
+  test('it returns an empty collection, not a 404, for a recognised CPH with no animals', async () => {
     // Arrange
     const server = await makeServer()
 
@@ -281,14 +414,12 @@ describe('cads', () => {
     // Assert
     expect(response.statusCode).toBe(200)
     expect(response.result).toMatchObject({
-      results: [],
-      count: 0,
-      totalCount: 0,
+      resourceType: 'AnimalCollection',
+      animals: [],
       page: 1,
-      pageSize: 10,
-      totalPages: 0,
-      hasNextPage: false,
-      hasPreviousPage: false
+      pageSize: 25,
+      totalPages: 1,
+      totalRecords: 0
     })
   })
 
