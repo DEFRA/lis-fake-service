@@ -8,7 +8,10 @@ const PROBLEM_TYPE = {
     'https://tools.ietf.org/html/rfc9110#section-15.5.1',
   [statusCodes.unauthorized]:
     'https://tools.ietf.org/html/rfc9110#section-15.5.2',
-  [statusCodes.notFound]: 'https://tools.ietf.org/html/rfc9110#section-15.5.5'
+  [statusCodes.notFound]: 'https://tools.ietf.org/html/rfc9110#section-15.5.5',
+  [statusCodes.conflict]: 'https://tools.ietf.org/html/rfc9110#section-15.5.10',
+  [statusCodes.unprocessableEntity]:
+    'https://tools.ietf.org/html/rfc4918#section-11.2'
 }
 
 /**
@@ -36,16 +39,27 @@ export function problem(h, status, title, detail) {
  * @param {ResponseToolkit} h
  * @param {string} detail
  * @param {Record<string, string[]>} errors
+ * @param {number} [status] - defaults to 400 (ASP.NET model-binding
+ *   validation); pass 422 for a request that bound but failed business
+ *   validation.
  * @returns {ResponseObject}
  */
-export function validationProblem(h, detail, errors) {
+export function validationProblem(
+  h,
+  detail,
+  errors,
+  status = statusCodes.badRequest
+) {
+  const title =
+    status === statusCodes.badRequest ? 'Bad Request' : 'Unprocessable Entity'
+
   return h
     .response({
-      type: PROBLEM_TYPE[statusCodes.badRequest],
-      title: 'Bad Request',
-      status: statusCodes.badRequest,
+      type: PROBLEM_TYPE[status],
+      title,
+      status,
       detail,
       errors
     })
-    .code(statusCodes.badRequest)
+    .code(status)
 }
