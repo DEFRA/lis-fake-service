@@ -97,8 +97,11 @@ describe('paginate()', () => {
       page: 1,
       pageSize: 25,
       totalPages: 1,
-      totalRecords: 8,
-      animals: items
+      totalCount: 8,
+      count: 8,
+      hasNextPage: false,
+      hasPreviousPage: false,
+      results: items
     })
   })
 
@@ -116,8 +119,11 @@ describe('paginate()', () => {
       page: 2,
       pageSize: 3,
       totalPages: 3,
-      totalRecords: 8,
-      animals: ['d', 'e', 'f']
+      totalCount: 8,
+      count: 3,
+      hasNextPage: true,
+      hasPreviousPage: true,
+      results: ['d', 'e', 'f']
     })
   })
 
@@ -130,12 +136,12 @@ describe('paginate()', () => {
     const result = paginate(items, page, pageSize)
 
     // Assert
-    expect(result.animals).toEqual([])
+    expect(result.results).toEqual([])
     expect(result).toMatchObject({
       page: 99,
       pageSize: 3,
       totalPages: 3,
-      totalRecords: 8
+      totalCount: 8
     })
   })
 
@@ -154,8 +160,11 @@ describe('paginate()', () => {
       page: 1,
       pageSize: 25,
       totalPages: 1,
-      totalRecords: 0,
-      animals: []
+      totalCount: 0,
+      count: 0,
+      hasNextPage: false,
+      hasPreviousPage: false,
+      results: []
     })
   })
 })

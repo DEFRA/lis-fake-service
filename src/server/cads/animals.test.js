@@ -157,24 +157,24 @@ describe('cads', () => {
       page: 1,
       pageSize: 25,
       totalPages: 2,
-      totalRecords: KNOWN_CPH_COUNT
+      totalCount: KNOWN_CPH_COUNT
     })
-    expect(response.result.animals).toHaveLength(25)
+    expect(response.result.results).toHaveLength(25)
 
     // Sorted by ear tag ascending by default.
-    const earTags = response.result.animals.map((a) => a.identifier.identifier)
+    const earTags = response.result.results.map((a) => a.identifier.identifier)
     expect(earTags).toEqual([...earTags].sort())
     expect(earTags[0]).toBe(KNOWN_IDENTIFIER)
   })
 
-  test('it applies page and page-size to the animals on a known CPH', async () => {
+  test('it applies page and pageSize to the animals on a known CPH', async () => {
     // Arrange
     const server = await makeServer()
 
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&page=2&page-size=3`,
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&page=2&pageSize=3`,
       headers: { authorization: VALID_AUTH_HEADER }
     })
 
@@ -184,9 +184,9 @@ describe('cads', () => {
       page: 2,
       pageSize: 3,
       totalPages: 13,
-      totalRecords: KNOWN_CPH_COUNT
+      totalCount: KNOWN_CPH_COUNT
     })
-    expect(response.result.animals.map((a) => a.identifier.identifier)).toEqual(
+    expect(response.result.results.map((a) => a.identifier.identifier)).toEqual(
       ['UK200000000004', 'UK200000000005', 'UK200000000006']
     )
   })
@@ -198,18 +198,18 @@ describe('cads', () => {
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&page=99&page-size=3`,
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&page=99&pageSize=3`,
       headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
     expect(response.statusCode).toBe(200)
-    expect(response.result.animals).toEqual([])
+    expect(response.result.results).toEqual([])
     expect(response.result).toMatchObject({
       page: 99,
       pageSize: 3,
       totalPages: 13,
-      totalRecords: KNOWN_CPH_COUNT
+      totalCount: KNOWN_CPH_COUNT
     })
   })
 
@@ -236,14 +236,14 @@ describe('cads', () => {
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&order-by=BirthDate&direction=Desc`,
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&orderBy=BirthDate&direction=Desc`,
       headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
     expect(response.statusCode).toBe(200)
     // UK300000000004 (born 2026-06-01) is the most recent birth date.
-    expect(response.result.animals[0].identifier.identifier).toBe(
+    expect(response.result.results[0].identifier.identifier).toBe(
       'UK300000000004'
     )
   })
@@ -261,8 +261,8 @@ describe('cads', () => {
 
     // Assert
     expect(response.statusCode).toBe(200)
-    expect(response.result.totalRecords).toBe(KNOWN_CPH_COUNT)
-    const known = response.result.animals.find(
+    expect(response.result.totalCount).toBe(KNOWN_CPH_COUNT)
+    const known = response.result.results.find(
       (a) => a.identifier.identifier === KNOWN_IDENTIFIER
     )
     expect(known.dateOnCPH).toBe('2023-02-05')
@@ -287,10 +287,10 @@ describe('cads', () => {
     ])
 
     // Assert
-    expect(dead.result.animals.map((a) => a.identifier.identifier)).toEqual([
+    expect(dead.result.results.map((a) => a.identifier.identifier)).toEqual([
       DEAD_IDENTIFIER
     ])
-    expect(offFarm.result.animals.map((a) => a.identifier.identifier)).toEqual([
+    expect(offFarm.result.results.map((a) => a.identifier.identifier)).toEqual([
       OFF_FARM_IDENTIFIER
     ])
   })
@@ -302,15 +302,15 @@ describe('cads', () => {
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&sex=Male&page-size=100`,
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&sex=Male&pageSize=100`,
       headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
     expect(response.statusCode).toBe(200)
-    expect(response.result.animals.every((a) => a.sex === 'Male')).toBe(true)
+    expect(response.result.results.every((a) => a.sex === 'Male')).toBe(true)
     expect(
-      response.result.animals.some(
+      response.result.results.some(
         (a) => a.identifier.identifier === OFF_FARM_IDENTIFIER
       )
     ).toBe(false)
@@ -328,7 +328,7 @@ describe('cads', () => {
     })
 
     // Assert
-    expect(response.result.animals.map((a) => a.identifier.identifier)).toEqual(
+    expect(response.result.results.map((a) => a.identifier.identifier)).toEqual(
       [CROSS_BREED_IDENTIFIER]
     )
   })
@@ -340,12 +340,12 @@ describe('cads', () => {
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&dateOnCPHFrom=2025-04-01&page-size=100`,
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&dateOnCPHFrom=2025-04-01&pageSize=100`,
       headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
-    const earTags = response.result.animals.map((a) => a.identifier.identifier)
+    const earTags = response.result.results.map((a) => a.identifier.identifier)
     expect(earTags).toContain(CROSS_BREED_IDENTIFIER)
     expect(earTags).not.toContain(KNOWN_IDENTIFIER)
   })
@@ -362,7 +362,7 @@ describe('cads', () => {
     })
 
     // Assert
-    expect(response.result.animals.map((a) => a.identifier.identifier)).toEqual(
+    expect(response.result.results.map((a) => a.identifier.identifier)).toEqual(
       [CROSS_BREED_IDENTIFIER]
     )
   })
@@ -374,13 +374,13 @@ describe('cads', () => {
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&q=male&page-size=100`,
+      url: `/cads/api/v1/bovine/animals?CPH=${KNOWN_CPH}&q=male&pageSize=100`,
       headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
-    expect(response.result.animals.length).toBeGreaterThan(0)
-    expect(response.result.animals.every((a) => a.sex === 'Male')).toBe(true)
+    expect(response.result.results.length).toBeGreaterThan(0)
+    expect(response.result.results.every((a) => a.sex === 'Male')).toBe(true)
   })
 
   test('it searches the ear tag for a partial match', async () => {
@@ -395,7 +395,7 @@ describe('cads', () => {
     })
 
     // Assert
-    expect(response.result.animals.map((a) => a.identifier.identifier)).toEqual(
+    expect(response.result.results.map((a) => a.identifier.identifier)).toEqual(
       [CROSS_BREED_IDENTIFIER]
     )
   })
@@ -415,11 +415,11 @@ describe('cads', () => {
     expect(response.statusCode).toBe(200)
     expect(response.result).toMatchObject({
       resourceType: 'AnimalCollection',
-      animals: [],
+      results: [],
       page: 1,
       pageSize: 25,
       totalPages: 1,
-      totalRecords: 0
+      totalCount: 0
     })
   })
 
