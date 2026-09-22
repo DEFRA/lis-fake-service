@@ -8,7 +8,7 @@ const configValues = {
   'identityServiceHelper.apiKey': 'test-api-key'
 }
 
-const TEST_FARMER_ID = '00000000-0000-0000-0000-000000000002'
+const TEST_FARMER_ID = '9ee256a0-0ed9-4f48-b444-791216b76abe'
 const OAKFIELD_EMAIL = 'oakfield.farmer@oakhill-farms.co.uk'
 const OAKFIELD_ID = 'cd91b1e0-bae4-4cee-becf-3529cc557311'
 

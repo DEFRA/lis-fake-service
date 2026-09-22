@@ -32,7 +32,7 @@ mirror it:
 
 | email                                    | sub                                    |
 | ---------------------------------------- | -------------------------------------- |
-| `farmer@example.com`                     | `00000000-0000-0000-0000-000000000002` |
+| `farmer@example.com`                     | `9ee256a0-0ed9-4f48-b444-791216b76abe` |
 | `oakfield.farmer@oakhill-farms.co.uk`    | `cd91b1e0-bae4-4cee-becf-3529cc557311` |
 | `fairfield.farmer@fairfield-farms.co.uk` | `52b36302-6b7c-48e7-a386-b7bf81bd8911` |
 
