@@ -48,7 +48,7 @@ src/
 │   ├── common/
 │   │   ├── constants/status-codes.js
 │   │   ├── data/animals.js         # Canonical animal test data loader (data/fixtures/animals/*.json), shared by cts-ws and cads
-│   │   ├── data/breeds.js          # GOV.UK cattle breed codes + names (data/fixtures/breed-names.json), shared by cts-ws and cads
+│   │   ├── data/breeds.js          # GOV.UK cattle breed codes + names (from @defra/lis-species-cattle), shared by cts-ws and cads
 │   │   ├── data/locations.js       # Holding registry — id, status, sub-locations (data/fixtures/locations.json), shared by cts-ws, cads and identity-service-helper
 │   │   ├── data/users.js           # Minimal user records (data/fixtures/users.json), expanded to a UserProfile by identity-service-helper
 │   │   └── helpers/

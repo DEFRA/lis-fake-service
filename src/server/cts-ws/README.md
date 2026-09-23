@@ -67,7 +67,7 @@ Each module exposes lookup functions — no other module reads fixture JSON dire
 
 Movement validation also reads the shared `src/server/common/data/locations.js` / `data/fixtures/locations.json` — the holding registry, one entry per recognised CPH with its id, movement-suitability status, and (where relevant) inactive date range or sub-location structure. The cads fake reads it for CPH recognition; identity-service-helper resolves a keeper's CPH to its holding id.
 
-Breed-code validation (`CTWS014` in `validation/birth.js`) uses the shared `src/server/common/data/breeds.js` / `data/fixtures/breed-names.json` — the GOV.UK "Official cattle breeds and codes" list, which the cads fake also reads for breed names.
+Breed-code validation (`CTWS014` in `validation/birth.js`) uses the shared `src/server/common/data/breeds.js` — backed by `@defra/lis-species-cattle`, the GOV.UK "Official cattle breeds and codes" list, which the cads fake also reads for breed names.
 
 ## Adding a validation rule
 
