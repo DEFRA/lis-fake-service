@@ -35,8 +35,8 @@ async function postUserAccount(server, payload) {
 }
 
 // Pre-existing, subject-bound account from data/fixtures/users.json.
-const SEEDED_SUBJECT = 'cd91b1e0-bae4-4cee-becf-3529cc557311'
-const SEEDED_EMAIL = 'oakfield.farmer@oakhill-farms.co.uk'
+const SEEDED_SUBJECT = '3a6f0e9b-fc47-4537-b904-8b98a88a67fe'
+const SEEDED_EMAIL = 'defralivestock+oakfield@gmail.com'
 
 describe('user-accounts', () => {
   beforeAll(() => {

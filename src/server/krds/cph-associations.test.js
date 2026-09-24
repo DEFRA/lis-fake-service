@@ -42,7 +42,7 @@ describe('cph-associations', () => {
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: '/krds/api/v2/cph-associations?Email=oakfield.farmer@oakhill-farms.co.uk'
+      url: '/krds/api/v2/cph-associations?Email=defralivestock%2Boakfield@gmail.com'
     })
 
     // Assert
@@ -56,7 +56,7 @@ describe('cph-associations', () => {
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: '/krds/api/v2/cph-associations?Email=oakfield.farmer@oakhill-farms.co.uk',
+      url: '/krds/api/v2/cph-associations?Email=defralivestock%2Boakfield@gmail.com',
       headers: { authorization: VALID_AUTH_HEADER }
     })
 

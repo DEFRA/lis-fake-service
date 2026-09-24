@@ -2,8 +2,8 @@ import { describe, expect, test } from 'vitest'
 
 import { findUser } from './users.js'
 
-const OAKFIELD_EMAIL = 'oakfield.farmer@oakhill-farms.co.uk'
-const OAKFIELD_SUB = 'cd91b1e0-bae4-4cee-becf-3529cc557311'
+const OAKFIELD_EMAIL = 'defralivestock+oakfield@gmail.com'
+const OAKFIELD_SUB = '3a6f0e9b-fc47-4537-b904-8b98a88a67fe'
 
 describe('findUser()', () => {
   test('it returns the record, keyed by the IdP-issued sub, for a known user', () => {

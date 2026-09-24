@@ -1,10 +1,8 @@
 # identity-service-helper - fakes GET /users/{id}/profile.
 # Needs x-api-key: {{ishApiKey}} and a non-empty x-correlation-id.
 #
-# {id} is the OIDC sub, derived as uuidv5(email, uuidv5('uk.gov.defra.lis.fake-service.user', uuidv5.DNS)).
-# The *Sub env vars are precomputed. To regenerate:
-#   node -e "const{v5}=require('uuid');const ns=v5('uk.gov.defra.lis.fake-service.user',v5.DNS);
-#            console.log(v5('oakfield.farmer@oakhill-farms.co.uk', ns))"
+# {id} is the OIDC sub. The fixture users mirror real Defra CI (cpdev) test accounts,
+# so the *Sub env vars are those accounts' subs, matching data/fixtures/users.json.
 
 ### Profile - Oakfield Farmer (1 holding: 22/001/0001)
 GET {{baseUrl}}/identity-service-helper/users/{{oakfieldSub}}/profile
