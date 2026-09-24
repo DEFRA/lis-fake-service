@@ -1,27 +1,17 @@
 import { randomUUID } from 'node:crypto'
 import { v5 as uuidv5 } from 'uuid'
-import users from '../../../../data/fixtures/users.json' with { type: 'json' }
 import {
-  associationForEmail,
   cphsForEmail,
   findLocation,
   holdingId
 } from '../../common/data/locations.js'
 
-// Namespaces for ids derived from stable inputs, so they don't change
-// between calls without being stored.
-const ACCOUNT_NAMESPACE = uuidv5(
-  'uk.gov.defra.lis.fake-service.krds.account',
-  uuidv5.DNS
-)
+// Namespace for cph-association ids derived from stable inputs, so they
+// don't change between calls without being stored.
 const ASSOCIATION_NAMESPACE = uuidv5(
   'uk.gov.defra.lis.fake-service.krds.cph-association',
   uuidv5.DNS
 )
-
-// The fixed instant the seeded accounts were "last refreshed" at server
-// start, so tests get a deterministic value rather than Date.now().
-const SEED_TIMESTAMP = '2024-01-01T00:00:00.000Z'
 
 function toCphAssociationDto(email, { cph, role }) {
   const location = findLocation(cph)
@@ -45,43 +35,15 @@ function toCphAssociationDto(email, { cph, role }) {
 /**
  * In-memory stand-in for keeper-data-api's user account store: ensures an
  * account per ensureAccount() call (create, adopt-by-email or refresh by
- * subject) and serves it back by subject. Seeded from
- * data/fixtures/users.json at construction so the pre-existing identities
- * identity-service-helper's fake already knows about resolve immediately.
+ * subject) and serves it back by subject.
  */
 export class KrdsUserDataStore {
   /**
-   * Seeds the store from data/fixtures/users.json.
+   * Starts with an empty store - accounts only exist once ensureAccount()
+   * creates them.
    */
   constructor() {
-    this.accountsById = new Map(
-      users.map((user) => {
-        const account = this.#seedAccount(user)
-        return [account.id, account]
-      })
-    )
-  }
-
-  /**
-   * @param {{ sub: string, email: string, active: boolean }} user
-   * @returns {object} a seeded UserAccountDto
-   */
-  #seedAccount(user) {
-    const association = associationForEmail(user.email)
-
-    return {
-      id: uuidv5(user.email, ACCOUNT_NAMESPACE),
-      subject: user.sub,
-      email: user.email,
-      firstName: association?.firstName ?? null,
-      lastName: association?.lastName ?? null,
-      displayName: association?.name ?? null,
-      cphAssociations: cphsForEmail(user.email).map((assoc) =>
-        toCphAssociationDto(user.email, assoc)
-      ),
-      associationsRefreshedDate: SEED_TIMESTAMP,
-      lastUpdatedDate: SEED_TIMESTAMP
-    }
+    this.accountsById = new Map()
   }
 
   /**

@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
 import {
-  associationForEmail,
   cphsForEmail,
   findLocation,
   holdingId,
@@ -101,27 +100,6 @@ describe('cphsForEmail()', () => {
 
     // Assert
     expect(result).toEqual([])
-  })
-})
-
-describe('associationForEmail()', () => {
-  test('it returns the association record for a known keeper', () => {
-    // Act
-    const result = associationForEmail('defralivestock+oakfield@gmail.com')
-
-    // Assert
-    expect(result).toMatchObject({
-      firstName: 'Oakfield',
-      name: 'Oakfield Farmer'
-    })
-  })
-
-  test('it returns undefined for an email with no associations', () => {
-    // Act
-    const result = associationForEmail('nobody@example.com')
-
-    // Assert
-    expect(result).toBeUndefined()
   })
 })
 

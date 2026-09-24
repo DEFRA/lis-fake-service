@@ -2,6 +2,7 @@ import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import hapi from '@hapi/hapi'
 import { config } from '../../config/config.js'
 import { krds } from './index.js'
+import { userAccountStore } from './data/user-accounts.js'
 
 const CLIENT_ID = 'test-client'
 const CLIENT_SECRET = 'test-secret'
@@ -34,9 +35,9 @@ async function postUserAccount(server, payload) {
   })
 }
 
-// Pre-existing, subject-bound account from data/fixtures/users.json.
-const SEEDED_SUBJECT = '3a6f0e9b-fc47-4537-b904-8b98a88a67fe'
-const SEEDED_EMAIL = 'defralivestock+oakfield@gmail.com'
+// Has CPH 22/001/0001 in data/fixtures/locations/, so an ensured account for
+// it picks up a CPH association.
+const OAKFIELD_EMAIL = 'defralivestock+oakfield@gmail.com'
 
 describe('user-accounts', () => {
   beforeAll(() => {
@@ -46,6 +47,8 @@ describe('user-accounts', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.configGet.mockImplementation((key) => configValues[key])
+    // The store is a module singleton - start every test with no accounts.
+    userAccountStore.accountsById.clear()
   })
 
   test('it returns 401 for POST when the Authorization header is missing', async () => {
@@ -90,18 +93,19 @@ describe('user-accounts', () => {
     // Arrange
     const server = await makeServer()
     const payload = {
-      sub: SEEDED_SUBJECT,
-      email: SEEDED_EMAIL,
+      sub: 'd4d4d4d4-4444-4444-8444-444444444444',
+      email: OAKFIELD_EMAIL,
       given_name: 'Oakfield',
       family_name: 'Farmer'
     }
+    await postUserAccount(server, payload)
 
     // Act
     const response = await postUserAccount(server, payload)
 
     // Assert
     expect(response.statusCode).toBe(200)
-    expect(response.result.subject).toBe(SEEDED_SUBJECT)
+    expect(response.result.subject).toBe(payload.sub)
     expect(response.result.cphAssociations).toEqual([
       expect.objectContaining({ cphNumber: '22/001/0001', role: 'Keeper' })
     ])
@@ -135,11 +139,15 @@ describe('user-accounts', () => {
   test('it returns 409 when the email is already bound to a different subject', async () => {
     // Arrange
     const server = await makeServer()
+    await postUserAccount(server, {
+      sub: 'e5e5e5e5-5555-4555-8555-555555555555',
+      email: OAKFIELD_EMAIL
+    })
 
     // Act
     const response = await postUserAccount(server, {
       sub: 'c3c3c3c3-3333-4333-8333-333333333333',
-      email: SEEDED_EMAIL
+      email: OAKFIELD_EMAIL
     })
 
     // Assert
@@ -165,18 +173,26 @@ describe('user-accounts', () => {
   test('it returns the account for a known subject', async () => {
     // Arrange
     const server = await makeServer()
+    const sub = 'f6f6f6f6-6666-4666-8666-666666666666'
+    const email = 'known.subject@example.com'
+    await postUserAccount(server, {
+      sub,
+      email,
+      given_name: 'Known',
+      family_name: 'Subject'
+    })
 
     // Act
     const response = await server.inject({
       method: 'GET',
-      url: `/krds/api/v2/user-accounts/${SEEDED_SUBJECT}`,
+      url: `/krds/api/v2/user-accounts/${sub}`,
       headers: { authorization: VALID_AUTH_HEADER }
     })
 
     // Assert
     expect(response.statusCode).toBe(200)
-    expect(response.result.subject).toBe(SEEDED_SUBJECT)
-    expect(response.result.email).toBe(SEEDED_EMAIL)
+    expect(response.result.subject).toBe(sub)
+    expect(response.result.email).toBe(email)
   })
 
   test('it returns 404 for an unrecognised but well-formed subject', async () => {
