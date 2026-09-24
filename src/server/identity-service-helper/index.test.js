@@ -8,9 +8,9 @@ const configValues = {
   'identityServiceHelper.apiKey': 'test-api-key'
 }
 
-const TEST_FARMER_ID = '9ee256a0-0ed9-4f48-b444-791216b76abe'
-const OAKFIELD_EMAIL = 'oakfield.farmer@oakhill-farms.co.uk'
-const OAKFIELD_ID = 'cd91b1e0-bae4-4cee-becf-3529cc557311'
+const TEST_FARMER_ID = 'e8e9a3d2-d9ba-4c49-b293-09288434c748'
+const OAKFIELD_EMAIL = 'defralivestock+oakfield@gmail.com'
+const OAKFIELD_ID = '3a6f0e9b-fc47-4537-b904-8b98a88a67fe'
 
 const mocks = {
   configGet: vi.spyOn(config, 'get')

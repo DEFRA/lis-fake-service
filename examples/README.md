@@ -30,11 +30,11 @@ Start the service first: `npm run dev`.
 `data/fixtures/users.json` so the two fakes stay aligned. The `*Sub` env vars
 mirror it:
 
-| email                                    | sub                                    |
-| ---------------------------------------- | -------------------------------------- |
-| `farmer@example.com`                     | `9ee256a0-0ed9-4f48-b444-791216b76abe` |
-| `oakfield.farmer@oakhill-farms.co.uk`    | `cd91b1e0-bae4-4cee-becf-3529cc557311` |
-| `fairfield.farmer@fairfield-farms.co.uk` | `52b36302-6b7c-48e7-a386-b7bf81bd8911` |
+| email                                 | sub                                    |
+| ------------------------------------- | -------------------------------------- |
+| `defralivestock+noholdings@gmail.com` | `e8e9a3d2-d9ba-4c49-b293-09288434c748` |
+| `defralivestock+oakfield@gmail.com`   | `3a6f0e9b-fc47-4537-b904-8b98a88a67fe` |
+| `defralivestock+fairfield@gmail.com`  | `ca73c5f5-2b5e-4944-ac6a-dcc979e6ed10` |
 
 ## cts-ws
 

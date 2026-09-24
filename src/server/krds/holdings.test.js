@@ -90,7 +90,7 @@ describe('krds', () => {
     expect(response.result.associations).toEqual([
       expect.objectContaining({
         name: 'Oakfield Farmer',
-        email: 'oakfield.farmer@oakhill-farms.co.uk'
+        email: 'defralivestock+oakfield@gmail.com'
       })
     ])
     expect(response.result.allowedSpecies).toEqual(['Cattle'])
@@ -114,7 +114,7 @@ describe('krds', () => {
     expect(response.result.associations).toEqual([
       expect.objectContaining({
         name: 'Fairfield Farmer',
-        email: 'fairfield.farmer@fairfield-farms.co.uk'
+        email: 'defralivestock+fairfield@gmail.com'
       })
     ])
   })

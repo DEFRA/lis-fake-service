@@ -74,7 +74,7 @@ describe('isKnownCph()', () => {
 describe('cphsForEmail()', () => {
   test('it returns every CPH/role pair for a keeper with one holding', () => {
     // Act
-    const result = cphsForEmail('oakfield.farmer@oakhill-farms.co.uk')
+    const result = cphsForEmail('defralivestock+oakfield@gmail.com')
 
     // Assert
     expect(result).toEqual([{ cph: '22/001/0001', role: 'Keeper' }])
@@ -82,7 +82,7 @@ describe('cphsForEmail()', () => {
 
   test('it returns every CPH/role pair for a keeper with multiple holdings', () => {
     // Act
-    const result = cphsForEmail('fairfield.farmer@fairfield-farms.co.uk')
+    const result = cphsForEmail('defralivestock+fairfield@gmail.com')
 
     // Assert
     expect(result).toEqual([
@@ -107,7 +107,7 @@ describe('cphsForEmail()', () => {
 describe('associationForEmail()', () => {
   test('it returns the association record for a known keeper', () => {
     // Act
-    const result = associationForEmail('oakfield.farmer@oakhill-farms.co.uk')
+    const result = associationForEmail('defralivestock+oakfield@gmail.com')
 
     // Assert
     expect(result).toMatchObject({
