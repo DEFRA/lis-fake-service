@@ -2,9 +2,7 @@ import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { config } from '../config/config.js'
 import { createServer } from './server.js'
 
-const configValues = {
-  'identityServiceHelper.apiKey': 'test-api-key'
-}
+const configValues = {}
 
 const mocks = {
   configGet: vi.spyOn(config, 'get')
@@ -30,24 +28,6 @@ describe('createServer()', () => {
     // Assert
     expect(response.statusCode).toBe(200)
     expect(response.result).toEqual({ message: 'success' })
-  })
-
-  test('it registers the identity-service-helper routes', async () => {
-    // Arrange
-    const server = await createServer()
-
-    // Act
-    const response = await server.inject({
-      method: 'GET',
-      url: '/identity-service-helper/users/not-a-real-id/profile',
-      headers: {
-        'x-api-key': 'test-api-key',
-        'x-correlation-id': 'correlation-1'
-      }
-    })
-
-    // Assert
-    expect(response.statusCode).toBe(404)
   })
 
   test('it registers the cts-ws route', async () => {

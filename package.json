@@ -1,7 +1,7 @@
 {
   "name": "@defra/fake-service",
   "version": "0.0.1",
-  "description": "Fakes upstream data dependencies (CTS, identity-service-helper) for local and CDP dev environments",
+  "description": "Fakes upstream data dependencies (CTS, CADS, KRDS) for local and CDP dev environments",
   "main": "src/index.js",
   "private": true,
   "type": "module",

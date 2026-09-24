@@ -97,7 +97,7 @@ describe('krds', () => {
     expect(response.result.marks).toHaveLength(1)
   })
 
-  test("it aligns a holding's keeper association with identity-service-helper's user fixture", async () => {
+  test("it returns Fairfield Farm's keeper association for 22/002/0002", async () => {
     // Arrange
     const server = await makeServer()
 

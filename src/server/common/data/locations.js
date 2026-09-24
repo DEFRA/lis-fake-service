@@ -13,9 +13,9 @@ const HOLDING_NAMESPACE = uuidv5(
 // Canonical holding test data: one file per CPH in data/fixtures/locations/,
 // a superset of what each fake needs. cts-ws reads the movement-suitability
 // status / inactive date range / sub-location detail, the cads fake uses
-// recognition, identity-service-helper resolves a keeper's CPH to its
-// holding id, and the krds fake reads the full holding detail. It's the
-// single source of truth so the fakes stay in step.
+// recognition, and the krds fake reads the full holding detail (including
+// resolving a keeper's CPH to its holding id). It's the single source of
+// truth so the fakes stay in step.
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const locationsDir = path.resolve(
@@ -60,21 +60,6 @@ export function cphsForEmail(email) {
         }))
       )
   )
-}
-
-/**
- * @param {string} email
- * @returns {object | undefined} the first association record across every
- *   location whose email matches, or undefined if none does
- */
-export function associationForEmail(email) {
-  for (const location of locations.values()) {
-    const association = location.associations.find((a) => a.email === email)
-    if (association) {
-      return association
-    }
-  }
-  return undefined
 }
 
 /**

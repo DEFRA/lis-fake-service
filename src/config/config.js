@@ -79,14 +79,6 @@ export const config = convict({
       default: isDevelopment
     }
   },
-  identityServiceHelper: {
-    apiKey: {
-      doc: 'x-api-key value the fake identity-service-helper endpoints require, matching its real ApiKeyValidationMiddleware',
-      format: String,
-      default: 'local-dev-identity-service-helper-key',
-      env: 'IDENTITY_SERVICE_HELPER_API_KEY'
-    }
-  },
   cads: {
     clientId: {
       doc: 'Basic auth client ID (ACL client key) the fake cads-data-service (/cads) endpoints require, matching its real ApiKeyOrCognito Basic-scheme auth policy',

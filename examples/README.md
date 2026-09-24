@@ -15,26 +15,12 @@ is also on `3000`, this service moves to `3001` — update `baseUrl`.
 
 Start the service first: `npm run dev`.
 
-| File                           | Covers                                                                                                                |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
-| `health.http`                  | `GET /health`                                                                                                         |
-| `cads.http`                    | `/cads/api/v1/bovine/animals/...` — details, on-holding, paging, every error case (needs `x-api-key: {{cadsApiKey}}`) |
-| `identity-service-helper.http` | `GET /identity-service-helper/users/{id}/profile` — 3 users + 404 + header errors                                     |
-| `cts-ws-reg-births.http`       | `Register_Births_Asynchronous` submit + poll, success and failure scenarios                                           |
-| `cts-ws-reg-movements.http`    | `Register_Movements_Asynchronous` submit + poll, success and failure scenarios                                        |
-
-## identity-service-helper `{id}`
-
-`{id}` is the OIDC `sub`. It's the value the IdP fake issues for the address
-(`fake/idp/data/fixtures/defra-ci.json`), stored alongside each record in
-`data/fixtures/users.json` so the two fakes stay aligned. The `*Sub` env vars
-mirror it:
-
-| email                                 | sub                                    |
-| ------------------------------------- | -------------------------------------- |
-| `defralivestock+noholdings@gmail.com` | `e8e9a3d2-d9ba-4c49-b293-09288434c748` |
-| `defralivestock+oakfield@gmail.com`   | `3a6f0e9b-fc47-4537-b904-8b98a88a67fe` |
-| `defralivestock+fairfield@gmail.com`  | `ca73c5f5-2b5e-4944-ac6a-dcc979e6ed10` |
+| File                        | Covers                                                                                                                |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `health.http`               | `GET /health`                                                                                                         |
+| `cads.http`                 | `/cads/api/v1/bovine/animals/...` — details, on-holding, paging, every error case (needs `x-api-key: {{cadsApiKey}}`) |
+| `cts-ws-reg-births.http`    | `Register_Births_Asynchronous` submit + poll, success and failure scenarios                                           |
+| `cts-ws-reg-movements.http` | `Register_Movements_Asynchronous` submit + poll, success and failure scenarios                                        |
 
 ## cts-ws
 
