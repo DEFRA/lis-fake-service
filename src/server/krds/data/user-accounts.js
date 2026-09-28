@@ -13,6 +13,37 @@ const ASSOCIATION_NAMESPACE = uuidv5(
   uuidv5.DNS
 )
 
+// Shapes mirror keeper-data-api's OpenAPI (v2) schemas of the same name.
+
+/**
+ * @typedef {object} CphAssociationDto
+ * @property {string} id
+ * @property {string} cphNumber
+ * @property {string} role
+ * @property {string | null} partyId
+ * @property {string | null} holdingId
+ * @property {string | null} holdingName
+ */
+
+/**
+ * @typedef {object} UserAccountDto
+ * @property {string} id
+ * @property {string | null} subject
+ * @property {string} email
+ * @property {string | null} firstName
+ * @property {string | null} lastName
+ * @property {string | null} displayName
+ * @property {CphAssociationDto[]} cphAssociations
+ * @property {string | null} associationsRefreshedDate
+ * @property {string | null} lastUpdatedDate - null only until the account's
+ *   first refresh; the API itself never returns null here
+ */
+
+/**
+ * @param {string} email
+ * @param {{ cph: string, role: string }} association
+ * @returns {CphAssociationDto}
+ */
 function toCphAssociationDto(email, { cph, role }) {
   const location = findLocation(cph)
 
@@ -28,7 +59,7 @@ function toCphAssociationDto(email, { cph, role }) {
 
 /**
  * @typedef {object} EnsureResult
- * @property {object} account - the resulting UserAccountDto
+ * @property {UserAccountDto} account - the resulting account
  * @property {boolean} created - whether a brand new account was created
  */
 
@@ -43,12 +74,13 @@ export class KrdsUserDataStore {
    * creates them.
    */
   constructor() {
+    /** @type {Map<string, UserAccountDto>} */
     this.accountsById = new Map()
   }
 
   /**
    * @param {string} subject
-   * @returns {object | undefined}
+   * @returns {UserAccountDto | undefined}
    */
   #findBySubject(subject) {
     return [...this.accountsById.values()].find(
@@ -58,7 +90,7 @@ export class KrdsUserDataStore {
 
   /**
    * @param {string} email
-   * @returns {object | undefined}
+   * @returns {UserAccountDto | undefined}
    */
   #findByEmail(email) {
     return [...this.accountsById.values()].find(
@@ -74,7 +106,7 @@ export class KrdsUserDataStore {
    *
    * @param {string | null | undefined} sub
    * @param {string} email
-   * @returns {{ account: object, created: boolean } | { conflict: true }}
+   * @returns {EnsureResult | { conflict: true }}
    */
   #resolveAccount(sub, email) {
     const bySubject = sub ? this.#findBySubject(sub) : undefined
@@ -111,7 +143,7 @@ export class KrdsUserDataStore {
    * association snapshot from the location records (standing in for the
    * SAM read model).
    *
-   * @param {object} account
+   * @param {UserAccountDto} account
    * @param {{ email: string, given_name?: string | null, family_name?: string | null }} claims
    */
   #refresh(account, { email, given_name: firstName, family_name: lastName }) {
@@ -131,7 +163,7 @@ export class KrdsUserDataStore {
 
   /**
    * @param {string} subject
-   * @returns {object | undefined} the stored UserAccountDto, or undefined
+   * @returns {UserAccountDto | undefined} the stored account, or undefined
    *   if the subject isn't recognised
    */
   findAccount(subject) {

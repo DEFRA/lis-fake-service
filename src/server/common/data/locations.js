@@ -3,6 +3,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { v5 as uuidv5 } from 'uuid'
 
+/** @import { HoldingDetail } from '../../krds/data/holdings.js' */
+
 // Namespace for holding ids - each derived from the CPH so they're stable and
 // not stored.
 const HOLDING_NAMESPACE = uuidv5(
@@ -17,12 +19,33 @@ const HOLDING_NAMESPACE = uuidv5(
 // resolving a keeper's CPH to its holding id). It's the single source of
 // truth so the fakes stay in step.
 
+/**
+ * @typedef {object} SubLocation
+ * @property {string} status
+ * @property {string} [inactiveFrom]
+ * @property {string} [inactiveTo]
+ */
+
+/**
+ * A location fixture: krds's HoldingDetail plus the movement-suitability
+ * fields only cts-ws reads.
+ *
+ * @typedef {HoldingDetail & {
+ *   status: string,
+ *   inactiveFrom?: string,
+ *   inactiveTo?: string,
+ *   requiresSubLocation?: boolean,
+ *   subLocations?: Record<string, SubLocation>
+ * }} Location
+ */
+
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const locationsDir = path.resolve(
   dirname,
   '../../../../data/fixtures/locations'
 )
 
+/** @type {Map<string, Location>} */
 const locations = new Map(
   readdirSync(locationsDir)
     .filter((file) => file.endsWith('.json'))
@@ -36,7 +59,7 @@ const locations = new Map(
 
 /**
  * @param {string} cph
- * @returns {object | undefined} the location record, or undefined if the CPH
+ * @returns {Location | undefined} the location record, or undefined if the CPH
  *   isn't recognised
  */
 export function findLocation(cph) {
