@@ -62,7 +62,7 @@ describe('cph-associations', () => {
 
     // Assert
     expect(response.statusCode).toBe(200)
-    expect(response.result).toEqual([{ cph: '22/001/0001', role: 'Keeper' }])
+    expect(response.result).toEqual([{ cph: '22/001/0001', role: 'owner' }])
   })
 
   test('it returns an empty array for an email with no associations', async () => {
