@@ -32,7 +32,7 @@
       "telephone": null,
       "roles": [
         {
-          "code": "Keeper",
+          "code": "owner",
           "species": ["Cattle"]
         }
       ]

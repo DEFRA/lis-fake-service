@@ -107,7 +107,7 @@ describe('user-accounts', () => {
     expect(response.statusCode).toBe(200)
     expect(response.result.subject).toBe(payload.sub)
     expect(response.result.cphAssociations).toEqual([
-      expect.objectContaining({ cphNumber: '22/001/0001', role: 'Keeper' })
+      expect.objectContaining({ cphNumber: '22/001/0001', role: 'owner' })
     ])
   })
 
