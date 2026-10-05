@@ -1,6 +1,8 @@
-import { holdingsRoutes } from './holdings.js'
-import { cphAssociationsRoutes } from './cph-associations.js'
-import { userAccountsRoutes } from './user-accounts.js'
+import { getMany as getHoldings } from './holdings/get-many.js'
+import { getOne as getHolding } from './holdings/get-one.js'
+import { getMany as getCphAssociations } from './cph-associations/get-many.js'
+import { getOne as getUserAccount } from './user-accounts/get-one.js'
+import { post as postUserAccount } from './user-accounts/post.js'
 import { krdsAuth } from './auth.js'
 
 export const krds = {
@@ -8,9 +10,13 @@ export const krds = {
     name: 'krds',
     async register(server) {
       await server.register(krdsAuth)
-      server.route(holdingsRoutes)
-      server.route(cphAssociationsRoutes)
-      server.route(userAccountsRoutes)
+      server.route([
+        getHoldings,
+        getHolding,
+        getCphAssociations,
+        getUserAccount,
+        postUserAccount
+      ])
     }
   }
 }
