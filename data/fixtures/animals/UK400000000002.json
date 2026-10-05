@@ -1,0 +1,23 @@
+{
+  "earTag": "UK400000000002",
+  "sex": "Male",
+  "breedCode": "BS",
+  "birthDate": "2017-03-26",
+  "currentCph": "03/202/0021",
+  "registrationDate": "2017-04-09",
+  "dateOnCph": "2017-03-26",
+  "dateOffCph": null,
+  "dateOfDeath": null,
+  "calvingDates": [],
+  "parentage": [
+    {
+      "relationship": "GeneticDam",
+      "earTag": "UK490000000104"
+    },
+    {
+      "relationship": "Sire",
+      "earTag": "UK490000000105"
+    }
+  ],
+  "restrictionStatus": "None"
+}

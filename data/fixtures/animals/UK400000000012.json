@@ -1,0 +1,23 @@
+{
+  "earTag": "UK400000000012",
+  "sex": "Female",
+  "breedCode": "JE",
+  "birthDate": "2023-07-20",
+  "currentCph": "03/202/0021",
+  "registrationDate": "2023-08-09",
+  "dateOnCph": "2023-07-20",
+  "dateOffCph": null,
+  "dateOfDeath": null,
+  "calvingDates": ["2025-11-08"],
+  "parentage": [
+    {
+      "relationship": "GeneticDam",
+      "earTag": "UK490000000124"
+    },
+    {
+      "relationship": "Sire",
+      "earTag": "UK490000000125"
+    }
+  ],
+  "restrictionStatus": "None"
+}

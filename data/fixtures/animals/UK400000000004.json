@@ -1,0 +1,23 @@
+{
+  "earTag": "UK400000000004",
+  "sex": "Female",
+  "breedCode": "HFX",
+  "birthDate": "2022-04-04",
+  "currentCph": "03/202/0021",
+  "registrationDate": "2022-04-19",
+  "dateOnCph": "2022-04-04",
+  "dateOffCph": null,
+  "dateOfDeath": null,
+  "calvingDates": ["2024-06-16", "2025-08-09"],
+  "parentage": [
+    {
+      "relationship": "GeneticDam",
+      "earTag": "UK490000000108"
+    },
+    {
+      "relationship": "Sire",
+      "earTag": "UK490000000109"
+    }
+  ],
+  "restrictionStatus": "None"
+}
