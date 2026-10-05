@@ -1,0 +1,14 @@
+{
+  "earTag": "UK400000000007",
+  "sex": "Female",
+  "breedCode": "SIM",
+  "birthDate": "2023-03-29",
+  "currentCph": "03/202/0021",
+  "registrationDate": "2023-04-19",
+  "dateOnCph": "2023-03-29",
+  "dateOffCph": null,
+  "dateOfDeath": null,
+  "calvingDates": ["2025-04-23", "2026-04-23"],
+  "parentage": [],
+  "restrictionStatus": "None"
+}

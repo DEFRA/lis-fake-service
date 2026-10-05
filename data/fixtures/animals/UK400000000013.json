@@ -1,0 +1,23 @@
+{
+  "earTag": "UK400000000013",
+  "sex": "Male",
+  "breedCode": "AA",
+  "birthDate": "2022-06-17",
+  "currentCph": "03/202/0021",
+  "registrationDate": "2022-07-08",
+  "dateOnCph": "2022-06-17",
+  "dateOffCph": null,
+  "dateOfDeath": null,
+  "calvingDates": [],
+  "parentage": [
+    {
+      "relationship": "GeneticDam",
+      "earTag": "UK490000000126"
+    },
+    {
+      "relationship": "Sire",
+      "earTag": "UK490000000127"
+    }
+  ],
+  "restrictionStatus": "None"
+}

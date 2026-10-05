@@ -1,0 +1,23 @@
+{
+  "earTag": "UK400000000010",
+  "sex": "Female",
+  "breedCode": "LIM",
+  "birthDate": "2023-08-16",
+  "currentCph": "03/202/0021",
+  "registrationDate": "2023-08-22",
+  "dateOnCph": "2024-07-26",
+  "dateOffCph": null,
+  "dateOfDeath": null,
+  "calvingDates": ["2025-10-09"],
+  "parentage": [
+    {
+      "relationship": "GeneticDam",
+      "earTag": "UK490000000120"
+    },
+    {
+      "relationship": "Sire",
+      "earTag": "UK490000000121"
+    }
+  ],
+  "restrictionStatus": "None"
+}

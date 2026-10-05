@@ -1,0 +1,14 @@
+{
+  "earTag": "UK400000000011",
+  "sex": "Female",
+  "breedCode": "AA",
+  "birthDate": "2022-03-12",
+  "currentCph": "03/202/0021",
+  "registrationDate": "2022-03-21",
+  "dateOnCph": "2022-06-28",
+  "dateOffCph": null,
+  "dateOfDeath": null,
+  "calvingDates": ["2024-05-27", "2025-06-20", "2026-07-09"],
+  "parentage": [],
+  "restrictionStatus": "None"
+}

@@ -1,0 +1,50 @@
+{
+  "status": "active",
+  "identifier": "03/202/0021",
+  "holdingType": "AH",
+  "name": "Old Farm",
+  "startDate": "2012-04-02T00:00:00Z",
+  "endDate": null,
+  "location": {
+    "osMapReference": "SE3033",
+    "easting": 430120,
+    "northing": 433450,
+    "address": {
+      "udprn": "23456799",
+      "addressLine1": "1 Old Farm",
+      "addressLine2": "Digger Lane",
+      "postTown": "Leeds",
+      "locality": "West Yorkshire",
+      "postcode": "LS1 1AA",
+      "country": "England"
+    }
+  },
+  "associations": [
+    {
+      "customerNumber": "CUST0003",
+      "title": null,
+      "firstName": "Max",
+      "lastName": "Bladen-Clark",
+      "name": "Max Bladen-Clark",
+      "partyType": "Individual",
+      "email": "defralivestock+single-holding@gmail.com",
+      "mobile": null,
+      "telephone": "01234 567 890",
+      "roles": [
+        {
+          "code": "owner",
+          "species": ["Cattle"]
+        }
+      ]
+    }
+  ],
+  "allowedSpecies": ["Cattle"],
+  "marks": [
+    {
+      "mark": "UK 324798",
+      "startDate": "2012-04-02T00:00:00Z",
+      "endDate": null,
+      "species": ["Cattle"]
+    }
+  ]
+}
