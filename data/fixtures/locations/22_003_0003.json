@@ -10,7 +10,7 @@
     "easting": 489453,
     "northing": 253103,
     "address": {
-      "udprn": "23456783",
+      "udprn": 23456783,
       "addressLine1": "Meadow View Farm",
       "addressLine2": "Mill Lane",
       "postTown": "Lavendon",
@@ -30,6 +30,15 @@
       "email": "defralivestock+fairfield@gmail.com",
       "mobile": null,
       "telephone": null,
+      "address": {
+        "addressLine1": "Meadow View Farm",
+        "addressLine2": "Mill Lane",
+        "addressTown": "Lavendon",
+        "addressLocality": "Buckinghamshire",
+        "addressNation": "England",
+        "addressPostcode": "MK1 1AB",
+        "addressCountryCode": "GB"
+      },
       "roles": [
         {
           "code": "owner",

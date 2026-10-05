@@ -67,6 +67,13 @@ export function findLocation(cph) {
 }
 
 /**
+ * @returns {Location[]} every location the fakes recognise
+ */
+export function allLocations() {
+  return [...locations.values()]
+}
+
+/**
  * @param {string} email
  * @returns {{ cph: string, role: string }[]} every CPH/role pair this email
  *   is associated with, derived from each location's own associations - the

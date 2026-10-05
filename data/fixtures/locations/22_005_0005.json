@@ -10,7 +10,7 @@
     "easting": 489455,
     "northing": 253105,
     "address": {
-      "udprn": "23456785",
+      "udprn": 23456785,
       "addressLine1": "Riverside Farm",
       "addressLine2": "Riverbank Lane",
       "postTown": "Lavendon",
@@ -30,6 +30,15 @@
       "email": "defralivestock+fairfield@gmail.com",
       "mobile": null,
       "telephone": null,
+      "address": {
+        "addressLine1": "Riverside Farm",
+        "addressLine2": "Riverbank Lane",
+        "addressTown": "Lavendon",
+        "addressLocality": "Buckinghamshire",
+        "addressNation": "England",
+        "addressPostcode": "MK1 1AD",
+        "addressCountryCode": "GB"
+      },
       "roles": [
         {
           "code": "owner",

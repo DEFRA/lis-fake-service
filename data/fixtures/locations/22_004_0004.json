@@ -10,7 +10,7 @@
     "easting": 489454,
     "northing": 253104,
     "address": {
-      "udprn": "23456784",
+      "udprn": 23456784,
       "addressLine1": "Hilltop Farm",
       "addressLine2": "Ridge Road",
       "postTown": "Lavendon",
@@ -30,6 +30,15 @@
       "email": "defralivestock+fairfield@gmail.com",
       "mobile": null,
       "telephone": null,
+      "address": {
+        "addressLine1": "Hilltop Farm",
+        "addressLine2": "Ridge Road",
+        "addressTown": "Lavendon",
+        "addressLocality": "Buckinghamshire",
+        "addressNation": "England",
+        "addressPostcode": "MK1 1AC",
+        "addressCountryCode": "GB"
+      },
       "roles": [
         {
           "code": "owner",

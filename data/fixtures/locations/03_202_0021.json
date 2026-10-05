@@ -10,7 +10,7 @@
     "easting": 430120,
     "northing": 433450,
     "address": {
-      "udprn": "23456799",
+      "udprn": 23456799,
       "addressLine1": "1 Old Farm",
       "addressLine2": "Digger Lane",
       "postTown": "Leeds",
@@ -30,6 +30,15 @@
       "email": "defralivestock+single-holding@gmail.com",
       "mobile": null,
       "telephone": "01234 567 890",
+      "address": {
+        "addressLine1": "1 Old Farm",
+        "addressLine2": "Digger Lane",
+        "addressTown": "Leeds",
+        "addressLocality": "West Yorkshire",
+        "addressNation": "England",
+        "addressPostcode": "LS1 1AA",
+        "addressCountryCode": "GB"
+      },
       "roles": [
         {
           "code": "owner",

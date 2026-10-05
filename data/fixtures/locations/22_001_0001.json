@@ -10,7 +10,7 @@
     "easting": 349120,
     "northing": 312450,
     "address": {
-      "udprn": "12345678",
+      "udprn": 12345678,
       "addressLine1": "Oakfield Farm",
       "addressLine2": "Church Lane",
       "postTown": "Shrewsbury",
@@ -30,6 +30,15 @@
       "email": "defralivestock+oakfield@gmail.com",
       "mobile": null,
       "telephone": null,
+      "address": {
+        "addressLine1": "Oakfield Farm",
+        "addressLine2": "Church Lane",
+        "addressTown": "Shrewsbury",
+        "addressLocality": "Shropshire",
+        "addressNation": "England",
+        "addressPostcode": "SY4 1AB",
+        "addressCountryCode": "GB"
+      },
       "roles": [
         {
           "code": "owner",

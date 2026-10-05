@@ -10,7 +10,7 @@
     "easting": 489452,
     "northing": 253102,
     "address": {
-      "udprn": "23456782",
+      "udprn": 23456782,
       "addressLine1": "Fairfield Farm",
       "addressLine2": "Manor Road",
       "postTown": "Lavendon",
@@ -30,6 +30,15 @@
       "email": "defralivestock+fairfield@gmail.com",
       "mobile": null,
       "telephone": null,
+      "address": {
+        "addressLine1": "Fairfield Farm",
+        "addressLine2": "Manor Road",
+        "addressTown": "Lavendon",
+        "addressLocality": "Buckinghamshire",
+        "addressNation": "England",
+        "addressPostcode": "MK1 1AA",
+        "addressCountryCode": "GB"
+      },
       "roles": [
         {
           "code": "owner",

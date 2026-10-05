@@ -10,7 +10,7 @@
     "easting": 489457,
     "northing": 253107,
     "address": {
-      "udprn": "23456787",
+      "udprn": 23456787,
       "addressLine1": "Orchard Farm",
       "addressLine2": "Orchard Road",
       "postTown": "Lavendon",
@@ -30,6 +30,15 @@
       "email": "defralivestock+fairfield@gmail.com",
       "mobile": null,
       "telephone": null,
+      "address": {
+        "addressLine1": "Orchard Farm",
+        "addressLine2": "Orchard Road",
+        "addressTown": "Lavendon",
+        "addressLocality": "Buckinghamshire",
+        "addressNation": "England",
+        "addressPostcode": "MK1 1AF",
+        "addressCountryCode": "GB"
+      },
       "roles": [
         {
           "code": "owner",

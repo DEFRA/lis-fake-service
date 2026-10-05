@@ -10,7 +10,7 @@
     "easting": 489456,
     "northing": 253106,
     "address": {
-      "udprn": "23456786",
+      "udprn": 23456786,
       "addressLine1": "Long Acre Farm",
       "addressLine2": "Long Lane",
       "postTown": "Lavendon",
@@ -30,6 +30,15 @@
       "email": "defralivestock+fairfield@gmail.com",
       "mobile": null,
       "telephone": null,
+      "address": {
+        "addressLine1": "Long Acre Farm",
+        "addressLine2": "Long Lane",
+        "addressTown": "Lavendon",
+        "addressLocality": "Buckinghamshire",
+        "addressNation": "England",
+        "addressPostcode": "MK1 1AE",
+        "addressCountryCode": "GB"
+      },
       "roles": [
         {
           "code": "owner",
