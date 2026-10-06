@@ -85,7 +85,7 @@ export function withPeople(location, people) {
   }
 }
 
-const people = new Map(
+const peopleByCustomerNumber = new Map(
   readFixtures('people').map((person) => [person.customerNumber, person])
 )
 
@@ -93,7 +93,7 @@ const people = new Map(
 const locations = new Map(
   readFixtures('locations').map((location) => [
     location.identifier,
-    withPeople(location, people)
+    withPeople(location, peopleByCustomerNumber)
   ])
 )
 
