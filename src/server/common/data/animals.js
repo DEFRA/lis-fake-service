@@ -24,6 +24,7 @@ const animalsDir = path.resolve(dirname, '../../../../data/fixtures/animals')
  * @property {string[]} calvingDates
  * @property {{ relationship: string, earTag: string }[]} parentage
  * @property {string} restrictionStatus
+ * @property {string} [earStatus] CTS CP.EARSTATUS long description; defaults to 'Passport Produced'
  */
 
 /** @type {Animal[]} */

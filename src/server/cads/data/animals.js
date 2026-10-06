@@ -1,15 +1,10 @@
 import { allAnimals, animalsByEarTag } from '../../common/data/animals.js'
+import { findLocation } from '../../common/data/locations.js'
 import { breedName } from '../../common/data/breeds.js'
 
 /** @import { Animal } from '../../common/data/animals.js' */
 
-export { isKnownCph } from '../../common/data/locations.js'
-
 const EAR_TAG_SCHEMA = 'uk.gov.defra.ear-tag.conventional'
-
-const MOVED_ON_HOLDING = 'MovedOnHolding'
-const REGISTERED_ON_HOLDING = 'RegisteredOnHolding'
-const HOLDING_ASSOCIATIONS = new Set([MOVED_ON_HOLDING, REGISTERED_ON_HOLDING])
 
 /**
  * @param {Animal} animal
@@ -23,43 +18,25 @@ function breedCode(animal) {
   }
 }
 
-// ICAR lifecycle status (LANI-803): Alive, Dead, OffFarm, Unknown. This fake
-// never has cause to report Unknown - every animal in the canonical data has
-// a definite state.
-function statusFor(animal) {
-  if (animal.dateOfDeath) {
-    return 'Dead'
-  }
-  return animal.dateOffCph ? 'OffFarm' : 'Alive'
-}
-
-// dateOnCPH means different things depending on holdingAssociation: the
-// movement date, or the registration date. The canonical animal record only
-// has one location, so both associations return the same animals for a
-// given CPH - they differ only in which date is reported.
-function dateOnCphFor(animal, holdingAssociation) {
-  return holdingAssociation === REGISTERED_ON_HOLDING
-    ? animal.registrationDate
-    : animal.dateOnCph
-}
+const DEFAULT_EAR_STATUS = 'Passport Produced'
 
 /**
- * Maps a canonical animal to a LANI-803 "animals on holding" list item.
+ * Maps a canonical animal to an "animals on holding" list item. status is the
+ * CTS CP.EARSTATUS long description.
  *
  * @param {Animal} animal
- * @param {string} holdingAssociation
  * @returns {object}
  */
-function toListItem(animal, holdingAssociation) {
+function toListItem(animal) {
   return {
     identifier: { schema: EAR_TAG_SCHEMA, identifier: animal.earTag },
     birthDate: animal.birthDate,
-    dateOnCPH: dateOnCphFor(animal, holdingAssociation),
-    dateOffCPH: animal.dateOffCph,
+    dateOnCPH: animal.dateOnCph,
+    dateOffCPH: null,
     species: 'Cattle',
     sex: animal.sex,
     breedCode: breedCode(animal),
-    status: statusFor(animal)
+    status: animal.earStatus ?? DEFAULT_EAR_STATUS
   }
 }
 
@@ -88,111 +65,84 @@ function toDetail(animal) {
   }
 }
 
-// Matches the real cads-data-service AnimalOrderBy enum's member names
-// (case-insensitively, as ASP.NET's query-string enum binding does).
+// Keyed by the lower-cased AnimalOrderBy enum member name.
 const SORT_ACCESSORS = {
-  identifier: (item) => item.identifier.identifier,
-  birthdate: (item) => item.birthDate,
-  dateoncph: (item) => item.dateOnCPH,
-  sex: (item) => item.sex,
-  breedcode: (item) => item.breedCode.identifier
+  identifier: (animal) => animal.earTag,
+  birthdate: (animal) => animal.birthDate,
+  dateoncph: (animal) => animal.dateOnCph,
+  sex: (animal) => animal.sex,
+  breedcode: (animal) => animal.breedCode
 }
 
-const DATE_SORT_KEYS = new Set(['birthdate', 'dateoncph'])
-const EAR_TAG_ACCESSOR = SORT_ACCESSORS.identifier
-
-// The real implementation always ties-break by ear tag ascending
-// (AnimalsOnCphSorting.TieBreak), whatever the primary sort column is.
-function compareItems(orderBy, direction, a, b) {
-  const key = orderBy?.toLowerCase()
-  const accessor = SORT_ACCESSORS[key] ?? EAR_TAG_ACCESSOR
-  const [valueA, valueB] = [accessor(a), accessor(b)]
-  const primaryComparison = DATE_SORT_KEYS.has(key)
-    ? new Date(valueA) - new Date(valueB)
-    : String(valueA).localeCompare(String(valueB))
-
-  const comparison =
-    primaryComparison !== 0
-      ? primaryComparison
-      : EAR_TAG_ACCESSOR(a).localeCompare(EAR_TAG_ACCESSOR(b))
-
-  return direction?.toLowerCase() === 'desc' ? -comparison : comparison
+// Stand-in for Postgres's C collation: strings compare by UTF-8 bytes.
+function compareValues(a, b) {
+  return Buffer.compare(Buffer.from(String(a)), Buffer.from(String(b)))
 }
 
-function matchesOneOf(value, wantedValues) {
-  return (
-    wantedValues.length === 0 ||
-    wantedValues.some(
-      (wanted) => wanted.toLowerCase() === (value ?? '').toLowerCase()
-    )
-  )
-}
-
-function matchesDateOnCphFrom(item, dateOnCPHFrom) {
-  return (
-    !dateOnCPHFrom ||
-    (item.dateOnCPH && new Date(item.dateOnCPH) >= new Date(dateOnCPHFrom))
-  )
-}
-
-// "an animal is returned where the term matches any one of" ear tag (partial),
-// sex (whole value only) or breed (exact code, or any part of the breed
-// name) - LANI-803 / AnimalsOnCphFilters.Apply.
-function matchesSearch(item, q) {
-  if (!q) {
-    return true
+// Nulls sort last whichever way the primary key is ordered, so the direction
+// is applied to non-null comparisons only.
+function compareNullsLast(a, b, sign) {
+  if (a == null || b == null) {
+    return Number(a == null) - Number(b == null)
   }
+  return sign * compareValues(a, b)
+}
 
-  const term = q.toLowerCase()
-  const earTagMatches = item.identifier.identifier.toLowerCase().includes(term)
-  const sexMatches = (item.sex ?? '').toLowerCase() === term
-  const breedMatches =
-    item.breedCode.identifier.toLowerCase() === term ||
-    item.breedCode.breedName.toLowerCase().includes(term)
+const ASCENDING = 1
+const DESCENDING = -1
 
-  return earTagMatches || sexMatches || breedMatches
+function compareAnimals(accessor, sign, a, b) {
+  return (
+    compareNullsLast(accessor(a), accessor(b), sign) ||
+    compareNullsLast(a.dateOnCph, b.dateOnCph, ASCENDING) ||
+    compareValues(a.earTag, b.earTag)
+  )
 }
 
 /**
- * @param {string} cph
- * @param {object} [options]
- * @param {string} [options.holdingAssociation] MovedOnHolding (default) or RegisteredOnHolding
- * @param {string[]} [options.status]
- * @param {string} [options.sex]
- * @param {string[]} [options.breedCode]
- * @param {string} [options.dateOnCPHFrom]
- * @param {string} [options.q] free-text search
- * @param {string} [options.orderBy]
- * @param {string} [options.direction]
- * @returns {object[]} the animals on the holding, filtered and sorted, as LANI-803 list items
+ * Animals currently on the holding: not dead and not moved off.
+ *
+ * @param {object} query
+ * @param {string} query.cph
+ * @param {string} [query.sex] canonical Female | Male
+ * @param {string} [query.breedCode] upper-case
+ * @param {string} query.orderBy canonical AnimalOrderBy member
+ * @param {string} query.direction canonical Asc | Desc
+ * @param {number} query.page 1-indexed
+ * @param {number} query.pageSize
+ * @returns {{ locationName: string | null, animals: object[], totalRecords: number }}
  */
-export function animalsForCph(cph, options = {}) {
+export function animalsOnHolding(query) {
   const {
-    holdingAssociation,
-    status = [],
+    cph,
     sex,
-    breedCode: breedCodes = [],
-    dateOnCPHFrom,
-    q,
+    breedCode: breed,
     orderBy,
-    direction
-  } = options
+    direction,
+    page,
+    pageSize
+  } = query
+  const accessor = SORT_ACCESSORS[orderBy.toLowerCase()]
+  const sign = direction === 'Desc' ? DESCENDING : ASCENDING
 
-  const association = HOLDING_ASSOCIATIONS.has(holdingAssociation)
-    ? holdingAssociation
-    : MOVED_ON_HOLDING
+  const matching = allAnimals
+    .filter(
+      (animal) =>
+        animal.currentCph === cph && !animal.dateOfDeath && !animal.dateOffCph
+    )
+    .filter((animal) => !sex || animal.sex === sex)
+    .filter((animal) => !breed || animal.breedCode === breed)
+    .sort((a, b) => compareAnimals(accessor, sign, a, b))
 
-  const items = allAnimals
-    .filter((animal) => animal.currentCph === cph)
-    .map((animal) => toListItem(animal, association))
-    .filter((item) => item.dateOnCPH != null)
-    .filter((item) => matchesOneOf(item.status, status))
-    .filter((item) => matchesOneOf(item.sex, sex ? [sex] : []))
-    .filter((item) => matchesOneOf(item.breedCode.identifier, breedCodes))
-    .filter((item) => matchesDateOnCphFrom(item, dateOnCPHFrom))
-    .filter((item) => matchesSearch(item, q))
+  const start = (page - 1) * pageSize
+  const animals = matching.slice(start, start + pageSize).map(toListItem)
 
-  return items.sort((a, b) => compareItems(orderBy, direction, a, b))
+  return {
+    locationName: animals.length > 0 ? (findLocation(cph)?.name ?? null) : null,
+    animals,
+    // CADS reads the count from the first row, so an empty page reports 0.
+    totalRecords: animals.length > 0 ? matching.length : 0
+  }
 }
 
 /**
