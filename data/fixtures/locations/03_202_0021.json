@@ -10,7 +10,7 @@
     "easting": 430120,
     "northing": 433450,
     "address": {
-      "udprn": "23456799",
+      "udprn": 23456799,
       "addressLine1": "1 Old Farm",
       "addressLine2": "Digger Lane",
       "postTown": "Leeds",
@@ -22,14 +22,6 @@
   "associations": [
     {
       "customerNumber": "CUST0003",
-      "title": null,
-      "firstName": "Max",
-      "lastName": "Bladen-Clark",
-      "name": "Max Bladen-Clark",
-      "partyType": "Individual",
-      "email": "defralivestock+single-holding@gmail.com",
-      "mobile": null,
-      "telephone": "01234 567 890",
       "roles": [
         {
           "code": "owner",

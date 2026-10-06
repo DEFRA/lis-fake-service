@@ -1,7 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import hapi from '@hapi/hapi'
-import { config } from '../../config/config.js'
-import { krds } from './index.js'
+import { config } from '../../../config/config.js'
+import { krds } from '../index.js'
 
 const CLIENT_ID = 'test-client'
 const CLIENT_SECRET = 'test-secret'
@@ -28,7 +28,7 @@ async function makeServer() {
 const KNOWN_CPH_PATH = '/krds/api/v2/holdings/22/001/0001'
 const UNKNOWN_CPH_PATH = '/krds/api/v2/holdings/99/999/9999'
 
-describe('krds', () => {
+describe('GET /krds/api/v2/holdings/{county}/{parish}/{holding}', () => {
   beforeAll(() => {
     mocks.configGet.mockImplementation((key) => configValues[key])
   })

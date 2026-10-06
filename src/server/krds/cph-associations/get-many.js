@@ -1,7 +1,7 @@
-import { statusCodes } from '../common/constants/status-codes.js'
-import { AUTH_STRATEGY } from './auth.js'
-import { cphsForEmail } from '../common/data/locations.js'
-import { problem } from '../common/helpers/problem.js'
+import { statusCodes } from '../../common/constants/status-codes.js'
+import { AUTH_STRATEGY } from '../auth.js'
+import { cphsForEmail } from '../../common/data/locations.js'
+import { problem } from '../../common/helpers/problem.js'
 
 /** @import { Request, ResponseToolkit, ResponseObject } from '@hapi/hapi' */
 
@@ -36,11 +36,9 @@ function getCphAssociationsHandler(request, h) {
   return h.response(deduplicated).code(statusCodes.ok)
 }
 
-export const cphAssociationsRoutes = [
-  {
-    method: 'GET',
-    path: '/krds/api/v2/cph-associations',
-    options: { auth: AUTH_STRATEGY },
-    handler: getCphAssociationsHandler
-  }
-]
+export const getMany = {
+  method: 'GET',
+  path: '/krds/api/v2/cph-associations',
+  options: { auth: AUTH_STRATEGY },
+  handler: getCphAssociationsHandler
+}

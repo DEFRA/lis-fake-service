@@ -10,7 +10,7 @@
     "easting": 489457,
     "northing": 253107,
     "address": {
-      "udprn": "23456787",
+      "udprn": 23456787,
       "addressLine1": "Orchard Farm",
       "addressLine2": "Orchard Road",
       "postTown": "Lavendon",
@@ -22,14 +22,6 @@
   "associations": [
     {
       "customerNumber": "CUST0002",
-      "title": null,
-      "firstName": "Fairfield",
-      "lastName": "Farmer",
-      "name": "Fairfield Farmer",
-      "partyType": "Individual",
-      "email": "defralivestock+fairfield@gmail.com",
-      "mobile": null,
-      "telephone": null,
       "roles": [
         {
           "code": "owner",

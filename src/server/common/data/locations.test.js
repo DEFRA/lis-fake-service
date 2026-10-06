@@ -4,7 +4,8 @@ import {
   cphsForEmail,
   findLocation,
   holdingId,
-  isKnownCph
+  isKnownCph,
+  withPeople
 } from './locations.js'
 
 describe('findLocation()', () => {
@@ -131,5 +132,74 @@ describe('holdingId()', () => {
 
     // Assert
     expect(result).toBeUndefined()
+  })
+})
+
+describe('withPeople()', () => {
+  test('it fills in each association from the person it references', () => {
+    // Arrange
+    const location = {
+      identifier: '11/111/1111',
+      associations: [
+        {
+          customerNumber: 'CUST9001',
+          roles: [{ code: 'owner', species: ['Cattle'] }]
+        }
+      ]
+    }
+    const people = new Map([
+      [
+        'CUST9001',
+        {
+          customerNumber: 'CUST9001',
+          name: 'Test Person',
+          address: { addressTown: 'Testville' }
+        }
+      ]
+    ])
+
+    // Act
+    const result = withPeople(location, people)
+
+    // Assert
+    expect(result.associations).toEqual([
+      {
+        customerNumber: 'CUST9001',
+        name: 'Test Person',
+        address: { addressTown: 'Testville' },
+        roles: [{ code: 'owner', species: ['Cattle'] }]
+      }
+    ])
+  })
+
+  test('it throws when an association references an unknown person', () => {
+    // Arrange
+    const location = {
+      identifier: '11/111/1111',
+      associations: [{ customerNumber: 'CUST9999', roles: [] }]
+    }
+    const people = new Map()
+
+    // Act
+    let error
+    try {
+      withPeople(location, people)
+    } catch (e) {
+      error = e
+    }
+
+    // Assert
+    expect(error.message).toBe('11/111/1111 references unknown person CUST9999')
+  })
+
+  test('it gives a person on several holdings the same details on each', () => {
+    // Act
+    const addresses = ['22/002/0002', '22/007/0007'].map(
+      (cph) => findLocation(cph).associations[0].address
+    )
+
+    // Assert
+    expect(addresses[0]).toEqual(addresses[1])
+    expect(addresses[0].addressLine1).toBe('Fairfield Farmhouse')
   })
 })

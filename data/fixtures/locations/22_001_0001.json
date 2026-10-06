@@ -10,7 +10,7 @@
     "easting": 349120,
     "northing": 312450,
     "address": {
-      "udprn": "12345678",
+      "udprn": 12345678,
       "addressLine1": "Oakfield Farm",
       "addressLine2": "Church Lane",
       "postTown": "Shrewsbury",
@@ -22,14 +22,6 @@
   "associations": [
     {
       "customerNumber": "CUST0001",
-      "title": null,
-      "firstName": "Oakfield",
-      "lastName": "Farmer",
-      "name": "Oakfield Farmer",
-      "partyType": "Individual",
-      "email": "defralivestock+oakfield@gmail.com",
-      "mobile": null,
-      "telephone": null,
       "roles": [
         {
           "code": "owner",

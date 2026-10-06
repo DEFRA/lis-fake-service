@@ -1,0 +1,20 @@
+{
+  "customerNumber": "CUST0003",
+  "title": null,
+  "firstName": "Max",
+  "lastName": "Bladen-Clark",
+  "name": "Max Bladen-Clark",
+  "partyType": "Individual",
+  "email": "defralivestock+single-holding@gmail.com",
+  "mobile": null,
+  "telephone": "01234 567 890",
+  "address": {
+    "addressLine1": "1 Old Farm",
+    "addressLine2": "Digger Lane",
+    "addressTown": "Leeds",
+    "addressLocality": "West Yorkshire",
+    "addressNation": "England",
+    "addressPostcode": "LS1 1AA",
+    "addressCountryCode": "GB"
+  }
+}

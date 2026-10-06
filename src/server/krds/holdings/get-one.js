@@ -1,7 +1,7 @@
-import { statusCodes } from '../common/constants/status-codes.js'
-import { AUTH_STRATEGY } from './auth.js'
-import { findHolding } from './data/holdings.js'
-import { problem, validationProblem } from '../common/helpers/problem.js'
+import { statusCodes } from '../../common/constants/status-codes.js'
+import { AUTH_STRATEGY } from '../auth.js'
+import { findHolding } from '../data/holdings.js'
+import { problem, validationProblem } from '../../common/helpers/problem.js'
 
 /** @import { Request, ResponseToolkit, ResponseObject } from '@hapi/hapi' */
 
@@ -56,11 +56,9 @@ function getHoldingDetailHandler(request, h) {
   return h.response(holdingDetail).code(statusCodes.ok)
 }
 
-export const holdingsRoutes = [
-  {
-    method: 'GET',
-    path: '/krds/api/v2/holdings/{county}/{parish}/{holding}',
-    options: { auth: AUTH_STRATEGY },
-    handler: getHoldingDetailHandler
-  }
-]
+export const getOne = {
+  method: 'GET',
+  path: '/krds/api/v2/holdings/{county}/{parish}/{holding}',
+  options: { auth: AUTH_STRATEGY },
+  handler: getHoldingDetailHandler
+}
