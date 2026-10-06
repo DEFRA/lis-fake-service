@@ -22,23 +22,6 @@
   "associations": [
     {
       "customerNumber": "CUST0002",
-      "title": null,
-      "firstName": "Fairfield",
-      "lastName": "Farmer",
-      "name": "Fairfield Farmer",
-      "partyType": "Individual",
-      "email": "defralivestock+fairfield@gmail.com",
-      "mobile": null,
-      "telephone": null,
-      "address": {
-        "addressLine1": "Fairfield Farm",
-        "addressLine2": "Manor Road",
-        "addressTown": "Lavendon",
-        "addressLocality": "Buckinghamshire",
-        "addressNation": "England",
-        "addressPostcode": "MK1 1AA",
-        "addressCountryCode": "GB"
-      },
       "roles": [
         {
           "code": "owner",

@@ -22,23 +22,6 @@
   "associations": [
     {
       "customerNumber": "CUST0002",
-      "title": null,
-      "firstName": "Fairfield",
-      "lastName": "Farmer",
-      "name": "Fairfield Farmer",
-      "partyType": "Individual",
-      "email": "defralivestock+fairfield@gmail.com",
-      "mobile": null,
-      "telephone": null,
-      "address": {
-        "addressLine1": "Hilltop Farm",
-        "addressLine2": "Ridge Road",
-        "addressTown": "Lavendon",
-        "addressLocality": "Buckinghamshire",
-        "addressNation": "England",
-        "addressPostcode": "MK1 1AC",
-        "addressCountryCode": "GB"
-      },
       "roles": [
         {
           "code": "owner",
