@@ -440,4 +440,40 @@ describe('GET /krds/api/v2/holdings', () => {
     // Assert
     expect(response.statusCode).toBe(401)
   })
+
+  test('it uses the first value of a repeated query parameter', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: '/krds/api/v2/holdings?search=oakfield&search=zzz&order=name&order=cph',
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.values.map((holding) => holding.identifier)).toEqual(
+      ['22/001/0001']
+    )
+  })
+
+  test('it ignores diacritics in the search', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: '/krds/api/v2/holdings?search=%C3%93AKFI%C3%89LD',
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.values.map((holding) => holding.identifier)).toEqual(
+      ['22/001/0001']
+    )
+  })
 })

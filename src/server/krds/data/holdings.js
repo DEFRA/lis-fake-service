@@ -142,6 +142,18 @@ function stripPhone(phone) {
 }
 
 /**
+ * Lower-cases and strips diacritics, as FTS5's unicode61 tokenizer does.
+ *
+ * @param {string} text
+ * @returns {string[]} the runs of letters and digits in the text
+ */
+function words(text) {
+  return (
+    text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().match(WORD) ?? []
+  )
+}
+
+/**
  * Mirrors the text keeper-data-api's FTS5 index holds per holding
  * (HoldingSearchIndex), tokenised as unicode61 does: lower-cased runs of
  * letters and digits.
@@ -178,7 +190,7 @@ function searchTokens(record) {
     ])
   ].join(' ')
 
-  return text.toLowerCase().match(WORD) ?? []
+  return words(text)
 }
 
 /**
@@ -197,10 +209,10 @@ function matches(record, term) {
     return tokens.includes(term.replaceAll('/', ''))
   }
 
-  const words = term.toLowerCase().match(WORD) ?? []
+  const termWords = words(term)
   return (
-    words.length > 0 &&
-    words.every((word) => tokens.some((token) => token.startsWith(word)))
+    termWords.length > 0 &&
+    termWords.every((word) => tokens.some((token) => token.startsWith(word)))
   )
 }
 

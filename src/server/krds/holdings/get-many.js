@@ -64,6 +64,16 @@ function parseBoundedInteger(value, { name, fallback, max, rangeMessage }) {
 }
 
 /**
+ * ASP.NET binds the first of a repeated query parameter; Hapi gives an array.
+ *
+ * @param {string | string[] | undefined} value
+ * @returns {string | undefined}
+ */
+function first(value) {
+  return Array.isArray(value) ? value[0] : value
+}
+
+/**
  * Validates the query as keeper-data-api's GetHoldingsRequest does, applying
  * the same defaults.
  *
@@ -71,16 +81,16 @@ function parseBoundedInteger(value, { name, fallback, max, rangeMessage }) {
  * @returns {{ search: HoldingSearch, errors: Record<string, string[]> }}
  */
 function parseSearchQuery(query) {
-  const search = query.search ?? ''
-  const sort = query.sort ?? 'asc'
-  const order = query.order ?? 'cph'
-  const page = parseBoundedInteger(query.page, {
+  const search = first(query.search) ?? ''
+  const sort = first(query.sort) ?? 'asc'
+  const order = first(query.order) ?? 'cph'
+  const page = parseBoundedInteger(first(query.page), {
     name: 'page',
     fallback: DEFAULT_PAGE,
     max: MAX_PAGE,
     rangeMessage: 'Page must be greater than or equal to 1.'
   })
-  const pageSize = parseBoundedInteger(query.pageSize, {
+  const pageSize = parseBoundedInteger(first(query.pageSize), {
     name: 'pageSize',
     fallback: DEFAULT_PAGE_SIZE,
     max: MAX_PAGE_SIZE,
