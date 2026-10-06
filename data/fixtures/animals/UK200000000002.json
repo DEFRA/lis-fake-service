@@ -10,5 +10,6 @@
   "dateOfDeath": null,
   "calvingDates": [],
   "parentage": [],
+  "earStatus": "Passport Problem",
   "restrictionStatus": "None"
 }
