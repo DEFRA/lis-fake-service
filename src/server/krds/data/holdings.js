@@ -226,8 +226,8 @@ function sortKey(order) {
 }
 
 /**
- * Orders as SQLite does for keeper-data-api's ORDER BY: nulls first ascending,
- * last descending, with CPH as a tie-break in the same direction.
+ * Orders as SQLite does for keeper-data-api's ORDER BY: UTF-8 byte order
+ * (its default BINARY collation), nulls first ascending, last descending, with CPH as a tie-break in the same direction.
  *
  * @param {HoldingSearch['order']} order
  * @param {HoldingSearch['sort']} sort
@@ -249,7 +249,7 @@ function compareBy(order, sort) {
     if (keyB === null) {
       return 1
     }
-    return keyA < keyB ? -1 : 1
+    return Buffer.compare(Buffer.from(keyA), Buffer.from(keyB))
   }
 
   return (a, b) =>
