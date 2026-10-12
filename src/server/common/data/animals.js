@@ -13,12 +13,12 @@ const animalsDir = path.resolve(dirname, '../../../../data/fixtures/animals')
 /**
  * @typedef {object} Animal
  * @property {string} earTag
- * @property {'Male' | 'Female'} sex
- * @property {string} breedCode
+ * @property {'Male' | 'Female' | 'Unknown'} sex
+ * @property {string | null} breedCode
  * @property {string} birthDate
  * @property {string} currentCph
- * @property {string} registrationDate
- * @property {string} dateOnCph
+ * @property {string | null} registrationDate
+ * @property {string | null} dateOnCph
  * @property {string | null} dateOffCph
  * @property {string | null} dateOfDeath
  * @property {string[]} calvingDates

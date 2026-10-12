@@ -1,4 +1,5 @@
 import { createBasicAuthPlugin } from '../common/auth/basic-auth.js'
+import { unauthorized } from './helpers/problems.js'
 
 const STRATEGY_NAME = 'cads'
 
@@ -7,7 +8,8 @@ const STRATEGY_NAME = 'cads'
 export const cadsAuth = createBasicAuthPlugin({
   strategyName: STRATEGY_NAME,
   clientIdConfigKey: 'cads.clientId',
-  clientSecretConfigKey: 'cads.clientSecret'
+  clientSecretConfigKey: 'cads.clientSecret',
+  unauthorizedResponse: unauthorized
 })
 
 export const AUTH_STRATEGY = STRATEGY_NAME

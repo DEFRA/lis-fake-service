@@ -8,6 +8,11 @@ import {
   parsePagingParam,
   paginate
 } from './helpers/pagination.js'
+import {
+  modelBindingFailure,
+  notFound,
+  validationFailure
+} from './helpers/problems.js'
 
 /** @import { Request, ResponseToolkit, ResponseObject } from '@hapi/hapi' */
 
@@ -30,6 +35,33 @@ const ANIMAL_DETAIL_SOURCE = {
   schemaVersion: '1.0'
 }
 
+// cads-data-service reports eventDateTime to the second.
+const MILLISECONDS = /\.\d{3}(?=Z$)/
+
+const IDENTIFIER_MAX_LENGTH = 20
+const IDENTIFIER_PATTERN = /^[A-Za-z0-9 ]+$/
+
+/**
+ * Mirrors cads-data-service's GetAnimalDetailsByIdentifierValidator. Its rules
+ * are declared against Identifier.Trim(), which leaves FluentValidation with
+ * no property name, so the real messages quote an empty name.
+ *
+ * @param {string} identifier already trimmed
+ * @returns {string[]} one message per failed rule
+ */
+function validateIdentifier(identifier) {
+  const errors = []
+  if (identifier.length > IDENTIFIER_MAX_LENGTH) {
+    errors.push(
+      `The length of '' must be ${IDENTIFIER_MAX_LENGTH} characters or fewer. You entered ${identifier.length} characters.`
+    )
+  }
+  if (!IDENTIFIER_PATTERN.test(identifier)) {
+    errors.push("'' is not in the correct format.")
+  }
+  return errors
+}
+
 /**
  * GET /cads/api/v1/bovine/animals/{identifier}
  * Static bovine animal details (LANI-802).
@@ -39,23 +71,33 @@ const ANIMAL_DETAIL_SOURCE = {
  * @returns {ResponseObject}
  */
 function getAnimalDetailsHandler(request, h) {
-  const { identifier } = request.params
+  const identifier = request.params.identifier.trim()
+
+  // A whitespace-only route value never reaches the validator: model binding
+  // reads it as missing.
+  if (identifier === '') {
+    return modelBindingFailure(h, {
+      identifier: ['The identifier field is required.']
+    })
+  }
+
+  const identifierErrors = validateIdentifier(identifier)
+
+  if (identifierErrors.length > 0) {
+    return validationFailure(request, h, { '': identifierErrors })
+  }
+
   const animalDetail = findAnimalDetail(identifier)
 
   if (!animalDetail) {
-    return problem(
-      h,
-      statusCodes.notFound,
-      'Not Found',
-      'No animal found for the requested identifier.'
-    )
+    return notFound(h)
   }
 
   return h
     .response({
       resourceType: 'AnimalDetail',
       identifier,
-      eventDateTime: new Date().toISOString(),
+      eventDateTime: new Date().toISOString().replace(MILLISECONDS, ''),
       source: ANIMAL_DETAIL_SOURCE,
       animalDetail
     })

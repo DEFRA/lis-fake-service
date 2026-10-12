@@ -55,8 +55,7 @@ describe('cads', () => {
 
     // Assert
     expect(response.statusCode).toBe(401)
-    expect(response.result.title).toBe('Unauthorized')
-    expect(response.result.status).toBe(401)
+    expect(response.payload).toBe('')
   })
 
   test('it returns 401 when the Basic credentials are invalid', async () => {
@@ -73,7 +72,7 @@ describe('cads', () => {
 
     // Assert
     expect(response.statusCode).toBe(401)
-    expect(response.result.title).toBe('Unauthorized')
+    expect(response.payload).toBe('')
   })
 
   test('it returns the animal details for a known identifier', async () => {
@@ -97,7 +96,7 @@ describe('cads', () => {
       schemaVersion: '1.0'
     })
     expect(response.result.eventDateTime).toMatch(
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
     )
     expect(response.result.animalDetail.identifier.identifier).toBe(
       KNOWN_IDENTIFIER
@@ -122,7 +121,7 @@ describe('cads', () => {
     expect(response.result.animalDetail.dateOfDeath).toBeUndefined()
   })
 
-  test('it returns 404 with a problem body for an unknown identifier', async () => {
+  test('it returns 404 with the bare ASP.NET problem body for an unknown identifier', async () => {
     // Arrange
     const server = await makeServer()
 
@@ -135,8 +134,12 @@ describe('cads', () => {
 
     // Assert
     expect(response.statusCode).toBe(404)
-    expect(response.result.title).toBe('Not Found')
-    expect(response.result.status).toBe(404)
+    expect(response.result).toEqual({
+      type: 'https://tools.ietf.org/html/rfc9110#section-15.5.5',
+      title: 'Not Found',
+      status: 404,
+      traceId: expect.stringMatching(/^00-[0-9a-f]{32}-[0-9a-f]{16}-00$/)
+    })
   })
 
   test('it returns page 1 at the default page size when no paging params are given', async () => {

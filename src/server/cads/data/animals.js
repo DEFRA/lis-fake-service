@@ -58,7 +58,7 @@ function toListItem(animal, holdingAssociation) {
     dateOffCPH: animal.dateOffCph,
     species: 'Cattle',
     sex: animal.sex,
-    breedCode: breedCode(animal),
+    breedCode: animal.breedCode ? breedCode(animal) : null,
     status: statusFor(animal)
   }
 }
@@ -77,8 +77,10 @@ function toDetail(animal) {
     sex: animal.sex,
     birthDate: animal.birthDate,
     registrationDate: animal.registrationDate,
-    dateOnCph: animal.dateOnCph,
-    breedCode: breedCode(animal),
+    dateOnCPH: animal.dateOnCph,
+    breedCode: animal.breedCode ? breedCode(animal) : null,
+    // cads-data-service only returns GeneticDam and Sire today. A SurrogateDam
+    // fixture entry assumes the shape it would take if CADS added one.
     parentage: animal.parentage.map((p) => ({
       relationship: p.relationship,
       animalIdentifier: { schema: EAR_TAG_SCHEMA, identifier: p.earTag }
