@@ -8,7 +8,23 @@ x-api-key: {{cadsApiKey}}
 GET {{baseUrl}}/cads/api/v1/bovine/animals/{{deadAnimalId}}
 x-api-key: {{cadsApiKey}}
 
-### Animal details - not found (404 ProblemDetails)
+### Animal details - surrogate dam (assumed shape; real CADS returns only GeneticDam and Sire)
+GET {{baseUrl}}/cads/api/v1/bovine/animals/UK200000000003
+x-api-key: {{cadsApiKey}}
+
+### Animal details - genetic dam only, no sire
+GET {{baseUrl}}/cads/api/v1/bovine/animals/UK200000000007
+x-api-key: {{cadsApiKey}}
+
+### Animal details - sparse record (sex: Unknown; null registrationDate, dateOnCPH, breedCode)
+GET {{baseUrl}}/cads/api/v1/bovine/animals/UK300000000026
+x-api-key: {{cadsApiKey}}
+
+### Animal details - invalid identifier (400 "Validation errors"; over 20 characters, or not letters, digits and spaces)
+GET {{baseUrl}}/cads/api/v1/bovine/animals/UK20000-0000001
+x-api-key: {{cadsApiKey}}
+
+### Animal details - not found (404, ASP.NET ProblemDetails with no detail)
 GET {{baseUrl}}/cads/api/v1/bovine/animals/UK999999999999
 x-api-key: {{cadsApiKey}}
 

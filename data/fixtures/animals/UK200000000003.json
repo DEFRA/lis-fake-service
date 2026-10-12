@@ -9,6 +9,19 @@
   "dateOffCph": null,
   "dateOfDeath": null,
   "calvingDates": [],
-  "parentage": [],
-  "restrictionStatus": "None"
+  "parentage": [
+    {
+      "relationship": "GeneticDam",
+      "earTag": "UK200000000094"
+    },
+    {
+      "relationship": "SurrogateDam",
+      "earTag": "UK200000000095"
+    },
+    {
+      "relationship": "Sire",
+      "earTag": "UK200000000096"
+    }
+  ],
+  "restrictionStatus": "Unrestricted"
 }

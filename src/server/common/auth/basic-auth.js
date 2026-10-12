@@ -2,19 +2,19 @@ import { config } from '../../../config/config.js'
 import { statusCodes } from '../constants/status-codes.js'
 import { problem } from '../helpers/problem.js'
 
-/** @import { Request, ResponseToolkit } from '@hapi/hapi' */
+/** @import { Request, ResponseObject, ResponseToolkit } from '@hapi/hapi' */
 
 const AUTH_SCHEME = 'Basic'
 
-// Mirrors the shape ASP.NET returns for an unauthenticated request against a
-// real upstream (RFC 7807 ProblemDetails).
-function unauthorized(h) {
+// The default 401: an RFC 7807 ProblemDetails body. An upstream that answers
+// differently passes its own unauthorizedResponse.
+function unauthorizedProblem(h) {
   return problem(
     h,
     statusCodes.unauthorized,
     'Unauthorized',
     'A valid Authorization: Basic header is required.'
-  ).takeover()
+  )
 }
 
 /**
@@ -25,14 +25,20 @@ function unauthorized(h) {
  * ApiKeyOrCognito policy's api-key path is registered under Basic's own auth
  * scheme) and /krds (standing in for the real Bearer-or-Basic policy).
  *
- * @param {{ strategyName: string, clientIdConfigKey: string, clientSecretConfigKey: string }} options
+ * @param {{ strategyName: string, clientIdConfigKey: string, clientSecretConfigKey: string, unauthorizedResponse?: (h: ResponseToolkit) => ResponseObject }} options
+ *   unauthorizedResponse builds the 401 for an upstream that does not answer with ProblemDetails
  * @returns {{ plugin: object }}
  */
 export function createBasicAuthPlugin({
   strategyName,
   clientIdConfigKey,
-  clientSecretConfigKey
+  clientSecretConfigKey,
+  unauthorizedResponse = unauthorizedProblem
 }) {
+  function unauthorized(h) {
+    return unauthorizedResponse(h).takeover()
+  }
+
   /**
    * @param {Request} request
    * @param {ResponseToolkit} h
