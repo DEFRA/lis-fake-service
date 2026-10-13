@@ -18,6 +18,36 @@ function breedCode(animal) {
   }
 }
 
+const UNKNOWN_LOCATION = {
+  identifier: null,
+  subIdentifier: null,
+  fullIdentifier: null,
+  name: null,
+  premisesType: null
+}
+
+/**
+ * cads-data-service's AnimalLocationDto. The fixtures hold no sub-locations,
+ * so fullIdentifier is the CPH itself. An unrecognised CPH still reports the
+ * identifier, as CADS reads it from the movement rather than the holding.
+ *
+ * @param {string | undefined} cph
+ * @returns {object}
+ */
+function toLocation(cph) {
+  if (!cph) {
+    return { ...UNKNOWN_LOCATION }
+  }
+  const location = findLocation(cph)
+  return {
+    identifier: cph,
+    subIdentifier: null,
+    fullIdentifier: cph,
+    name: location?.name ?? null,
+    premisesType: location?.holdingType ?? null
+  }
+}
+
 const DEFAULT_EAR_STATUS = 'Passport Produced'
 
 /**
@@ -55,6 +85,10 @@ function toDetail(animal) {
     birthDate: animal.birthDate,
     registrationDate: animal.registrationDate,
     dateOnCPH: animal.dateOnCph,
+    // CADS always sends all three, with every field null when unknown.
+    currentLocation: toLocation(animal.currentCph),
+    registeredLocation: toLocation(animal.registeredCph ?? animal.currentCph),
+    deathLocation: toLocation(animal.deathCph),
     breedCode: animal.breedCode ? breedCode(animal) : null,
     // cads-data-service only returns GeneticDam and Sire today. A SurrogateDam
     // fixture entry assumes the shape it would take if CADS added one.
