@@ -77,7 +77,10 @@ describe('cphsForEmail()', () => {
     const result = cphsForEmail('defralivestock+oakfield@gmail.com')
 
     // Assert
-    expect(result).toEqual([{ cph: '22/001/0001', role: 'owner' }])
+    expect(result).toEqual([
+      { cph: '22/001/0001', role: 'owner' },
+      { cph: '22/001/0001', role: 'keeper' }
+    ])
   })
 
   test('it returns every CPH/role pair for a keeper with multiple holdings', () => {
@@ -87,11 +90,17 @@ describe('cphsForEmail()', () => {
     // Assert
     expect(result).toEqual([
       { cph: '22/002/0002', role: 'owner' },
+      { cph: '22/002/0002', role: 'keeper' },
       { cph: '22/003/0003', role: 'owner' },
+      { cph: '22/003/0003', role: 'keeper' },
       { cph: '22/004/0004', role: 'owner' },
+      { cph: '22/004/0004', role: 'keeper' },
       { cph: '22/005/0005', role: 'owner' },
+      { cph: '22/005/0005', role: 'keeper' },
       { cph: '22/006/0006', role: 'owner' },
-      { cph: '22/007/0007', role: 'owner' }
+      { cph: '22/006/0006', role: 'keeper' },
+      { cph: '22/007/0007', role: 'owner' },
+      { cph: '22/007/0007', role: 'keeper' }
     ])
   })
 

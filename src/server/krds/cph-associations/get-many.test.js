@@ -62,7 +62,10 @@ describe('GET /krds/api/v2/cph-associations', () => {
 
     // Assert
     expect(response.statusCode).toBe(200)
-    expect(response.result).toEqual([{ cph: '22/001/0001', role: 'owner' }])
+    expect(response.result).toEqual([
+      { cph: '22/001/0001', role: 'owner' },
+      { cph: '22/001/0001', role: 'keeper' }
+    ])
   })
 
   test('it returns an empty array for an email with no associations', async () => {
