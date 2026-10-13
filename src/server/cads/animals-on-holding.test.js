@@ -10,7 +10,10 @@ import {
 import hapi from '@hapi/hapi'
 import { config } from '../../config/config.js'
 import { allAnimals } from '../common/data/animals.js'
+import { findLocation } from '../common/data/locations.js'
 import { cads } from './index.js'
+
+vi.mock('../common/data/locations.js', { spy: true })
 
 const CLIENT_ID = 'test-client'
 const CLIENT_SECRET = 'test-secret'
@@ -590,5 +593,56 @@ describe('cads animals on holding', () => {
       PASSPORT_PROBLEM_IDENTIFIER
     )
     expect(response.result.animals[1].status).toBe('Passport Problem')
+  })
+
+  test('it reports a null breed code for an animal with no breed recorded', async () => {
+    // Arrange
+    allAnimals.push({
+      earTag: NULL_FIELDS_IDENTIFIER,
+      sex: 'Unknown',
+      breedCode: null,
+      birthDate: '2022-08-02',
+      currentCph: KNOWN_CPH,
+      registrationDate: null,
+      dateOnCph: null,
+      dateOffCph: null,
+      dateOfDeath: null,
+      calvingDates: [],
+      parentage: [],
+      restrictionStatus: 'Unrestricted'
+    })
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `${LIST_URL}?CPH=${KNOWN_CPH}&pageSize=${MAX_PAGE_SIZE}`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    const animal = response.result.animals.find(
+      (a) => a.identifier.identifier === NULL_FIELDS_IDENTIFIER
+    )
+    expect(animal.breedCode).toBeNull()
+  })
+
+  test('it reports a null location name when the holding is not recognised', async () => {
+    // Arrange
+    vi.mocked(findLocation).mockReturnValueOnce(undefined)
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `${LIST_URL}?CPH=${KNOWN_CPH}`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.animals.length).toBeGreaterThan(0)
+    expect(response.result.locationName).toBeNull()
   })
 })
