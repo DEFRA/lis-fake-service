@@ -17,10 +17,12 @@ const animalsDir = path.resolve(dirname, '../../../../data/fixtures/animals')
  * @property {string | null} breedCode
  * @property {string} birthDate
  * @property {string} currentCph
+ * @property {string} [registeredCph] where the animal was registered; defaults to currentCph
  * @property {string | null} registrationDate
  * @property {string | null} dateOnCph
  * @property {string | null} dateOffCph
  * @property {string | null} dateOfDeath
+ * @property {string} [deathCph] where the animal died
  * @property {string[]} calvingDates
  * @property {{ relationship: string, earTag: string }[]} parentage
  * @property {string} restrictionStatus

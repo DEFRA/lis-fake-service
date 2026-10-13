@@ -2,6 +2,9 @@ import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import hapi from '@hapi/hapi'
 import { config } from '../../config/config.js'
 import { cads } from './index.js'
+import { findLocation } from '../common/data/locations.js'
+
+vi.mock('../common/data/locations.js', { spy: true })
 
 const CLIENT_ID = 'test-client'
 const CLIENT_SECRET = 'test-secret'
@@ -30,6 +33,8 @@ const SPARSE_IDENTIFIER = 'UK300000000026'
 const SURROGATE_DAM_IDENTIFIER = 'UK200000000003'
 const DAM_ONLY_IDENTIFIER = 'UK200000000007'
 const NO_PARENTS_IDENTIFIER = 'UK200000000002'
+const REGISTERED_ELSEWHERE_IDENTIFIER = 'UK200000000013'
+const DEAD_IDENTIFIER = 'UK300000000001'
 
 describe('cads animal details', () => {
   beforeAll(() => {
@@ -313,5 +318,192 @@ describe('cads animal details', () => {
       errors: { identifier: ['The identifier field is required.'] },
       traceId: expect.stringMatching(/^00-[0-9a-f]{32}-[0-9a-f]{16}-00$/)
     })
+  })
+
+  test('it returns the current and registered locations from the current CPH for a live animal', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals/${KNOWN_IDENTIFIER}`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.animalDetail.currentLocation).toEqual({
+      identifier: '22/001/0001',
+      subIdentifier: null,
+      fullIdentifier: '22/001/0001',
+      name: 'Oakfield Farm',
+      premisesType: 'AH'
+    })
+    expect(response.result.animalDetail.registeredLocation).toEqual({
+      identifier: '22/001/0001',
+      subIdentifier: null,
+      fullIdentifier: '22/001/0001',
+      name: 'Oakfield Farm',
+      premisesType: 'AH'
+    })
+  })
+
+  test('it returns an all-null death location for a live animal', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals/${KNOWN_IDENTIFIER}`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.animalDetail.deathLocation).toEqual({
+      identifier: null,
+      subIdentifier: null,
+      fullIdentifier: null,
+      name: null,
+      premisesType: null
+    })
+  })
+
+  test('it returns the registered location from the registered CPH when one is recorded', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals/${REGISTERED_ELSEWHERE_IDENTIFIER}`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.animalDetail.currentLocation).toEqual({
+      identifier: '22/002/0002',
+      subIdentifier: null,
+      fullIdentifier: '22/002/0002',
+      name: 'Fairfield Farm',
+      premisesType: 'AH'
+    })
+    expect(response.result.animalDetail.registeredLocation).toEqual({
+      identifier: '22/001/0001',
+      subIdentifier: null,
+      fullIdentifier: '22/001/0001',
+      name: 'Oakfield Farm',
+      premisesType: 'AH'
+    })
+  })
+
+  test('it returns the death location from the death CPH for a dead animal', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals/${DEAD_IDENTIFIER}`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.animalDetail.state).toBe('Dead')
+    expect(response.result.animalDetail.deathLocation).toEqual({
+      identifier: '22/005/0005',
+      subIdentifier: null,
+      fullIdentifier: '22/005/0005',
+      name: 'Riverside Farm',
+      premisesType: 'AH'
+    })
+  })
+
+  test('it reports a null name and premises type when the location records neither', async () => {
+    // Arrange
+    vi.mocked(findLocation).mockReturnValueOnce({ identifier: '22/001/0001' })
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals/${KNOWN_IDENTIFIER}`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.animalDetail.currentLocation).toEqual({
+      identifier: '22/001/0001',
+      subIdentifier: null,
+      fullIdentifier: '22/001/0001',
+      name: null,
+      premisesType: null
+    })
+  })
+
+  test('it returns an all-null location when the CPH is not recognised', async () => {
+    // Arrange
+    vi.mocked(findLocation).mockReturnValueOnce(undefined)
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals/${KNOWN_IDENTIFIER}`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.animalDetail.currentLocation).toEqual({
+      identifier: null,
+      subIdentifier: null,
+      fullIdentifier: null,
+      name: null,
+      premisesType: null
+    })
+  })
+
+  test('it places the three locations between dateOnCPH and breedCode', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals/${KNOWN_IDENTIFIER}`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(Object.keys(response.result.animalDetail)).toEqual([
+      'resourceType',
+      'identifier',
+      'species',
+      'sex',
+      'birthDate',
+      'registrationDate',
+      'dateOnCPH',
+      'currentLocation',
+      'registeredLocation',
+      'deathLocation',
+      'breedCode',
+      'parentage',
+      'state',
+      'restrictionStatus'
+    ])
+    expect(Object.keys(response.result.animalDetail.currentLocation)).toEqual([
+      'identifier',
+      'subIdentifier',
+      'fullIdentifier',
+      'name',
+      'premisesType'
+    ])
   })
 })
