@@ -423,7 +423,7 @@ describe('cads animal details', () => {
     })
   })
 
-  test('it returns only the identifiers for a location whose CPH is not recognised', async () => {
+  test('it returns an all-null location when the CPH is not recognised', async () => {
     // Arrange
     vi.mocked(findLocation).mockReturnValueOnce(undefined)
     const server = await makeServer()
@@ -438,9 +438,9 @@ describe('cads animal details', () => {
     // Assert
     expect(response.statusCode).toBe(200)
     expect(response.result.animalDetail.currentLocation).toEqual({
-      identifier: '22/001/0001',
+      identifier: null,
       subIdentifier: null,
-      fullIdentifier: '22/001/0001',
+      fullIdentifier: null,
       name: null,
       premisesType: null
     })

@@ -28,23 +28,24 @@ const UNKNOWN_LOCATION = {
 
 /**
  * cads-data-service's AnimalLocationDto. The fixtures hold no sub-locations,
- * so fullIdentifier is the CPH itself. An unrecognised CPH still reports the
- * identifier, as CADS reads it from the movement rather than the holding.
+ * so fullIdentifier is the CPH itself. An unrecognised CPH is all-null,
+ * identifier included: CADS takes identifier and fullIdentifier from the
+ * LEFT JOINed location, not from the movement.
  *
  * @param {string | undefined} cph
  * @returns {object}
  */
 function toLocation(cph) {
-  if (!cph) {
+  const location = cph ? findLocation(cph) : undefined
+  if (!location) {
     return { ...UNKNOWN_LOCATION }
   }
-  const location = findLocation(cph)
   return {
     identifier: cph,
     subIdentifier: null,
     fullIdentifier: cph,
-    name: location?.name ?? null,
-    premisesType: location?.holdingType ?? null
+    name: location.name ?? null,
+    premisesType: location.holdingType ?? null
   }
 }
 
