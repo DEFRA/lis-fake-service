@@ -423,6 +423,29 @@ describe('cads animal details', () => {
     })
   })
 
+  test('it reports a null name and premises type when the location records neither', async () => {
+    // Arrange
+    vi.mocked(findLocation).mockReturnValueOnce({ identifier: '22/001/0001' })
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: `/cads/api/v1/bovine/animals/${KNOWN_IDENTIFIER}`,
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.animalDetail.currentLocation).toEqual({
+      identifier: '22/001/0001',
+      subIdentifier: null,
+      fullIdentifier: '22/001/0001',
+      name: null,
+      premisesType: null
+    })
+  })
+
   test('it returns an all-null location when the CPH is not recognised', async () => {
     // Arrange
     vi.mocked(findLocation).mockReturnValueOnce(undefined)
