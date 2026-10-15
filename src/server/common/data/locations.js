@@ -1,7 +1,7 @@
-import { readdirSync, readFileSync } from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { v5 as uuidv5 } from 'uuid'
+
+import { config } from '../../../config/config.js'
+import { loadFixtures } from './fixtures.js'
 
 /** @import { HoldingAssociation, HoldingDetail, HoldingRole } from '../../krds/data/holdings.js' */
 
@@ -13,8 +13,10 @@ const HOLDING_NAMESPACE = uuidv5(
 )
 
 // Canonical holding test data: one file per CPH in data/fixtures/locations/
-// (the people they reference are in data/fixtures/people/), a superset of
-// what each fake needs. cts-ws reads the movement-suitability
+// (the people they reference are in data/fixtures/people/), each upserted
+// from an optional env var (FAKE_LOCATIONS by CPH, FAKE_PEOPLE by customer
+// number - see fixtures.js), a superset of what each fake needs. cts-ws
+// reads the movement-suitability
 // status / inactive date range / sub-location detail, the cads fake uses
 // recognition, and the krds fake reads the full holding detail (including
 // resolving a keeper's CPH to its holding id). It's the single source of
@@ -39,20 +41,6 @@ const HOLDING_NAMESPACE = uuidv5(
  *   subLocations?: Record<string, SubLocation>
  * }} Location
  */
-
-const dirname = path.dirname(fileURLToPath(import.meta.url))
-const fixturesDir = path.resolve(dirname, '../../../../data/fixtures')
-
-/**
- * @param {string} folder
- * @returns {any[]} every JSON fixture in data/fixtures/<folder>
- */
-function readFixtures(folder) {
-  const dir = path.join(fixturesDir, folder)
-  return readdirSync(dir)
-    .filter((file) => file.endsWith('.json'))
-    .map((file) => JSON.parse(readFileSync(path.join(dir, file), 'utf-8')))
-}
 
 /**
  * Location fixtures reference people by customer number, so a person on
@@ -85,13 +73,23 @@ export function withPeople(location, people) {
   }
 }
 
-const peopleByCustomerNumber = new Map(
-  readFixtures('people').map((person) => [person.customerNumber, person])
-)
+const peopleByCustomerNumber = loadFixtures({
+  folder: 'people',
+  envName: 'FAKE_PEOPLE',
+  envValue: config.get('fixtures.people'),
+  key: 'customerNumber'
+})
 
 /** @type {Map<string, Location>} */
 const locations = new Map(
-  readFixtures('locations').map((location) => [
+  [
+    ...loadFixtures({
+      folder: 'locations',
+      envName: 'FAKE_LOCATIONS',
+      envValue: config.get('fixtures.locations'),
+      key: 'identifier'
+    }).values()
+  ].map((location) => [
     location.identifier,
     withPeople(location, peopleByCustomerNumber)
   ])

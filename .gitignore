@@ -7,3 +7,4 @@ coverage/
 tools/
 .cake/
 artifacts/
+.DS_Store
