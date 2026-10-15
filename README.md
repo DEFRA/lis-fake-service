@@ -15,7 +15,7 @@ Currently fakes:
 
 ### Fixtures from env vars
 
-On top of the baked-in files, each fixture set can be upserted from an optional env var holding a JSON array, either raw or base64-encoded. This lets a deployed fake gain or override records without a rebuild:
+On top of the baked-in files, each fixture set  can be upserted from an optional env var holding a JSON array, either raw or base64-encoded. This lets a deployed fake gain or override records without a rebuild:
 
 | Env var          | Upserts over               | Keyed by         |
 | ---------------- | -------------------------- | ---------------- |
