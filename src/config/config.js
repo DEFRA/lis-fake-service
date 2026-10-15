@@ -79,6 +79,26 @@ export const config = convict({
       default: isDevelopment
     }
   },
+  fixtures: {
+    animals: {
+      doc: 'Optional JSON array (raw or base64) of animal records upserted, by earTag, over data/fixtures/animals/ - a matching earTag replaces the whole file record',
+      format: String,
+      default: '',
+      env: 'FAKE_ANIMALS'
+    },
+    locations: {
+      doc: 'Optional JSON array (raw or base64) of location records upserted, by identifier (CPH), over data/fixtures/locations/ - a matching CPH replaces the whole file record',
+      format: String,
+      default: '',
+      env: 'FAKE_LOCATIONS'
+    },
+    people: {
+      doc: 'Optional JSON array (raw or base64) of person records upserted, by customerNumber, over data/fixtures/people/ - a matching customerNumber replaces the whole file record',
+      format: String,
+      default: '',
+      env: 'FAKE_PEOPLE'
+    }
+  },
   cads: {
     clientId: {
       doc: 'Basic auth client ID (ACL client key) the fake cads-data-service (/cads) endpoints require, matching its real ApiKeyOrCognito Basic-scheme auth policy',

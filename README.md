@@ -13,6 +13,26 @@ Currently fakes:
 
 `data/fixtures/locations/` (one file per CPH, `{county}_{parish}_{holding}.json`) is the shared canonical holding data - a superset of what each fake needs, the same pattern as `data/fixtures/animals/`: cts-ws reads movement-suitability status / inactive date range / sub-location detail, cads uses CPH recognition, and krds reads the full holding detail and derives a keeper's name and CPH/role assignments from each holding's `associations`.
 
+### Fixtures from env vars
+
+On top of the baked-in files, each fixture set can be upserted from an optional env var holding a JSON array, either raw or base64-encoded for us. This lets a deployed fake gain or override records without a rebuild:
+
+| Env var          | Upserts over               | Keyed by         |
+| ---------------- | -------------------------- | ---------------- |
+| `FAKE_ANIMALS`   | `data/fixtures/animals/`   | `earTag`         |
+| `FAKE_LOCATIONS` | `data/fixtures/locations/` | `identifier`     |
+| `FAKE_PEOPLE`    | `data/fixtures/people/`    | `customerNumber` |
+
+- When an env record's key matches a file record, it **replaces the whole record**. Fields are not merged. A new key adds a record. There is no way to delete a record.
+- People are loaded before locations, so env locations can reference people from the files or from `FAKE_PEOPLE`.
+- At startup the service logs how many records each var upserted and its size. A var that isn't a JSON array, or a record without its key, fails startup with an error naming the var.
+
+```bash
+FAKE_ANIMALS="$(jq -c -s . my-animals/*.json | base64)" npm run dev
+```
+
+**Size limits:** a minified animal is about 300 B and a location about 600 B. Linux caps a single env var at 128 KiB. On CDP/ECS, the whole task definition, including all env vars, must fit in about 64 KiB, so in practice you have room for about a hundred extra records in total. Bulk test data belongs in `data/fixtures/`.
+
 OIDC identity provider fakes (DEFRA CI, Entra ID) live in the separate [`lis-fake-idp`](https://github.com/DEFRA/lis-fake-idp) repo, so OIDC auth flows work against a proper CDP frontend-tier service.
 
 **Stack:** Hapi · hapi-pino · Nunjucks (XML response templating for cts-ws)
@@ -48,6 +68,7 @@ src/
 │   │   ├── constants/status-codes.js
 │   │   ├── data/animals.js         # Canonical animal test data loader (data/fixtures/animals/*.json), shared by cts-ws and cads
 │   │   ├── data/breeds.js          # GOV.UK cattle breed codes + names (from @defra/lis-species-cattle), shared by cts-ws and cads
+│   │   ├── data/fixtures.js        # Reads data/fixtures/<folder>/*.json and upserts FAKE_* env var records over them
 │   │   ├── data/locations.js       # Holding registry — id, status, sub-locations (data/fixtures/locations.json), shared by cts-ws, cads and krds
 │   │   └── helpers/
 │   │       ├── errors.js           # onPreResponse catchAll error handler (JSON error responses)

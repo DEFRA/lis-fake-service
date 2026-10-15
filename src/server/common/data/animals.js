@@ -1,14 +1,11 @@
-import { readdirSync, readFileSync } from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { config } from '../../../config/config.js'
+import { loadFixtures } from './fixtures.js'
 
 // Canonical animal test data: one file per animal in data/fixtures/animals/,
-// a superset of what each fake needs. The cts-ws and cads fakes read this and
-// map it into their own wire formats - it's the single source of truth so the
-// two stay in step.
-
-const dirname = path.dirname(fileURLToPath(import.meta.url))
-const animalsDir = path.resolve(dirname, '../../../../data/fixtures/animals')
+// upserted by earTag from the optional FAKE_ANIMALS env var, a superset of
+// what each fake needs. The cts-ws and cads fakes read this and map it into
+// their own wire formats - it's the single source of truth so the two stay in
+// step.
 
 /**
  * @typedef {object} Animal
@@ -29,10 +26,13 @@ const animalsDir = path.resolve(dirname, '../../../../data/fixtures/animals')
  * @property {string} [earStatus] CTS CP.EARSTATUS long description; defaults to 'Passport Produced'
  */
 
-/** @type {Animal[]} */
-export const allAnimals = readdirSync(animalsDir)
-  .filter((file) => file.endsWith('.json'))
-  .map((file) => JSON.parse(readFileSync(path.join(animalsDir, file), 'utf-8')))
-
 /** @type {Map<string, Animal>} */
-export const animalsByEarTag = new Map(allAnimals.map((a) => [a.earTag, a]))
+export const animalsByEarTag = loadFixtures({
+  folder: 'animals',
+  envName: 'FAKE_ANIMALS',
+  envValue: config.get('fixtures.animals'),
+  key: 'earTag'
+})
+
+/** @type {Animal[]} */
+export const allAnimals = [...animalsByEarTag.values()]
