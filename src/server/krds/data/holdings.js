@@ -1,4 +1,5 @@
 import { allLocations, findLocation } from '../../common/data/locations.js'
+import { compileSearch } from './holdings-search.js'
 
 /** @import { Location } from '../../common/data/locations.js' */
 
@@ -129,93 +130,6 @@ export function findHolding(county, parish, holding) {
   return record ? toHoldingDetail(record) : undefined
 }
 
-const CPH_WITH_SLASHES = /^\d{2}\/\d{3}\/\d{4}$/
-const CPH_NINE_DIGITS = /^\d{9}$/
-const WORD = /[\p{L}\p{N}]+/gu
-
-/**
- * @param {string | null | undefined} phone
- * @returns {string} the number without spaces, hyphens, plus signs or brackets
- */
-function stripPhone(phone) {
-  return (phone ?? '').replace(/[\s\-+()]/g, '')
-}
-
-/**
- * Lower-cases and strips diacritics, as FTS5's unicode61 tokenizer does.
- *
- * @param {string} text
- * @returns {string[]} the runs of letters and digits in the text
- */
-function words(text) {
-  return (
-    text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().match(WORD) ?? []
-  )
-}
-
-/**
- * Mirrors the text keeper-data-api's FTS5 index holds per holding
- * (HoldingSearchIndex), tokenised as unicode61 does: lower-cased runs of
- * letters and digits.
- *
- * @param {Location} record
- * @returns {string[]}
- */
-function searchTokens(record) {
-  const { address } = record.location
-  const text = [
-    record.identifier,
-    record.identifier.replaceAll('/', ''),
-    record.name,
-    record.holdingType,
-    address.udprn,
-    address.addressLine1,
-    address.addressLine2,
-    address.locality,
-    address.postTown,
-    address.postcode,
-    (address.postcode ?? '').replaceAll(' ', ''),
-    record.location.osMapReference,
-    ...record.associations.flatMap((association) => [
-      association.customerNumber,
-      association.name,
-      association.title,
-      association.firstName,
-      association.lastName,
-      association.email,
-      association.mobile,
-      stripPhone(association.mobile),
-      association.telephone,
-      stripPhone(association.telephone)
-    ])
-  ].join(' ')
-
-  return words(text)
-}
-
-/**
- * Mirrors keeper-data-api's ToFtsQuery: a full CPH (with or without slashes)
- * must match exactly; otherwise every word in the term must prefix some
- * indexed word.
- *
- * @param {Location} record
- * @param {string} term - trimmed and non-empty
- * @returns {boolean}
- */
-function matches(record, term) {
-  const tokens = searchTokens(record)
-
-  if (CPH_WITH_SLASHES.test(term) || CPH_NINE_DIGITS.test(term)) {
-    return tokens.includes(term.replaceAll('/', ''))
-  }
-
-  const termWords = words(term)
-  return (
-    termWords.length > 0 &&
-    termWords.every((word) => tokens.some((token) => token.startsWith(word)))
-  )
-}
-
 /**
  * @param {HoldingSearch['order']} order
  * @returns {(record: Location) => string | null}
@@ -265,10 +179,9 @@ function compareBy(order, sort) {
  */
 export function searchHoldings({ search, page, pageSize, sort, order }) {
   const term = search.trim()
+  const isMatch = term === '' ? () => true : compileSearch(term)
 
-  const matching = allLocations()
-    .filter((record) => term === '' || matches(record, term))
-    .sort(compareBy(order, sort))
+  const matching = allLocations().filter(isMatch).sort(compareBy(order, sort))
 
   const totalCount = matching.length
   const totalPages = Math.ceil(totalCount / pageSize)
