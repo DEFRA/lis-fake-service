@@ -218,4 +218,85 @@ describe('compileSearch', () => {
       expect(results).toEqual([true, true, true])
     })
   })
+
+  describe('sparse and malformed fixture data', () => {
+    test('it indexes a CPH that is not in three parts as its text and digits only', () => {
+      // Arrange
+      const record = location({ identifier: '12/345' })
+
+      // Act
+      const results = ['12345', '12/345'].map((term) =>
+        compileSearch(term)(record)
+      )
+
+      // Assert
+      expect(results).toEqual([true, true])
+    })
+
+    test('it indexes a short spaced postcode by its last part', () => {
+      // Arrange
+      const record = location({ address: { postcode: 'W1 1' } })
+
+      // Act
+      const result = compileSearch('1')(record)
+
+      // Assert
+      expect(result).toBe(true)
+    })
+
+    test('it indexes a short unspaced postcode as itself', () => {
+      // Arrange
+      const record = location({ address: { postcode: 'W11' } })
+
+      // Act
+      const result = compileSearch('W11')(record)
+
+      // Assert
+      expect(result).toBe(true)
+    })
+
+    test('it ignores a blank herd mark', () => {
+      // Arrange
+      const record = location({ marks: [{ mark: '   ' }, { mark: null }] })
+
+      // Act
+      const result = compileSearch('UK')(record)
+
+      // Assert
+      expect(result).toBe(false)
+    })
+
+    test('it ignores an organisation party with no name', () => {
+      // Arrange
+      const record = location({
+        name: null,
+        address: {
+          addressLine1: null,
+          addressLine2: null,
+          postTown: null,
+          locality: null,
+          postcode: null
+        },
+        associations: [{ partyType: 'Organisation', name: null }],
+        marks: undefined
+      })
+
+      // Act
+      const result = compileSearch('Farm')(record)
+
+      // Assert
+      expect(result).toBe(false)
+    })
+
+    test('it matches nothing for a term with no letters or digits', () => {
+      // Arrange
+      const record = location({})
+
+      // Act
+      const result = compileSearch('/ / -')(record)
+
+      // Assert
+      expect(result).toBe(false)
+    })
+  })
 })
