@@ -85,7 +85,7 @@ function formatPostcodeTokens(postcode) {
     const outward = unspaced.slice(0, -INWARD_CODE_LENGTH)
     tokens.push(inward, `${outward} ${inward}`)
   } else if (postcode.includes(' ')) {
-    tokens.push(postcode.split(' ').filter(Boolean).at(-1) ?? '')
+    tokens.push(postcode.split(' ').findLast(Boolean) ?? '')
   } else {
     // a short postcode without a space has no separate inward code
   }
