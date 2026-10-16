@@ -48,7 +48,7 @@ export function parseFixtureEnv(name, value) {
   }
 
   if (!Array.isArray(records)) {
-    throw new Error(`${name} must be a JSON array of records`)
+    throw new TypeError(`${name} must be a JSON array of records`)
   }
 
   return records
