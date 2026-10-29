@@ -52,5 +52,8 @@
   },
   "overrides": {
     "tmp": "0.2.5"
+  },
+  "allowScripts": {
+    "libxmljs2@0.37.0": true
   }
 }
