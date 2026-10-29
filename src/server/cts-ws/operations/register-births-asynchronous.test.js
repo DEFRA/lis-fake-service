@@ -38,18 +38,18 @@ describe('register-births-asynchronous', () => {
     vi.clearAllMocks()
   })
 
-  test('type is Register_Births_Asynchronous-V1-0', () => {
+  test('type is Register_Births_Asynchronous-V1-0', async () => {
     // Assert
     expect(type).toBe('Register_Births_Asynchronous-V1-0')
   })
 
-  test('handle submits the parsed batch to the birth store and returns a receipt', () => {
+  test('handle submits the parsed batch to the birth store and returns a receipt', async () => {
     // Arrange
     mocks.parseRegisterBirthsRequest.mockReturnValueOnce(defaultPayload)
     mocks.birthStore.submit.mockReturnValueOnce(42)
 
     // Act
-    const result = handle(validXml)
+    const result = await handle(validXml)
 
     // Assert
     expect(result).toContain('<MsgReceipt')
@@ -61,7 +61,7 @@ describe('register-births-asynchronous', () => {
     })
   })
 
-  test('handle throws a CTWS000 DomainError when the payload cannot be parsed', () => {
+  test('handle throws a CTWS000 DomainError when the payload cannot be parsed', async () => {
     // Arrange
     mocks.parseRegisterBirthsRequest.mockImplementationOnce(() => {
       throw new Error('not a RegBirths request')
@@ -70,7 +70,7 @@ describe('register-births-asynchronous', () => {
 
     // Act
     try {
-      handle(validXml)
+      await handle(validXml)
     } catch (e) {
       error = e
     }
@@ -80,7 +80,7 @@ describe('register-births-asynchronous', () => {
     expect(error?.exNum).toBe('CTWS000')
   })
 
-  test('handle throws a DomainError for invalid credentials', () => {
+  test('handle throws a DomainError for invalid credentials', async () => {
     // Arrange
     mocks.parseRegisterBirthsRequest.mockReturnValueOnce({
       ...defaultPayload,
@@ -90,7 +90,7 @@ describe('register-births-asynchronous', () => {
 
     // Act
     try {
-      handle(validXml)
+      await handle(validXml)
     } catch (e) {
       error = e
     }
@@ -100,14 +100,14 @@ describe('register-births-asynchronous', () => {
     expect(error?.message).toBe('Authentication failed')
   })
 
-  test('handle throws a CTWS808 DomainError for XML that does not conform to the register_births_request XSD', () => {
+  test('handle throws a CTWS808 DomainError for XML that does not conform to the register_births_request XSD', async () => {
     // Arrange - an invalid (lowercase) breed code violates BreedCode_Type's pattern
     const badSchemaXml = validXml.replace('Brd="HF"', 'Brd="not-a-code"')
     let error
 
     // Act
     try {
-      handle(badSchemaXml)
+      await handle(badSchemaXml)
     } catch (e) {
       error = e
     }
@@ -118,7 +118,7 @@ describe('register-births-asynchronous', () => {
     expect(mocks.parseRegisterBirthsRequest).not.toHaveBeenCalled()
   })
 
-  test('handle throws a CTWS807 DomainError when the birth store reports the TxnId as already submitted', () => {
+  test('handle throws a CTWS807 DomainError when the birth store reports the TxnId as already submitted', async () => {
     // Arrange
     mocks.parseRegisterBirthsRequest.mockReturnValueOnce(defaultPayload)
     mocks.birthStore.hasSubmission.mockReturnValueOnce(true)
@@ -126,7 +126,7 @@ describe('register-births-asynchronous', () => {
 
     // Act
     try {
-      handle(validXml)
+      await handle(validXml)
     } catch (e) {
       error = e
     }

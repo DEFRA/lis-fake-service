@@ -15,10 +15,10 @@ export const type = 'Get_Register_Movements_Validation_Results-V1-0'
  * store's own accept/reject classification for the batch.
  *
  * @param {string} innerXml
- * @returns {string}
+ * @returns {Promise<string>}
  */
-export function handle(innerXml) {
-  const schemaResult = validateAgainstSchema(
+export async function handle(innerXml) {
+  const schemaResult = await validateAgainstSchema(
     innerXml,
     'get_asynchronous_results-V1-0.xsd'
   )

@@ -14,10 +14,10 @@ export const type = 'Register_Movements_Asynchronous-V1-0'
  * business-level failure.
  *
  * @param {string} innerXml
- * @returns {string}
+ * @returns {Promise<string>}
  */
-export function handle(innerXml) {
-  const schemaResult = validateAgainstSchema(
+export async function handle(innerXml) {
+  const schemaResult = await validateAgainstSchema(
     innerXml,
     'register_movements_request-V1-0.xsd'
   )

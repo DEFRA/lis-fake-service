@@ -2,21 +2,24 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import libxmljs from 'libxmljs2'
+import { validateXML } from 'xmllint-wasm'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const schemasDir = path.resolve(dirname, 'schemas')
+
+// Shared type definitions that the request schemas pull in with <xs:include>.
+// xmllint-wasm does no IO of its own, so every included file has to be handed
+// to it up front.
+const SHARED_TYPES_SCHEMA = 'ctws_types-V1-0.xsd'
 
 const schemaCache = new Map()
 
 function loadSchema(schemaFileName) {
   if (!schemaCache.has(schemaFileName)) {
-    const schemaPath = path.resolve(schemasDir, schemaFileName)
-    const schemaXml = readFileSync(schemaPath, 'utf-8')
-    schemaCache.set(
-      schemaFileName,
-      libxmljs.parseXml(schemaXml, { baseUrl: schemaPath })
-    )
+    schemaCache.set(schemaFileName, {
+      fileName: schemaFileName,
+      contents: readFileSync(path.resolve(schemasDir, schemaFileName), 'utf-8')
+    })
   }
   return schemaCache.get(schemaFileName)
 }
@@ -27,22 +30,26 @@ function loadSchema(schemaFileName) {
  *
  * @param {string} xml
  * @param {string} schemaFileName - e.g. 'register_births_request-V1-0.xsd'
- * @returns {{wellFormed: boolean, valid: boolean}} wellFormed is false for
- *   XML libxmljs2 can't even parse, in which case valid is also false and
- *   schema conformance was never checked - callers should let their normal
+ * @returns {Promise<{wellFormed: boolean, valid: boolean}>} wellFormed is
+ *   false for XML libxml2 can't even parse, in which case valid is also false
+ *   and schema conformance was never checked - callers should let their normal
  *   malformed-XML handling take over rather than treat this as a schema
  *   violation.
  */
-export function validateAgainstSchema(xml, schemaFileName) {
-  let doc
+export async function validateAgainstSchema(xml, schemaFileName) {
+  const result = await validateXML({
+    xml: [{ fileName: 'request.xml', contents: xml }],
+    schema: [loadSchema(schemaFileName)],
+    preload: [loadSchema(SHARED_TYPES_SCHEMA)]
+  })
 
-  try {
-    doc = libxmljs.parseXml(xml)
-  } catch {
-    return { wellFormed: false, valid: false }
+  if (result.valid) {
+    return { wellFormed: true, valid: true }
   }
 
-  const schema = loadSchema(schemaFileName)
+  const wellFormed = !result.errors.some((error) =>
+    error.message.includes('parser error')
+  )
 
-  return { wellFormed: true, valid: doc.validate(schema) }
+  return { wellFormed, valid: false }
 }

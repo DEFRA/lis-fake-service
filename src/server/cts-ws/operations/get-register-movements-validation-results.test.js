@@ -36,12 +36,12 @@ describe('get-register-movements-validation-results', () => {
     vi.clearAllMocks()
   })
 
-  test('type is Get_Register_Movements_Validation_Results-V1-0', () => {
+  test('type is Get_Register_Movements_Validation_Results-V1-0', async () => {
     // Assert
     expect(type).toBe('Get_Register_Movements_Validation_Results-V1-0')
   })
 
-  test('handle renders the accepted/rejected rows once the store reports results ready', () => {
+  test('handle renders the accepted/rejected rows once the store reports results ready', async () => {
     // Arrange
     mocks.parseGetResultsRequest.mockReturnValueOnce(defaultPayload)
     mocks.movementStore.retrieveResults.mockReturnValueOnce({
@@ -66,7 +66,7 @@ describe('get-register-movements-validation-results', () => {
     })
 
     // Act
-    const result = handle(validXml)
+    const result = await handle(validXml)
 
     // Assert
     expect(result).toContain('<Accept RowNum="1"/>')
@@ -76,7 +76,7 @@ describe('get-register-movements-validation-results', () => {
     expect(mocks.movementStore.retrieveResults).toHaveBeenCalledWith(1)
   })
 
-  test('handle throws a CTWS000 DomainError when the payload cannot be parsed', () => {
+  test('handle throws a CTWS000 DomainError when the payload cannot be parsed', async () => {
     // Arrange
     mocks.parseGetResultsRequest.mockImplementationOnce(() => {
       throw new Error('not a GetResults request')
@@ -85,7 +85,7 @@ describe('get-register-movements-validation-results', () => {
 
     // Act
     try {
-      handle(validXml)
+      await handle(validXml)
     } catch (e) {
       error = e
     }
@@ -95,7 +95,7 @@ describe('get-register-movements-validation-results', () => {
     expect(error?.exNum).toBe('CTWS000')
   })
 
-  test('handle throws a DomainError for invalid credentials', () => {
+  test('handle throws a DomainError for invalid credentials', async () => {
     // Arrange
     mocks.parseGetResultsRequest.mockReturnValueOnce({
       ...defaultPayload,
@@ -105,7 +105,7 @@ describe('get-register-movements-validation-results', () => {
 
     // Act
     try {
-      handle(validXml)
+      await handle(validXml)
     } catch (e) {
       error = e
     }
@@ -116,14 +116,14 @@ describe('get-register-movements-validation-results', () => {
     expect(mocks.movementStore.retrieveResults).not.toHaveBeenCalled()
   })
 
-  test('handle throws a CTWS808 DomainError for XML that does not conform to the get_asynchronous_results XSD', () => {
+  test('handle throws a CTWS808 DomainError for XML that does not conform to the get_asynchronous_results XSD', async () => {
     // Arrange - Receipt Num must be an integer (ReceiptId_Type)
     const badSchemaXml = validXml.replace('Num="1"', 'Num="not-a-number"')
     let error
 
     // Act
     try {
-      handle(badSchemaXml)
+      await handle(badSchemaXml)
     } catch (e) {
       error = e
     }
@@ -134,7 +134,7 @@ describe('get-register-movements-validation-results', () => {
     expect(mocks.parseGetResultsRequest).not.toHaveBeenCalled()
   })
 
-  test('handle throws a CTWS806 DomainError while the store has not yet validated the submission', () => {
+  test('handle throws a CTWS806 DomainError while the store has not yet validated the submission', async () => {
     // Arrange
     mocks.parseGetResultsRequest.mockReturnValueOnce(defaultPayload)
     mocks.movementStore.retrieveResults.mockReturnValueOnce({ ready: false })
@@ -142,7 +142,7 @@ describe('get-register-movements-validation-results', () => {
 
     // Act
     try {
-      handle(validXml)
+      await handle(validXml)
     } catch (e) {
       error = e
     }
@@ -152,7 +152,7 @@ describe('get-register-movements-validation-results', () => {
     expect(error?.exNum).toBe('CTWS806')
   })
 
-  test('handle throws a DomainError when the receipt does not exist', () => {
+  test('handle throws a DomainError when the receipt does not exist', async () => {
     // Arrange
     mocks.parseGetResultsRequest.mockReturnValueOnce(defaultPayload)
     mocks.movementStore.retrieveResults.mockReturnValueOnce(undefined)
@@ -160,7 +160,7 @@ describe('get-register-movements-validation-results', () => {
 
     // Act
     try {
-      handle(validXml)
+      await handle(validXml)
     } catch (e) {
       error = e
     }
