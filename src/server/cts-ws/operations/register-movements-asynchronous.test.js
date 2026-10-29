@@ -38,18 +38,18 @@ describe('register-movements-asynchronous', () => {
     vi.clearAllMocks()
   })
 
-  test('type is Register_Movements_Asynchronous-V1-0', () => {
+  test('type is Register_Movements_Asynchronous-V1-0', async () => {
     // Assert
     expect(type).toBe('Register_Movements_Asynchronous-V1-0')
   })
 
-  test('handle submits the parsed batch to the movement store and returns a receipt', () => {
+  test('handle submits the parsed batch to the movement store and returns a receipt', async () => {
     // Arrange
     mocks.parseRegisterMovementsRequest.mockReturnValueOnce(defaultPayload)
     mocks.movementStore.submit.mockReturnValueOnce(42)
 
     // Act
-    const result = handle(validXml)
+    const result = await handle(validXml)
 
     // Assert
     expect(result).toContain('<MsgReceipt')
@@ -61,7 +61,7 @@ describe('register-movements-asynchronous', () => {
     })
   })
 
-  test('handle throws a CTWS000 DomainError when the payload cannot be parsed', () => {
+  test('handle throws a CTWS000 DomainError when the payload cannot be parsed', async () => {
     // Arrange
     mocks.parseRegisterMovementsRequest.mockImplementationOnce(() => {
       throw new Error('not a RegMovs request')
@@ -70,7 +70,7 @@ describe('register-movements-asynchronous', () => {
 
     // Act
     try {
-      handle(validXml)
+      await handle(validXml)
     } catch (e) {
       error = e
     }
@@ -80,7 +80,7 @@ describe('register-movements-asynchronous', () => {
     expect(error?.exNum).toBe('CTWS000')
   })
 
-  test('handle throws a DomainError for invalid credentials', () => {
+  test('handle throws a DomainError for invalid credentials', async () => {
     // Arrange
     mocks.parseRegisterMovementsRequest.mockReturnValueOnce({
       ...defaultPayload,
@@ -90,7 +90,7 @@ describe('register-movements-asynchronous', () => {
 
     // Act
     try {
-      handle(validXml)
+      await handle(validXml)
     } catch (e) {
       error = e
     }
@@ -100,14 +100,14 @@ describe('register-movements-asynchronous', () => {
     expect(error?.message).toBe('Authentication failed')
   })
 
-  test('handle throws a CTWS808 DomainError for XML that does not conform to the register_movements_request XSD', () => {
+  test('handle throws a CTWS808 DomainError for XML that does not conform to the register_movements_request XSD', async () => {
     // Arrange - MType only allows the enum values on/off/death
     const badSchemaXml = validXml.replace('MType="on"', 'MType="sideways"')
     let error
 
     // Act
     try {
-      handle(badSchemaXml)
+      await handle(badSchemaXml)
     } catch (e) {
       error = e
     }
@@ -118,7 +118,7 @@ describe('register-movements-asynchronous', () => {
     expect(mocks.parseRegisterMovementsRequest).not.toHaveBeenCalled()
   })
 
-  test('handle throws a CTWS807 DomainError when the movement store reports the TxnId as already submitted', () => {
+  test('handle throws a CTWS807 DomainError when the movement store reports the TxnId as already submitted', async () => {
     // Arrange
     mocks.parseRegisterMovementsRequest.mockReturnValueOnce(defaultPayload)
     mocks.movementStore.hasSubmission.mockReturnValueOnce(true)
@@ -126,7 +126,7 @@ describe('register-movements-asynchronous', () => {
 
     // Act
     try {
-      handle(validXml)
+      await handle(validXml)
     } catch (e) {
       error = e
     }

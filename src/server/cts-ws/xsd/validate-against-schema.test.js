@@ -12,9 +12,9 @@ const validRegBirths =
   '</Births></RegBirths>'
 
 describe('validateAgainstSchema()', () => {
-  test('validateAgainstSchema accepts a real-shaped RegBirths document', () => {
+  test('validateAgainstSchema accepts a real-shaped RegBirths document', async () => {
     // Act
-    const result = validateAgainstSchema(
+    const result = await validateAgainstSchema(
       validRegBirths,
       'register_births_request-V1-0.xsd'
     )
@@ -23,12 +23,12 @@ describe('validateAgainstSchema()', () => {
     expect(result).toEqual({ wellFormed: true, valid: true })
   })
 
-  test('validateAgainstSchema rejects a RegBirths document with an invalid breed code', () => {
+  test('validateAgainstSchema rejects a RegBirths document with an invalid breed code', async () => {
     // Arrange
     const xml = validRegBirths.replace('Brd="HF"', 'Brd="not-a-code"')
 
     // Act
-    const result = validateAgainstSchema(
+    const result = await validateAgainstSchema(
       xml,
       'register_births_request-V1-0.xsd'
     )
@@ -37,9 +37,9 @@ describe('validateAgainstSchema()', () => {
     expect(result).toEqual({ wellFormed: true, valid: false })
   })
 
-  test('validateAgainstSchema reports XML that is not well-formed as not well-formed', () => {
+  test('validateAgainstSchema reports XML that is not well-formed as not well-formed', async () => {
     // Act
-    const result = validateAgainstSchema(
+    const result = await validateAgainstSchema(
       '<not-closed>',
       'register_births_request-V1-0.xsd'
     )
@@ -48,7 +48,7 @@ describe('validateAgainstSchema()', () => {
     expect(result).toEqual({ wellFormed: false, valid: false })
   })
 
-  test('validateAgainstSchema rejects a RegBirths document missing the required Births element', () => {
+  test('validateAgainstSchema rejects a RegBirths document missing the required Births element', async () => {
     // Arrange
     const xml =
       '<?xml version="1.0" encoding="UTF-8"?>' +
@@ -58,7 +58,7 @@ describe('validateAgainstSchema()', () => {
       '</RegBirths>'
 
     // Act
-    const result = validateAgainstSchema(
+    const result = await validateAgainstSchema(
       xml,
       'register_births_request-V1-0.xsd'
     )

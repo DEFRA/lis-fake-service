@@ -30,9 +30,9 @@ function hashPassword(password) {
  *
  * @param {Request} request
  * @param {ResponseToolkit} h
- * @returns {ResponseObject}
+ * @returns {Promise<ResponseObject>}
  */
-export function transferDataHexHandler(request, h) {
+export async function transferDataHexHandler(request, h) {
   // Not a security control - just simulating the real service's occasional
   // "Request rejected (service unavailable)" response (spec §6.3.1/6.3.2).
   // Neither the ExNum nor ExMsg text is confirmed by real evidence.
@@ -60,7 +60,7 @@ export function transferDataHexHandler(request, h) {
     )
   }
 
-  const resultXml = operation.handle(
+  const resultXml = await operation.handle(
     decodeDataPayload(transferDataHexRequest.data)
   )
 

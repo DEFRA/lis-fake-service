@@ -73,13 +73,13 @@ describe('transferDataHexHandler', () => {
     serviceUnavailableProbability = 0
   })
 
-  test("it returns the operation handler's result for a supported type", () => {
+  test("it returns the operation handler's result for a supported type", async () => {
     // Arrange
     const request = makeRequest(buildTransferDataHexRequest())
     const h = makeH()
 
     // Act
-    transferDataHexHandler(request, h)
+    await transferDataHexHandler(request, h)
 
     // Assert
     expect(h.type).toHaveBeenCalledWith('text/xml')
@@ -92,7 +92,7 @@ describe('transferDataHexHandler', () => {
     expect(decodedResult).toContain('<MsgReceipt')
   })
 
-  test('it throws a TransportFaultError for an invalid outer username', () => {
+  test('it throws a TransportFaultError for an invalid outer username', async () => {
     // Arrange
     const request = makeRequest(
       buildTransferDataHexRequest({ dthUsername: 'wrong' })
@@ -102,7 +102,7 @@ describe('transferDataHexHandler', () => {
 
     // Act
     try {
-      transferDataHexHandler(request, h)
+      await transferDataHexHandler(request, h)
     } catch (e) {
       error = e
     }
@@ -113,7 +113,7 @@ describe('transferDataHexHandler', () => {
     expect(mocks.operationHandle).not.toHaveBeenCalled()
   })
 
-  test('it throws a TransportFaultError for an invalid outer password', () => {
+  test('it throws a TransportFaultError for an invalid outer password', async () => {
     // Arrange
     const request = makeRequest(
       buildTransferDataHexRequest({ dthPassword: 'wrong' })
@@ -123,7 +123,7 @@ describe('transferDataHexHandler', () => {
 
     // Act
     try {
-      transferDataHexHandler(request, h)
+      await transferDataHexHandler(request, h)
     } catch (e) {
       error = e
     }
@@ -132,7 +132,7 @@ describe('transferDataHexHandler', () => {
     expect(error).toBeInstanceOf(TransportFaultError)
   })
 
-  test('it throws a DomainError for an unsupported type', () => {
+  test('it throws a DomainError for an unsupported type', async () => {
     // Arrange
     mocks.getOperation.mockReturnValueOnce(undefined)
     const request = makeRequest(
@@ -143,7 +143,7 @@ describe('transferDataHexHandler', () => {
 
     // Act
     try {
-      transferDataHexHandler(request, h)
+      await transferDataHexHandler(request, h)
     } catch (e) {
       error = e
     }
@@ -154,7 +154,7 @@ describe('transferDataHexHandler', () => {
     expect(mocks.operationHandle).not.toHaveBeenCalled()
   })
 
-  test('it propagates the DomainError the dispatched operation throws', () => {
+  test('it propagates the DomainError the dispatched operation throws', async () => {
     // Arrange
     mocks.operationHandle.mockImplementationOnce(() => {
       throw new DomainError('CTWS001', 'Authentication failed')
@@ -165,7 +165,7 @@ describe('transferDataHexHandler', () => {
 
     // Act
     try {
-      transferDataHexHandler(request, h)
+      await transferDataHexHandler(request, h)
     } catch (e) {
       error = e
     }
@@ -175,7 +175,7 @@ describe('transferDataHexHandler', () => {
     expect(error?.exNum).toBe('CTWS001')
   })
 
-  test('it throws a CTWS809 DomainError when the simulated outage roll lands', () => {
+  test('it throws a CTWS809 DomainError when the simulated outage roll lands', async () => {
     // Arrange
     serviceUnavailableProbability = 1
     const request = makeRequest(buildTransferDataHexRequest())
@@ -184,7 +184,7 @@ describe('transferDataHexHandler', () => {
 
     // Act
     try {
-      transferDataHexHandler(request, h)
+      await transferDataHexHandler(request, h)
     } catch (e) {
       error = e
     }

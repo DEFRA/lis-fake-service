@@ -18,7 +18,7 @@ Before any of that, every request has an independent `ctsWs.serviceUnavailablePr
 
 ## XSD validation
 
-Before parsing, each `Register_*`/`Get_Register_*_Validation_Results` handler validates the decoded inner XML against the real CTS request XSD for that message type via `xsd/validate-against-schema.js` (a thin `libxmljs2` wrapper). The schemas themselves (`xsd/schemas/*.xsd`) are copied verbatim from the CTS POC evidence, `<xs:include>`s and all - `ctws_types-V1-0.xsd` holds the shared type definitions the three request schemas include.
+Before parsing, each `Register_*`/`Get_Register_*_Validation_Results` handler validates the decoded inner XML against the real CTS request XSD for that message type via `xsd/validate-against-schema.js` (a thin `xmllint-wasm` wrapper, libxml2 compiled to WebAssembly so no native binding is needed). The schemas themselves (`xsd/schemas/*.xsd`) are copied verbatim from the CTS POC evidence, `<xs:include>`s and all - `ctws_types-V1-0.xsd` holds the shared type definitions the three request schemas include.
 
 Schema-invalid-but-well-formed XML is rejected as `CTWS808` (the spec's documented "Request rejected ('data' XML does not conform to the 'data' XSD)"); XML that isn't even well-formed falls through to the existing `CTWS000` malformed-payload handling.
 
