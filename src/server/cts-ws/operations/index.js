@@ -18,7 +18,7 @@ const operations = {
 
 /**
  * @param {string} type
- * @returns {{type: string, handle: (innerXml: string) => string} | undefined}
+ * @returns {{type: string, handle: (innerXml: string) => Promise<string>} | undefined}
  */
 export function getOperation(type) {
   return operations[type]
