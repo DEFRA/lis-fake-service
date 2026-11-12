@@ -7,7 +7,6 @@ describe('parseRegisterBirthsRequest()', () => {
     // Arrange
     const innerXml =
       '<RegBirths xmlns="http://defra.bcms.ctws/register_births_request" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
-      // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake test fixture, not a real secret
       '<Authentication><CTS_OL_User Usr="cts-ol-user" Pwd="cts-ol-pass"/></Authentication>' +
       '<Births TxnId="txn-1">' +
       '<Birth RowNum="1" Etg="UK1" Dob="2020-01-01" Brd="HF" Sex="f" GdEtg="UK0" BLoc="01/001/0001" PLoc="01/001/0001" IWarn="n"/>' +
@@ -43,7 +42,6 @@ describe('parseRegisterBirthsRequest()', () => {
     // Arrange
     const innerXml =
       '<RegBirths xmlns="http://defra.bcms.ctws/register_births_request">' +
-      // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake test fixture, not a real secret
       '<Authentication><CTS_OL_User Usr="cts-ol-user" Pwd="cts-ol-pass"/></Authentication>' +
       '<Births TxnId="txn-1">' +
       '<Birth RowNum="1" Etg="UK1"/>' +
@@ -61,7 +59,6 @@ describe('parseRegisterBirthsRequest()', () => {
     // Arrange
     const innerXml =
       '<RegBirths xmlns="http://defra.bcms.ctws/register_births_request">' +
-      // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake test fixture, not a real secret
       '<Authentication><CTS_OL_User Usr="cts-ol-user" Pwd="cts-ol-pass"/></Authentication>' +
       '<Births TxnId="txn-1"/>' +
       '</RegBirths>'

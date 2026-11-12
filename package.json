@@ -41,7 +41,7 @@
     "xmllint-wasm": "^5.3.0"
   },
   "devDependencies": {
-    "@defra/lis-infra-eslint-config": "^0.12.4",
+    "@defra/lis-infra-eslint-config": "^0.12.7",
     "@vitest/coverage-v8": "^5.1.0",
     "audit-ci": "^7.1.0",
     "eslint": "10.14.0",

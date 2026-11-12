@@ -7,7 +7,6 @@ describe('parseRegisterMovementsRequest()', () => {
     // Arrange
     const innerXml =
       '<RegMovs xmlns="http://defra.bcms.ctws/register_movements_request" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
-      // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake test fixture, not a real secret
       '<Authentication><CTS_OL_User Usr="cts-ol-user" Pwd="cts-ol-pass"/></Authentication>' +
       '<Moves TxnId="txn-1">' +
       '<Mov RowNum="1" Etg="UK1" Loc="01/001/0001" SLoc="04" MDate="2020-01-01" MType="on" RefNum="1" IWarn="n"/>' +
@@ -42,7 +41,6 @@ describe('parseRegisterMovementsRequest()', () => {
     // Arrange
     const innerXml =
       '<RegMovs xmlns="http://defra.bcms.ctws/register_movements_request">' +
-      // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake test fixture, not a real secret
       '<Authentication><CTS_OL_User Usr="cts-ol-user" Pwd="cts-ol-pass"/></Authentication>' +
       '<Moves TxnId="txn-1"/>' +
       '</RegMovs>'
