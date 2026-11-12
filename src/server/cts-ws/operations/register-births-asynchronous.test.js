@@ -20,14 +20,12 @@ const mocks = {
 // the real config defaults for CTS_OL_User credentials.
 const validXml =
   '<RegBirths xmlns="http://defra.bcms.ctws/register_births_request" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
-  // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake test fixture, not a real secret
   '<Authentication><CTS_OL_User xmlns="" Usr="dev-cts-usr" Pwd="dev-cts-pass123"/></Authentication>' +
   '<Births TxnId="txn-1"><Birth RowNum="1" Etg="UK000000000001" Dob="2020-01-01" Brd="HF" Sex="f" GdEtg="UK000000000000" BLoc="01/001/0001" PLoc="01/001/0001" IWarn="n"/></Births>' +
   '</RegBirths>'
 
 const defaultPayload = {
   username: 'dev-cts-usr',
-  // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake test fixture, not a real secret
   password: 'dev-cts-pass123',
   txnId: 'txn-1',
   rows: [{ rowNum: 1, attributes: { RowNum: '1' } }]

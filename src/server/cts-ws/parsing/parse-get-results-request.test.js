@@ -7,7 +7,6 @@ describe('parseGetResultsRequest()', () => {
     // Arrange
     const innerXml =
       '<GetResults xmlns="http://defra.bcms.ctws/get_asynchronus_results" SchemaVersion="1.0" ProgramName="CTWSProg" ProgramVersion="1b" RequestTimeStamp="2026-01-01T00:00:00Z">' +
-      // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake test fixture, not a real secret
       '<Authentication><CTS_OL_User Usr="cts-ol-user" Pwd="cts-ol-pass"/></Authentication>' +
       '<Receipt Num="42"/>' +
       '</GetResults>'
