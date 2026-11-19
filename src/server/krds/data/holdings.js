@@ -22,6 +22,7 @@ import { compileSearch } from './holdings-search.js'
  * @property {number | string | null} easting
  * @property {number | string | null} northing
  * @property {HoldingAddress} address
+ * @property {HoldingAddress} correspondenceAddress
  */
 
 /**
@@ -99,6 +100,19 @@ import { compileSearch } from './holdings-search.js'
  * @property {'cph' | 'identifier' | 'name' | 'holdingType' | 'startDate' | 'endDate'} order
  */
 
+// keeper-data-api does not source the correspondence address yet and returns
+// it with every field null, so a fixture without one does the same.
+/** @type {HoldingAddress} */
+const emptyAddress = {
+  udprn: null,
+  addressLine1: null,
+  addressLine2: null,
+  postTown: null,
+  locality: null,
+  postcode: null,
+  country: null
+}
+
 /**
  * @param {Location} record
  * @returns {HoldingDetail} the record without the fields only other fakes read
@@ -110,7 +124,13 @@ function toHoldingDetail(record) {
     name: record.name,
     startDate: record.startDate,
     endDate: record.endDate,
-    location: record.location,
+    location: record.location && {
+      ...record.location,
+      correspondenceAddress: {
+        ...emptyAddress,
+        ...record.location.correspondenceAddress
+      }
+    },
     associations: record.associations,
     allowedSpecies: record.allowedSpecies,
     marks: record.marks

@@ -17,6 +17,15 @@
       "locality": "Shropshire",
       "postcode": "SY4 1AB",
       "country": "England"
+    },
+    "correspondenceAddress": {
+      "udprn": 12345690,
+      "addressLine1": "Oakfield Livestock Office",
+      "addressLine2": "2 Market Yard",
+      "postTown": "Shrewsbury",
+      "locality": "Shropshire",
+      "postcode": "SY1 9ZY",
+      "country": "England"
     }
   },
   "associations": [

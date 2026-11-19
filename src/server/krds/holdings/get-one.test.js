@@ -87,6 +87,15 @@ describe('GET /krds/api/v2/holdings/{county}/{parish}/{holding}', () => {
     expect(response.result.identifier).toBe('22/001/0001')
     expect(response.result.name).toBe('Oakfield Farm')
     expect(response.result.location.address.postTown).toBe('Shrewsbury')
+    expect(response.result.location.correspondenceAddress).toEqual({
+      udprn: 12345690,
+      addressLine1: 'Oakfield Livestock Office',
+      addressLine2: '2 Market Yard',
+      postTown: 'Shrewsbury',
+      locality: 'Shropshire',
+      postcode: 'SY1 9ZY',
+      country: 'England'
+    })
     expect(response.result.associations).toEqual([
       expect.objectContaining({
         name: 'Oakfield Farmer',
@@ -95,6 +104,31 @@ describe('GET /krds/api/v2/holdings/{county}/{parish}/{holding}', () => {
     ])
     expect(response.result.allowedSpecies).toEqual(['Cattle'])
     expect(response.result.marks).toHaveLength(1)
+  })
+
+  test('it returns an all-null correspondence address when the holding has none', async () => {
+    // Arrange
+    const server = await makeServer()
+
+    // Act
+    const response = await server.inject({
+      method: 'GET',
+      url: '/krds/api/v2/holdings/22/002/0002',
+      headers: { authorization: VALID_AUTH_HEADER }
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(200)
+    expect(response.result.location.address.addressLine1).not.toBeNull()
+    expect(response.result.location.correspondenceAddress).toEqual({
+      udprn: null,
+      addressLine1: null,
+      addressLine2: null,
+      postTown: null,
+      locality: null,
+      postcode: null,
+      country: null
+    })
   })
 
   test("it returns Fairfield Farm's keeper association for 22/002/0002", async () => {

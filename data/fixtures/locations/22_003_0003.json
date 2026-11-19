@@ -17,6 +17,15 @@
       "locality": "Buckinghamshire",
       "postcode": "MK1 1AB",
       "country": "England"
+    },
+    "correspondenceAddress": {
+      "udprn": 23456783,
+      "addressLine1": "Meadow View Farm",
+      "addressLine2": "Mill Lane",
+      "postTown": "Lavendon",
+      "locality": "Buckinghamshire",
+      "postcode": "MK1 1AB",
+      "country": "England"
     }
   },
   "associations": [
