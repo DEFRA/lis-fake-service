@@ -142,22 +142,25 @@ export const config = convict({
   },
   luis: {
     userId: {
-      doc: 'UserId the fake LUIS RequestToken endpoint accepts',
+      doc: 'UserId the fake LUIS RequestToken endpoint accepts; the fake LUIS issues no tokens until userId, password and tokenSecret are all set',
       format: String,
-      default: 'local-dev-luis-user',
+      nullable: true,
+      default: null,
       env: 'LUIS_USER_ID'
     },
     password: {
       doc: 'Password the fake LUIS RequestToken endpoint accepts',
       format: String,
-      default: 'local-dev-luis-password',
+      nullable: true,
+      default: null,
       env: 'LUIS_PASSWORD',
       sensitive: true
     },
     tokenSecret: {
       doc: 'HS256 secret the fake LUIS signs and verifies its bearer tokens with',
       format: String,
-      default: 'local-dev-luis-token-secret',
+      nullable: true,
+      default: null,
       env: 'LUIS_TOKEN_SECRET',
       sensitive: true
     },

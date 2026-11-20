@@ -120,4 +120,39 @@ describe('POST /luis/Api/{v}/RequestToken', () => {
     // Assert
     expect(response.statusCode).toBe(401)
   })
+
+  test('it returns 401 when no credentials are configured, even for null fields', async () => {
+    // Arrange
+    mocks.configGet.mockImplementation(() => null)
+    const server = await makeServer()
+
+    // Act
+    const response = await requestToken(server, {
+      UserId: null,
+      Password: null,
+      CallerId: 'caller'
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(401)
+    expect(response.payload).toBe('')
+  })
+
+  test('it returns 401 for the right credentials when no token secret is configured', async () => {
+    // Arrange
+    mocks.configGet.mockImplementation((key) =>
+      key === 'luis.tokenSecret' ? null : configValues[key]
+    )
+    const server = await makeServer()
+
+    // Act
+    const response = await requestToken(server, {
+      UserId: 'test-user',
+      Password: 'test-password',
+      CallerId: 'caller'
+    })
+
+    // Assert
+    expect(response.statusCode).toBe(401)
+  })
 })

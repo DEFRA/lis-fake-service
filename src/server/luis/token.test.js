@@ -110,4 +110,16 @@ describe('luis token', () => {
     // Assert
     expect(claims).toBeUndefined()
   })
+
+  test('it rejects every token when no signing secret is configured', () => {
+    // Arrange
+    const token = createToken({ userId: 'user', callerId: 'caller' })
+    mocks.configGet.mockImplementation(() => null)
+
+    // Act
+    const claims = verifyToken(token)
+
+    // Assert
+    expect(claims).toBeUndefined()
+  })
 })

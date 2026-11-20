@@ -14,12 +14,20 @@ function isNonEmptyString(value) {
 
 /**
  * @param {{ UserId?: unknown, Password?: unknown, CallerId?: unknown } | null | undefined} body
- * @returns {boolean} whether the body carries the configured credentials and a caller id
+ * @returns {boolean} whether credentials are configured and the body carries them and a caller id
  */
 function hasValidCredentials(body) {
+  const userId = config.get('luis.userId')
+  const password = config.get('luis.password')
+
+  // There are no default credentials: until all three are configured, no
+  // request can succeed.
   return (
-    body?.UserId === config.get('luis.userId') &&
-    body?.Password === config.get('luis.password') &&
+    isNonEmptyString(userId) &&
+    isNonEmptyString(password) &&
+    isNonEmptyString(config.get('luis.tokenSecret')) &&
+    body?.UserId === userId &&
+    body?.Password === password &&
     isNonEmptyString(body?.CallerId)
   )
 }

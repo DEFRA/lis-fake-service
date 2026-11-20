@@ -8,6 +8,8 @@ const EXPORT_PATH = '/luis/Hsa/1.0/Export'
 const TODAY = new Date('2026-11-20T10:00:00Z')
 
 const configValues = {
+  'luis.userId': 'test-user',
+  'luis.password': 'test-password',
   'luis.tokenSecret': 'test-secret',
   'luis.exportDays': 30,
   'luis.tagsPerDay': 1

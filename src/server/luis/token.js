@@ -84,12 +84,16 @@ function decodeClaims(payloadSegment) {
 
 /**
  * @param {string} token
- * @returns {TokenClaims | undefined} the token's claims when its
- *   signature is valid and it has not expired, otherwise undefined
+ * @returns {TokenClaims | undefined} the token's claims when a signing secret
+ *   is configured, its signature is valid and it has not expired, otherwise
+ *   undefined
  */
 export function verifyToken(token) {
   const segments = token.split('.')
-  if (segments.length !== TOKEN_SEGMENT_COUNT) {
+  if (
+    !config.get('luis.tokenSecret') ||
+    segments.length !== TOKEN_SEGMENT_COUNT
+  ) {
     return undefined
   }
 
