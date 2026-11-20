@@ -1,0 +1,20 @@
+# luis - fakes the LUIS ear tag ordering API. RequestToken needs no auth and returns the bare JWT; Export needs it as a Bearer token.
+
+### Request a token (the response body is the JWT; copy it into luisToken)
+POST {{baseUrl}}/luis/Api/1.0/RequestToken
+Content-Type: application/json
+
+{
+  "UserId": "{{luisUserId}}",
+  "Password": "{{luisPassword}}",
+  "CallerId": "{{luisCallerId}}"
+}
+
+> {% client.global.set("luisToken", response.body.toString().trim()) %}
+
+### Export - the last 30 days of ear tag orders
+GET {{baseUrl}}/luis/Hsa/1.0/Export
+Authorization: Bearer {{luisToken}}
+
+### Export - no token (401, empty body)
+GET {{baseUrl}}/luis/Hsa/1.0/Export
