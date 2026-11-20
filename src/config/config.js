@@ -5,7 +5,20 @@ const isProduction = process.env.NODE_ENV === 'production'
 const isTest = process.env.NODE_ENV === 'test'
 const isDevelopment = process.env.NODE_ENV === 'development'
 
+const BOUNDED_INT = 'bounded-int'
+
 convict.addFormats(convictFormatWithValidator)
+convict.addFormat({
+  name: BOUNDED_INT,
+  validate(value, schema) {
+    if (!Number.isInteger(value) || value < schema.min || value > schema.max) {
+      throw new TypeError(
+        `must be an integer between ${schema.min} and ${schema.max}`
+      )
+    }
+  },
+  coerce: Number
+})
 
 export const config = convict({
   host: {
@@ -125,6 +138,47 @@ export const config = convict({
       format: String,
       default: 'local-dev-krds-secret',
       env: 'KRDS_CLIENT_SECRET'
+    }
+  },
+  luis: {
+    userId: {
+      doc: 'UserId the fake LUIS RequestToken endpoint accepts; the fake LUIS issues no tokens until userId, password and tokenSecret are all set',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'LUIS_USER_ID'
+    },
+    password: {
+      doc: 'Password the fake LUIS RequestToken endpoint accepts',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'LUIS_PASSWORD',
+      sensitive: true
+    },
+    tokenSecret: {
+      doc: 'HS256 secret the fake LUIS signs and verifies its bearer tokens with',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'LUIS_TOKEN_SECRET',
+      sensitive: true
+    },
+    exportDays: {
+      doc: 'How many UTC days of ear tag orders (ending today) the fake LUIS Export returns',
+      format: BOUNDED_INT,
+      min: 1,
+      max: 90,
+      default: 30,
+      env: 'LUIS_EXPORT_DAYS'
+    },
+    tagsPerDay: {
+      doc: 'How many animals each herd has tags ordered for per UTC day by the fake LUIS (1-99)',
+      format: BOUNDED_INT,
+      min: 1,
+      max: 99,
+      default: 1,
+      env: 'LUIS_TAGS_PER_DAY'
     }
   },
   ctsWs: {
