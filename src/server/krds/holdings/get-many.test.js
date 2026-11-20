@@ -137,6 +137,9 @@ describe('GET /krds/api/v2/holdings', () => {
     // Assert
     expect(response.statusCode).toBe(200)
     expect(response.result.values[0].location.address.udprn).toBe(12345678)
+    expect(
+      response.result.values[0].location.correspondenceAddress.postcode
+    ).toBe('SY1 9ZY')
     expect(response.result.values[0].associations[0].address).toEqual({
       addressLine1: 'Oakfield Farm',
       addressLine2: 'Church Lane',
